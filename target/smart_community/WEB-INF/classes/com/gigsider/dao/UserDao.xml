@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gigsider.dao.UserDao">
+
+    <insert id="insertUser" parameterType="User">
+        insert into
+        user ( id_num, real_name, mobile)
+        values ( #{id_num}, #{real_name}, #{mobile});
+    </insert>
+
+    <delete id="deleteUser" parameterType="Integer">
+        delete from
+        user
+        where
+        id = #{id};
+    </delete>
+
+    <update id="updateUser" parameterType="User">
+        update
+        user
+        set
+        id_num = #{id_num}, user_name = #{user_name}, real_name = #{real_name}, mobile = #{mobile}, passwd = #{passwd}, sex = #{sex}, activated = #{activated}
+        where
+        id = #{id};
+    </update>
+
+    <select id="queryUserById" parameterType="Integer" resultType="User">
+        select * from
+        user
+        where
+        id = #{id};
+    </select>
+
+    <select id="queryUserByIdNum" parameterType="String" resultType="User">
+        select * from
+        user
+        where
+        id_num = #{id_num};
+    </select>
+
+    <select id="queryUserByUserName" parameterType="String" resultType="User">
+        select * from
+        user
+        where
+        user_name = #{user_name};
+    </select>
+
+    <select id="queryAllUser" resultType="User">
+        select * from
+        user;
+    </select>
+
+</mapper>

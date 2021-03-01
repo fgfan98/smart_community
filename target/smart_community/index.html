@@ -8,6 +8,42 @@
   <meta name="keywords" content=""
 	 />
   <script>
+	  function userLogin()
+	  {
+		  //创建Ajax对象
+		  if(window.XMLHttpRequest)
+		  {
+			  xmlhttp = new XMLHttpRequest();
+		  }
+		  else
+		  {
+			  xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+		  }
+
+		  user_name = document.getElementById("user_name").value;
+		  passwd = document.getElementById("passwd").value;
+		  xmlhttp.open("post","http://127.0.0.1:8080/smart_community/user/login.do",true);
+
+		  xmlhttp.onreadystatechange = function ()
+		  {
+			  if(xmlhttp.readyState == 4 && xmlhttp.status == 200)
+			  {
+				  result = xmlhttp.responseText;
+				  json = eval("("+result+")"); //eval函数能把json字符串转成js识别的对象
+				  if(json.msg == "success" || json.msg == "warning")
+				  {
+					  sessionStorage.setItem("flag","user");
+					  window.location.href = "userHome.html";
+				  }
+				  else
+					  alert(json.msg);
+			  }
+		  }
+
+		  xmlhttp.setRequestHeader("Content-type",
+				  "application/x-www-form-urlencoded");
+		  xmlhttp.send("user_name="+user_name+"&passwd="+passwd);	//发起http请求
+	  }
 	 addEventListener("load", function () { setTimeout(hideURLbar, 0); }, false); function hideURLbar() { window.scrollTo(0, 1); }
   </script>
   <!-- Meta tags -->
@@ -20,13 +56,13 @@
   <div class="mid-class">
 	 <div class="art-right-w3ls">
 		<h2>登陆&注册</h2>
-		<form action="#" method="post">
+
 		   <div class="main">
 			  <div class="form-left-to-w3l">
-				 <input type="text" name="name" placeholder="用户名" required="">
+				 <input type="text" id="user_name" placeholder="用户名" required="">
 			  </div>
 			  <div class="form-left-to-w3l ">
-				 <input type="password" name="password" placeholder="密码" required="">
+				 <input type="password" id="passwd" placeholder="密码" required="">
 				 <div class="clear"></div>
 			  </div>
 		   </div>
@@ -39,9 +75,9 @@
 		   </div>
 		   <div class="clear"></div>
 		   <div class="btnn">
-			  <button type="submit">登陆</button>
+			  <button onclick="userLogin()">登陆</button>
 		   </div>
-		</form>
+
 		<div class="w3layouts_more-buttn">
 		   <h3>还没有账号..?
 			  <a href="#content1">业主注册
