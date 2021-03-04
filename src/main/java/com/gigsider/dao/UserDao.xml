@@ -51,4 +51,10 @@
         user;
     </select>
 
+    <select id="queryUserPage" parameterType="Map" resultType="User">
+        select * from
+        user
+        limit #{page}, #{limit};
+    </select>
+
 </mapper>

@@ -4,6 +4,7 @@ import com.gigsider.po.User;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Map;
 
 public interface UserDao {
 
@@ -27,5 +28,8 @@ public interface UserDao {
 
     //获取所有用户
     public List<User> queryAllUser();
+
+    //分页查询
+    public List<User> queryUserPage(Map<String, Object> data);
 
 }

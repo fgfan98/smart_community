@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>智能社区系统</title>
+    <link rel="stylesheet" href="../layui/css/layui.css">
+</head>
+<body class="layui-layout-body" onload="pageInit()">
+<div class="layui-layout layui-layout-admin">
+    <div class="layui-header">
+        <div class="layui-logo">智能社区--管理员</div>
+        <!-- 头部区域（可配合layui已有的水平导航） -->
+        <ul class="layui-nav layui-layout-left">
+            <li class="layui-nav-item"><a href="bulletin.html">公告栏</a></li>
+            <li class="layui-nav-item"><a href="comuniti.html">交流区</a></li>
+        </ul>
+        <ul class="layui-nav layui-layout-right">
+            <li class="layui-nav-item">
+                <a href="javascript:;">
+                    <img src="http://t.cn/RCzsdCq" class="layui-nav-img">
+                    <label id="user_name">null</label>
+                </a>
+                <dl class="layui-nav-child">
+                    <dd><a href="adminInfo.html">基本资料</a></dd>
+                    <dd><a href="security.html">安全设置</a></dd>
+                </dl>
+            </li>
+            <li class="layui-nav-item"><a href="javascript:exit()">安全退出</a></li>
+        </ul>
+    </div>
+
+    <div class="layui-side layui-bg-black">
+        <div class="layui-side-scroll">
+            <!-- 左侧导航区域（可配合layui已有的垂直导航） -->
+            <ul class="layui-nav layui-nav-tree"  lay-filter="test">
+                <li class="layui-nav-item layui-this"><a href="feedback.html">意见反馈</a></li>
+                <li class="layui-nav-item">
+                    <a class="" href="javascript:;">个人信息</a>
+                    <dl class="layui-nav-child">
+                        <dd><a href="adminInfo.html">基本资料</a></dd>
+                        <dd><a href="security.html">安全设置</a></dd>
+                    </dl>
+                </li>
+                <li class="layui-nav-item">
+                    <a href="javascript:;">社区管理</a>
+                    <dl class="layui-nav-child">
+                        <dd><a href="userManage.html">业主管理</a></dd>
+                        <dd><a href="houseManage.html">住宅管理</a></dd>
+                        <dd><a href="parkingManage.html">车位管理</a></dd>
+                        <dd><a href="payManage.html">缴费管理</a></dd>
+                    </dl>
+                </li>
+                <li class="layui-nav-item">
+                    <a href="javascript:;">平台管理</a>
+                    <dl class="layui-nav-child">
+                        <dd><a href="bulletinManage.html">公告栏管理</a></dd>
+                        <dd><a href="comunitiManage.html">交流区管理</a></dd>
+                    </dl>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="layui-body">
+        <!-- 内容主体区域 -->
+        <div style="padding: 15px;">内容主体区域</div>
+    </div>
+
+    <div class="layui-footer">
+        <!-- 底部固定区域 -->
+        B17041711方凡
+    </div>
+</div>
+<script src="../layui/layui.js"></script>
+<script src="../layui/jquery.min.js"></script>
+<script>
+    //JavaScript代码区域
+    var admin = JSON.parse(sessionStorage.getItem("vo"));
+
+    layui.use('element', function(){
+        var element = layui.element;
+    });
+
+    function pageInit() {
+        $("#user_name").html(admin.real_name);
+    }
+
+    function exit() {
+        $.ajax({
+            type: 'post',
+            async: false,
+            url: 'http://127.0.0.1:8080/smart_community/admin/exit.do',
+            xhrFields: {
+                withCredentials: true
+            },
+            crossDomain: true,
+            data:{
+                "job_num": admin.job_num
+            },
+            success: function () {
+                sessionStorage.clear();
+                alert("已退出登录");
+                window.location.href = "../index.html";
+            }
+        });
+    }
+</script>
+</body>
+</html>

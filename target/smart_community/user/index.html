@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <title>layout 后台大布局 - Layui</title>
-    <link rel="stylesheet" href="./layui/css/layui.css">
+    <link rel="stylesheet" href="../layui/css/layui.css">
 </head>
 <body class="layui-layout-body">
 <div class="layui-layout layui-layout-admin">
@@ -35,7 +35,7 @@
                     <dd><a href="">安全设置</a></dd>
                 </dl>
             </li>
-            <li class="layui-nav-item"><a href="">退了</a></li>
+            <li class="layui-nav-item"><a href="javascript:test()">退了</a></li>
         </ul>
     </div>
 
@@ -76,13 +76,33 @@
         © layui.com - 底部固定区域
     </div>
 </div>
-<script src="./layui/layui.js"></script>
+<script src="../layui/layui.js"></script>
+<script src="../layui/jquery.min.js"></script>
 <script>
     //JavaScript代码区域
     layui.use('element', function(){
         var element = layui.element;
 
     });
+
+    function test() {
+
+        $.ajax({
+            type: 'get',
+            async: false,
+            url: 'http://127.0.0.1:8080/smart_community/test/getAll.do',
+            xhrFields: {
+                withCredentials: true
+            },
+            crossDomain: true,
+            data:{},
+            dataType:'JSON',
+            success: function (res) {
+                alert(res);
+            }
+        });
+
+    }
 </script>
 </body>
 </html>

@@ -53,4 +53,5 @@
     <aop:advisor advice-ref="txAdvice" pointcut="execution(public * com.gigsider.service.serviceImpl.*serviceImpl.*(..))" />
   </aop:config>
 
+
 </beans>

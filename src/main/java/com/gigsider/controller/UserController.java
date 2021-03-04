@@ -13,7 +13,6 @@ import javax.servlet.http.HttpSession;
 
 @Controller
 @RequestMapping("/user")
-@CrossOrigin
 public class UserController {
 
     @Autowired
@@ -25,16 +24,17 @@ public class UserController {
         UserVO userVO = userService.userLogin(user_name, passwd);
 
         if (userVO.getUser() != null &&
-                SessionPool.getExistSession(userVO.getUser().getId()+userVO.getUser().getId_num()) == null){
-            SessionPool.sessions.put(userVO.getUser().getId()+userVO.getUser().getId_num(),httpSession);
-            httpSession.setAttribute("id",userVO.getUser().getId());
+                SessionPool.getExistSession(userVO.getUser().getId_num()) == null){
+            SessionPool.sessions.put(userVO.getUser().getId_num(),httpSession);
+            httpSession.setAttribute("id",userVO.getUser().getId_num());
             httpSession.setAttribute("token","success");
-            httpSession.setAttribute("flag","user");
+            httpSession.setAttribute("identity","user");
             httpSession.setMaxInactiveInterval(5*60*1000);
         }else if (userVO.getUser() != null){
             System.out.println("账号已登录");
             userVO.setMsg("warning");
-        }
+        }else
+            httpSession.invalidate();
 
         return userVO;
     }

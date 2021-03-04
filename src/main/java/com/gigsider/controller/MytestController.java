@@ -7,6 +7,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.servlet.http.HttpSession;
 import java.util.List;
 
 @Controller
@@ -18,10 +19,14 @@ public class MytestController {
 
     @RequestMapping("/getAll.do")
     @ResponseBody
-    public List<Mytest> getAll(){
+    public List<Mytest> getAll(HttpSession session){
+        session.setAttribute("token","success");
+        session.setAttribute("identity","user");
         List<Mytest> list = mytestService.findAll();
         for (Mytest mytest : list)
             System.out.println(mytest);
+
+        System.out.println(session.getId());
         return list;
     }
 

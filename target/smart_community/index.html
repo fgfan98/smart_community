@@ -5,44 +5,80 @@
   <!-- Meta tags -->
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <meta name="keywords" content=""
-	 />
+  <meta name="keywords" content="" />
+	<script src="./layui/jquery.min.js"></script>
   <script>
-	  function userLogin()
-	  {
-		  //创建Ajax对象
-		  if(window.XMLHttpRequest)
-		  {
-			  xmlhttp = new XMLHttpRequest();
-		  }
-		  else
-		  {
-			  xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
-		  }
+	  function login() {
 
-		  user_name = document.getElementById("user_name").value;
-		  passwd = document.getElementById("passwd").value;
-		  xmlhttp.open("post","http://127.0.0.1:8080/smart_community/user/login.do",true);
+	  	identity_radio = document.getElementsByName("identity");
+	  	identity = "user";
+	  	for (i = 0; i < identity_radio.length; i++)
+	  		if (identity_radio[i].checked)
+	  			identity = identity_radio[i].value;
 
-		  xmlhttp.onreadystatechange = function ()
-		  {
-			  if(xmlhttp.readyState == 4 && xmlhttp.status == 200)
-			  {
-				  result = xmlhttp.responseText;
-				  json = eval("("+result+")"); //eval函数能把json字符串转成js识别的对象
-				  if(json.msg == "success" || json.msg == "warning")
+	  	if(identity == "user")
+		  userLogin();
+	  	else if(identity == "admin")
+	  		adminLogin();
+
+	  }
+
+	  function adminLogin() {
+		  var job_num = $("#user_name").val();
+		  var passwd = $("#passwd").val();
+		  $.ajax({
+			  type: 'post',
+			  async: false,
+			  url: 'http://127.0.0.1:8080/smart_community/admin/login.do',
+			  xhrFields: {
+			  	withCredentials: true
+			  },
+			  crossDomain: true,
+			  data: {
+			  	'job_num': job_num,
+				  'passwd': passwd
+			  },
+			  dataType: 'JSON',
+			  success: function (res) {
+				  if(res.msg == "success" || res.msg == "warning")
 				  {
-					  sessionStorage.setItem("flag","user");
-					  window.location.href = "userHome.html";
+					  sessionStorage.setItem("identity","admin");
+					  sessionStorage.setItem("vo",JSON.stringify(res.admin));
+					  window.location.href = "admin/index.html";
 				  }
 				  else
 					  alert(json.msg);
 			  }
-		  }
+		  })
+	  }
 
-		  xmlhttp.setRequestHeader("Content-type",
-				  "application/x-www-form-urlencoded");
-		  xmlhttp.send("user_name="+user_name+"&passwd="+passwd);	//发起http请求
+	  function userLogin() {
+		  var user_name = $("#user_name").val();
+		  var passwd = $("#passwd").val();
+		  $.ajax({
+			  type: 'post',
+			  async: false,
+			  url: 'http://127.0.0.1:8080/smart_community/user/login.do',
+			  xhrFields: {
+			  	withCredentials: true
+			  },
+			  crossDomain: true,
+			  data: {
+			  	"user_name": user_name,
+				  "passwd": passwd
+			  },
+			  dataType:'JSON',
+			  success: function (res) {
+				  if(res.msg == "success" || res.msg == "warning")
+				  {
+					  sessionStorage.setItem("identity","user");
+					  sessionStorage.setItem("user_id",res.user)
+					  window.location.href = "user/index.html";
+				  }
+				  else
+					  alert(res.msg);
+			  }
+		  })
 	  }
 	 addEventListener("load", function () { setTimeout(hideURLbar, 0); }, false); function hideURLbar() { window.scrollTo(0, 1); }
   </script>
@@ -67,15 +103,18 @@
 			  </div>
 		   </div>
 		   <div class="left-side-forget">
-			  <input type="checkbox" class="checked">
-			  <span class="remenber-me">记住我 </span>
+			  <input type="radio" checked="true" name="identity" value="user">
+			  <span class="remenber-me">业主</span>
+			   <br />
+			   <input type="radio" name="identity" value="admin">
+			   <span class="remenber-me">管理员</span>
 		   </div>
-		   <div class="right-side-forget">
-			  <a href="#" class="for">忘记密码...?</a>
-		   </div>
+<!--		   <div class="right-side-forget">-->
+<!--			  <a href="#" class="for">忘记密码...?</a>-->
+<!--		   </div>-->
 		   <div class="clear"></div>
 		   <div class="btnn">
-			  <button onclick="userLogin()">登陆</button>
+			  <button type="submit" onclick="login()">登陆</button>
 		   </div>
 
 		<div class="w3layouts_more-buttn">

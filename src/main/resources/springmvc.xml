@@ -23,4 +23,11 @@
     <!-- mvc 注解支持 -->
     <mvc:annotation-driven />
 
+    <!--拦截器-->
+    <mvc:interceptors>
+        <!-- 使用 bean 定义一个 Interceptor，直接定义在 mvc:interceptors 下面的 Interceptor 将拦截所有的请求 -->
+        <bean class="com.gigsider.interceptor.MyInterceptor"/>
+    </mvc:interceptors>
+
+
 </beans>

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gigsider.dao.AdminDao">
+
+    <insert id="insertAdmin" parameterType="Admin">
+        insert into
+        admin ( job_num, real_name, id_num, mobile, sex, passwd)
+        values ( #{job_num}, #{real_name}, #{id_num}, #{mobile}, #{sex}, #{passwd});
+    </insert>
+
+    <delete id="deleteAdmin" parameterType="Integer">
+        delete from
+        admin
+        where
+        id = #{id};
+    </delete>
+
+    <update id="updateAdmin" parameterType="Admin">
+        update
+        admin
+        set
+        job_num = #{job_num}, real_name = #{real_name}, id_num = #{id_num}, mobile = #{mobile}, sex = #{sex}, passwd = #{passwd}
+        where
+        id = #{id};
+    </update>
+
+    <select id="queryAdminById" parameterType="Integer" resultType="Admin">
+        select * from
+        admin
+        where
+        id = #{id};
+    </select>
+
+    <select id="queryAdminByIdNum" parameterType="String" resultType="Admin">
+        select * from
+        admin
+        where
+        id_num = #{id_num};
+    </select>
+
+    <select id="queryAdminByJobNum" parameterType="String" resultType="Admin">
+        select * from
+        admin
+        where
+        job_num = #{job_num};
+    </select>
+
+    <select id="queryAllAdmin" resultType="Admin">
+        select * from
+        admin;
+    </select>
+
+</mapper>
