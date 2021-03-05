@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="../../layui/css/layui.css">
+</head>
+<body>
+
+
+<div id="formFilter" class="layui-form layui-form-pane" lay-filter="userForm" style="padding: 30px;">
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">编号</label>
+        <div class="layui-input-block">
+            <input type="text" name="id" class="layui-input" disabled="">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">用户名</label>
+        <div class="layui-input-block">
+            <input type="text" name="user_name" class="layui-input" disabled="">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">姓名</label>
+        <div class="layui-input-block">
+            <input type="text" name="real_name" class="layui-input" disabled="">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">身份证号</label>
+        <div class="layui-input-block">
+            <input type="text" name="id_num" class="layui-input" disabled="">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">联系电话</label>
+        <div class="layui-input-block">
+            <input type="text" name="mobile" class="layui-input" disabled="">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">性别</label>
+        <div class="layui-input-block">
+            <input type="text" name="sex" class="layui-input" disabled="">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">房屋</label>
+        <div class="layui-input-block">
+            <input type="text" name="house" class="layui-input" disabled="">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">车牌</label>
+        <div class="layui-input-block">
+            <input type="text" name="license_num" class="layui-input" disabled="">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">账户状态</label>
+        <div class="layui-input-block">
+            <input type="text" name="activated" class="layui-input" disabled="">
+        </div>
+    </div>
+
+</div>
+
+<script src="../../layui/layui.js"></script>
+<script src="../../layui/jquery.min.js"></script>
+<script>
+    var form;
+    layui.use([ 'form', 'layedit', 'laydate' ], function() {
+        var form = layui.form
+            ,layer = layui.layer
+            ,layedit = layui.layedit
+            ,laydate = layui.laydate;
+
+
+        $.ajax({
+            type: 'get',
+            async: false,
+            url: '/smart_community/admin/getUserById.do',
+            xhrFields: {
+                withCredentials: true
+            },
+            crossDomain: true,
+            data: {
+                "id": sessionStorage.getItem('id'),
+            },
+            dataType:'JSON',
+            success: function (res) {
+                if (res == null){
+                    layer.alert("加载失败...")
+                    return;
+                }
+                var activated = '';
+                if (res.activated == 0)
+                    activated = '未激活';
+                else if (res.activated == 1)
+                    activated = '已激活';
+                form.val('userForm', {
+                    'id': res.id
+                    ,'user_name': res.user_name
+                    ,'real_name': res.real_name
+                    ,'id_num': res.id_num
+                    ,'mobile': res.mobile
+                    ,'sex': res.sex
+                    ,'house': res.house
+                    ,'license_num': res.license_num
+                    ,'activated': activated
+                });
+            },
+            error: function () {
+                layer.alert("加载失败...")
+                return;
+            }
+        })
+    });
+</script>
+</body>
+</html>

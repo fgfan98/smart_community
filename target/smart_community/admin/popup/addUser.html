@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="../../layui/css/layui.css">
+</head>
+<body>
+
+
+<div id="formFilter" class="layui-form layui-form-pane" lay-filter="userForm" style="padding: 30px;">
+    <div class="layui-form-item">
+        <label class="layui-form-label">姓名</label>
+        <div class="layui-input-block">
+            <input type="text" name="real_name" lay-verify="name" autocomplete="off" class="layui-input">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">身份证号</label>
+        <div class="layui-input-block">
+            <input type="text" name="id_num" lay-verify="identity" autocomplete="off" class="layui-input">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">联系电话</label>
+        <div class="layui-input-block">
+            <input type="text" name="mobile" lay-verify="phone" autocomplete="off" class="layui-input">
+        </div>
+    </div>
+
+    <div class="layui-form-item" pane="">
+        <label class="layui-form-label">性别</label>
+        <div class="layui-input-block">
+            <input type="radio" name="sex" value="男" title="男">
+            <input type="radio" name="sex" value="女" title="女">
+        </div>
+    </div>
+
+    <div class="layui-form-item" align="center">
+        <button class="layui-btn" lay-submit="saveform" lay-filter="saveform">添加</button>
+        <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+    </div>
+</div>
+
+<script src="../../layui/layui.js"></script>
+<script src="../../layui/jquery.min.js"></script>
+<script>
+    var form;
+    layui.use([ 'form', 'layedit', 'laydate' ], function() {
+        var form = layui.form
+            ,layer = layui.layer
+            ,layedit = layui.layedit
+            ,laydate = layui.laydate;
+
+        //自定义验证规则
+        form.verify({
+            name : function(value) {
+                if (value.length < 1) {
+                    return '名字至少得1个字符啊';
+                }
+            }
+        });
+
+        //监听提交
+        form.on('submit(saveform)', function(data) {
+            $.ajax({
+                type: 'post',
+                async: true,
+                url: '/smart_community/admin/addUser.do',
+                xhrFields: {
+                    withCredentials: true
+                },
+                crossDomain: true,
+                data: {
+                    'id_num': data.field.id_num,
+                    'real_name': data.field.real_name,
+                    'mobile': data.field.mobile,
+                    'sex': data.field.sex
+                },
+                success: function (res) {
+                    if (res){
+                        alert("添加成功！")
+                        parent.layer.close(parent.layer.index);
+                    }else
+                        alert("添加失败...")
+                },
+                error: function () {
+                    alert("添加失败...");
+                }
+            })
+        });
+    });
+</script>
+</body>
+</html>

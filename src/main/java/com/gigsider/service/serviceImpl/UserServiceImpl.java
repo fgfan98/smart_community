@@ -46,10 +46,39 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public List<User> getUserByName(String real_name) {
+        return userDao.queryUserByName(real_name);
+    }
+
+    @Override
+    public List<User> getUserNamePage(int page, int limit, String real_name) {
+        Map<String, Object> data = new HashMap<>();
+        data.put("page", (page-1)*limit);
+        data.put("limit",limit);
+        data.put("real_name",real_name);
+        return userDao.queryUserNamePage(data);
+    }
+
+    @Override
     public List<User> getUserPage(int page, int limit) {
         Map<String, Object> data = new HashMap<>();
         data.put("page", (page-1)*limit);
         data.put("limit",limit);
         return userDao.queryUserPage(data);
+    }
+
+    @Override
+    public boolean addUser(User user) {
+        return userDao.insertUser(user);
+    }
+
+    @Override
+    public boolean delUser(int id) {
+        return userDao.deleteUser(id);
+    }
+
+    @Override
+    public List<User> getUserById(int id) {
+        return userDao.queryUserById(id);
     }
 }

@@ -26,10 +26,16 @@ public interface UserDao {
     //通过用户名 user_name 查找用户
     public List<User> queryUserByUserName(@Param("user_name")String user_name);
 
+    //通过姓名 real_name 查找用户
+    public List<User> queryUserByName(@Param("real_name")String real_name);
+
     //获取所有用户
     public List<User> queryAllUser();
 
     //分页查询
     public List<User> queryUserPage(Map<String, Object> data);
+
+    //姓名搜索的分页
+    public List<User> queryUserNamePage(Map<String, Object> data);
 
 }

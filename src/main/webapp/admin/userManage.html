@@ -75,28 +75,31 @@
             </div>
 
             <div class="layui-row">
-                <div class="layui-col-md10">&nbsp;</div>
-                <div class="layui-col-md2">
-                    <a onclick="" class="layui-btn layui-btn-sm layui-btn-primary layui-btn-radius">添加业主</a>
+                <div class="layui-col-md1">&nbsp;</div>
+                <div class="layui-col-md4">
+                    <div class="tableReload">
+                        搜索姓名：
+                        <div class="layui-inline">
+                            <input class="layui-input" name="id" id="nameReload" autocomplete="off">
+                        </div>
+                        <div class="layui-btn-group">
+                            <button class="layui-btn" data-type="reload">搜索</button>
+                            <button class="layui-btn" data-type="goBack">返回</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-col-md3 layui-col-md-offset4">
+                    <div class="layui-btn-group tableEdit">
+                        <button class="layui-btn" id="addUser">添加业主</button>
+                        <button class="layui-btn layui-btn-danger" data-type="delCheck">删除选中</button>
+                    </div>
                 </div>
             </div>
 
             <div class="layui-row">
                 <div class="layui-col-md1">&nbsp;</div>
                 <div class="layui-col-md10">
-                    <div class="layui-btn-group demoTable">
-                        <button class="layui-btn" data-type="getCheckData">获取选中行数据</button>
-                        <button class="layui-btn" data-type="getCheckLength">获取选中数目</button>
-                        <button class="layui-btn" data-type="isAll">验证是否全选</button>
-                    </div>
-
-                    <table class="layui-hide" id="idTest" lay-filter="demo"></table>
-
-                    <script type="text/html" id="barDemo">
-                        <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="detail">查看</a>
-                        <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
-                        <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
-                    </script>
+                    <table class="layui-hide" id="userTable" lay-filter="demo"></table>
                 </div>
             </div>
 
@@ -110,6 +113,18 @@
 </div>
 <script src="../layui/layui.js"></script>
 <script src="../layui/jquery.min.js"></script>
+<script type="text/html" id="barDemo">
+    <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="detail">查看</a>
+    <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
+<script type="text/html" id="activatedTpl">
+    {{#  if(d.activated == 0){ }}
+    <span class="layui-badge layui-bg-gray">未激活</span>
+    {{#  } else { }}
+    <span class="layui-badge layui-bg-blue">已激活</span>
+    {{#  } }}
+</script>
 <script>
     //JavaScript代码区域
     var admin = JSON.parse(sessionStorage.getItem("vo"));
@@ -122,16 +137,19 @@
         var table = layui.table;
 
         table.render({
-            elem: '#idTest'
+            elem: '#userTable'
             ,url: '/smart_community/admin/getUserPage.do'
-            ,limit: 1
+            ,limit: 10
+            ,limits: [10,30,50]
             ,cols: [[
-                {type:'checkbox', fixed: 'left'}
-                ,{field:'id', width:80, title: 'ID', sort: true}
-                ,{field:'id_num', width:80, title: '身份证号'}
-                ,{field:'real_name', width:80, title: '姓名'}
-                ,{field:'mobile', title: '手机号', minWidth: 150}
-                ,{fixed: 'right', width:178, align:'center', toolbar: '#barDemo'}
+                {type:'checkbox', width:'5%', fixed: 'left'}
+                ,{field:'id',width:'5%', title: 'ID', sort: true}
+                ,{field:'id_num',width:'22.5%', title: '身份证号'}
+                ,{field:'real_name', width:'15%', title: '姓名'}
+                ,{field:'sex', width:'15%', title: '性别'}
+                ,{field:'mobile', width:'15%', title: '手机号'}
+                ,{field:'activated', width:'10%', templet:'#activatedTpl', title: '账户状态'}
+                ,{fixed: 'right', minWidth:'178', align:'center', toolbar: '#barDemo'}
             ]]
             ,page: true
         });
@@ -144,11 +162,47 @@
         table.on('tool(demo)', function(obj){
             var data = obj.data;
             if(obj.event === 'detail'){
-                layer.msg('ID：'+ data.id + ' 的查看操作');
+                sessionStorage.setItem('id', data.id);
+                layer.open({
+                    type: 2,
+                    title: '业主信息',
+                    shadeClose: true,           //弹出框之外的地方是否可以点击
+                    offset: '10%',
+                    area: ['30%', '70%'],
+                    content: 'popup/checkUser.html',
+                    end:function () {
+                        sessionStorage.removeItem('id');
+                    }
+                });
             } else if(obj.event === 'del'){
-                layer.confirm('真的删除行么', function(index){
-                    obj.del();
-                    layer.close(index);
+                layer.confirm('是否删除该行目标？', function(index){
+                    console.log(obj);
+                    $.ajax({
+                        type: 'post',
+                        async: true,
+                        url: '/smart_community/admin/delUser.do',
+                        xhrFields: {
+                            withCredentials: true
+                        },
+                        crossDomain: true,
+                        dataType: 'JSON',
+                        data: {
+                            'id': obj.data.id
+                        },
+                        success: function (res) {
+                            if (res) {
+                                layer.msg("已删除该行目标！");
+                                setTimeout(function () {
+                                    window.location.reload();
+                                }, 2*1000);
+                            } else {
+                                layer.msg("删除失败...");
+                                setTimeout(function () {
+                                    window.location.reload();
+                                }, 2*1000);
+                            }
+                        }
+                    })
                 });
             } else if(obj.event === 'edit'){
                 layer.alert('编辑行：<br>'+ JSON.stringify(data))
@@ -156,30 +210,96 @@
         });
 
         var $ = layui.$, active = {
-            getCheckData: function(){ //获取选中数据
-                var checkStatus = table.checkStatus('idTest')
+            delCheck: function(){ //获取选中数据
+                var checkStatus = table.checkStatus('userTable')
                     ,data = checkStatus.data;
-                layer.alert(JSON.stringify(data));
-            }
-            ,getCheckLength: function(){ //获取选中数目
-                var checkStatus = table.checkStatus('idTest')
-                    ,data = checkStatus.data;
-                layer.msg('选中了：'+ data.length + ' 个');
+                if (data.length == 0){
+                    layer.msg("未选中目标..");
+                    return;
+                } else
+                    layer.confirm("是否删除选中目标？",function () {
+                        $.ajax({
+                            type: 'post',
+                            async: true,
+                            url: '/smart_community/admin/delUsers.do',
+                            xhrFields: {
+                                withCredentials: true
+                            },
+                            crossDomain: true,
+                            dataType: 'JSON',
+                            data: {
+                                'users': JSON.stringify(data)
+                            },
+                            success: function (res) {
+                                if (res) {
+                                    layer.msg("删除成功！");
+                                    setTimeout(function () {
+                                        window.location.reload();
+                                    }, 2*1000);
+                                } else {
+                                    layer.msg("部分删除失败...");
+                                    setTimeout(function () {
+                                        window.location.reload();
+                                    }, 2*1000);
+                                }
+                            }
+                        })
+                    })
             }
             ,isAll: function(){ //验证是否全选
-                var checkStatus = table.checkStatus('idTest');
+                var checkStatus = table.checkStatus('userTable');
                 layer.msg(checkStatus.isAll ? '全选': '未全选')
+            }
+            ,reload: function(){
+                var nameReload = $('#nameReload');
+                //执行重载
+                table.reload('userTable', {
+                    url: '/smart_community/admin/getUserNamePage.do',
+                    page: {
+                        curr: 1 //重新从第 1 页开始
+                    }
+                    ,where: {
+                        real_name: nameReload.val()
+                    }
+                }, 'data');
+            }
+            ,goBack: function(){
+                var nameReload = $('#nameReload');
+                //执行重载
+                table.reload('userTable', {
+                    url: '/smart_community/admin/getUserPage.do',
+                    page: {
+                        curr: 1 //重新从第 1 页开始
+                    }
+                    ,where: {
+                        real_name: nameReload.val()
+                    }
+                }, 'data');
             }
         };
 
-        $('.demoTable .layui-btn').on('click', function(){
+        $('.tableEdit .layui-btn').on('click', function(){
+            var type = $(this).data('type');
+            active[type] ? active[type].call(this) : '';
+        });
+        $('.tableReload .layui-btn').on('click', function(){
             var type = $(this).data('type');
             active[type] ? active[type].call(this) : '';
         });
     });
-    layui.use('table', function(){
-        var table = layui.table;
 
+    $("#addUser").click(function(){
+        layer.open({
+            type: 2,
+            title: '添加业主',
+            shadeClose: true,           //弹出框之外的地方是否可以点击
+            offset: '10%',
+            area: ['25%', '40%'],
+            content: 'popup/addUser.html',
+            end:function () {
+                window.location.reload();
+            }
+        });
     });
 
     function pageInit() {
@@ -190,7 +310,7 @@
         $.ajax({
             type: 'post',
             async: false,
-            url: 'http://127.0.0.1:8080/smart_community/admin/exit.do',
+            url: '/smart_community/admin/exit.do',
             xhrFields: {
                 withCredentials: true
             },

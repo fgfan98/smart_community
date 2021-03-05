@@ -8,7 +8,9 @@ public class User {
     private String real_name;
     private String mobile;
     private String passwd;
-    private int sex;
+    private String sex;
+    private String house;
+    private String license_nul;
     private int activated;
 
     public int getId() {
@@ -51,11 +53,11 @@ public class User {
         this.passwd = passwd;
     }
 
-    public int getSex() {
+    public String getSex() {
         return sex;
     }
 
-    public void setSex(int sex) {
+    public void setSex(String sex) {
         this.sex = sex;
     }
 
@@ -73,5 +75,21 @@ public class User {
 
     public void setId_num(String id_num) {
         this.id_num = id_num;
+    }
+
+    public String getHouse() {
+        return house;
+    }
+
+    public void setHouse(String house) {
+        this.house = house;
+    }
+
+    public String getLicense_nul() {
+        return license_nul;
+    }
+
+    public void setLicense_nul(String license_nul) {
+        this.license_nul = license_nul;
     }
 }

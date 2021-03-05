@@ -5,8 +5,8 @@
 
     <insert id="insertUser" parameterType="User">
         insert into
-        user ( id_num, real_name, mobile)
-        values ( #{id_num}, #{real_name}, #{mobile});
+        user ( id_num, real_name, mobile, sex)
+        values ( #{id_num}, #{real_name}, #{mobile}, #{sex});
     </insert>
 
     <delete id="deleteUser" parameterType="Integer">
@@ -46,6 +46,13 @@
         user_name = #{user_name};
     </select>
 
+    <select id="queryUserByName" parameterType="String" resultType="User">
+        select * from
+        user
+        where
+        real_name = #{real_name};
+    </select>
+
     <select id="queryAllUser" resultType="User">
         select * from
         user;
@@ -54,6 +61,14 @@
     <select id="queryUserPage" parameterType="Map" resultType="User">
         select * from
         user
+        limit #{page}, #{limit};
+    </select>
+
+    <select id="queryUserNamePage" parameterType="Map" resultType="User">
+        select * from
+        user
+        where
+        real_name = #{real_name}
         limit #{page}, #{limit};
     </select>
 

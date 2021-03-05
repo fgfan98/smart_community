@@ -7,7 +7,7 @@ public class Admin {
     private String real_name;
     private String id_num;
     private String mobile;
-    private int sex;
+    private String sex;
     private String passwd;
 
     public int getId() {
@@ -50,11 +50,11 @@ public class Admin {
         this.mobile = mobile;
     }
 
-    public int getSex() {
+    public String getSex() {
         return sex;
     }
 
-    public void setSex(int sex) {
+    public void setSex(String sex) {
         this.sex = sex;
     }
 
