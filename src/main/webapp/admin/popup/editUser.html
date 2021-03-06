@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="../../layui/css/layui.css">
+</head>
+<body>
+
+
+<div id="formFilter" class="layui-form layui-form-pane" lay-filter="userForm" style="padding: 30px;">
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">编号</label>
+        <div class="layui-input-block">
+            <input type="text" name="id" class="layui-input" disabled="">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">用户名</label>
+        <div class="layui-input-block">
+            <input type="text" name="user_name" class="layui-input">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">姓名</label>
+        <div class="layui-input-block">
+            <input type="text" name="real_name" class="layui-input">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">身份证号</label>
+        <div class="layui-input-block">
+            <input type="text" name="id_num" class="layui-input">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">联系电话</label>
+        <div class="layui-input-block">
+            <input type="text" name="mobile" class="layui-input">
+        </div>
+    </div>
+
+    <div class="layui-form-item" pane="">
+        <label class="layui-form-label">性别</label>
+        <div class="layui-input-block">
+            <input type="radio" name="sex" value="男" title="男">
+            <input type="radio" name="sex" value="女" title="女">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">住宅</label>
+        <div class="layui-input-block">
+            <select id="houseSelect" name="house" lay-filter="required" lay-search="">
+                <option value="">请选择</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">车牌</label>
+        <div class="layui-input-block">
+            <input type="text" name="license_num" class="layui-input">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">账户状态</label>
+        <div class="layui-input-block">
+            <input type="text" name="activated" class="layui-input" disabled="">
+        </div>
+    </div>
+
+    <div class="layui-form-item" align="center">
+        <button class="layui-btn" lay-submit="saveform" lay-filter="saveform">提交</button>
+    </div>
+
+</div>
+
+<script src="../../layui/layui.js"></script>
+<script src="../../layui/jquery.min.js"></script>
+<script>
+    var house_id;
+    var form;
+    layui.use([ 'form', 'layedit', 'laydate' ], function() {
+        var form = layui.form
+            ,layer = layui.layer
+            ,layedit = layui.layedit
+            ,laydate = layui.laydate;
+
+        $.ajax({
+            type: 'get',
+            async: false,
+            url: '/smart_community/admin/getHouseOpts.do',
+            xhrFields: {
+                withCredentials: true
+            },
+            crossDomain: true,
+            dataType:'JSON',
+            success: function (res) {
+                if (res == null){
+                    layer.alert("选项加载失败...")
+                    return;
+                }
+                for(var i=0;i<res.length;i++){
+                    if (res[i].sale == 1)
+                        $("#houseSelect").append("<option disabled='' value="+res[i].house_id+">"+res[i].house_id+"</option>");
+                    else
+                        $("#houseSelect").append("<option value="+res[i].house_id+">"+res[i].house_id+"</option>");
+                }
+                renderForm();
+                fillForm(form);
+            },
+            error: function () {
+                layer.alert("选项加载失败...")
+                return;
+            }
+        })
+
+        //监听提交
+        form.on('submit(saveform)', function(data) {
+            var user = data.field;
+            $.ajax({
+                type: 'post',
+                async: true,
+                url: '/smart_community/admin/upUser.do',
+                xhrFields: {
+                    withCredentials: true
+                },
+                crossDomain: true,
+                data: {
+                    'id': user.id,
+                    'user_name': user.user_name,
+                    'real_name': user.real_name,
+                    'id_num': user.id_num,
+                    'mobile': user.mobile,
+                    'sex': user.sex,
+                    'house': user.house,
+                    'license_num': user.license_num,
+                    'house_id': house_id
+                },
+                success: function (res) {
+                    if (res){
+                        alert("提交成功！")
+                        parent.layer.close(parent.layer.index);
+                    }else
+                        alert("提交失败...")
+                },
+                error: function () {
+                    alert("提交失败...");
+                }
+            })
+        });
+    });
+
+    function fillForm(form) {
+        $.ajax({
+            type: 'get',
+            async: false,
+            url: '/smart_community/admin/getUserById.do',
+            xhrFields: {
+                withCredentials: true
+            },
+            crossDomain: true,
+            data: {
+                "id": sessionStorage.getItem('id'),
+            },
+            dataType:'JSON',
+            success: function (res) {
+                if (res == null){
+                    layer.alert("数据加载失败...")
+                    return;
+                }
+                var activated = '';
+                if (res.activated == 0)
+                    activated = '未激活';
+                else if (res.activated == 1)
+                    activated = '已激活';
+                form.val('userForm', {
+                    'id': res.id
+                    ,'user_name': res.user_name
+                    ,'real_name': res.real_name
+                    ,'id_num': res.id_num
+                    ,'mobile': res.mobile
+                    ,'sex': res.sex
+                    ,'house': res.house
+                    ,'license_num': res.license_num
+                    ,'activated': activated
+                });
+                house_id = res.house;
+            },
+            error: function () {
+                layer.alert("数据加载失败...")
+                return;
+            }
+        })
+    }
+
+    //重新渲染表单
+    function renderForm(){
+        layui.use('form', function(){
+            var form = layui.form;
+            form.render();
+        });
+    }
+</script>
+</body>
+</html>

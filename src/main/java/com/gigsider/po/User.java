@@ -10,8 +10,19 @@ public class User {
     private String passwd;
     private String sex;
     private String house;
-    private String license_nul;
+    private String license_num;
     private int activated;
+
+    //更新用户信息用的属性
+    private String house_id;    //改变前的 house
+
+    public String getHouse_id() {
+        return house_id;
+    }
+
+    public void setHouse_id(String house_id) {
+        this.house_id = house_id;
+    }
 
     public int getId() {
         return id;
@@ -85,11 +96,11 @@ public class User {
         this.house = house;
     }
 
-    public String getLicense_nul() {
-        return license_nul;
+    public String getLicense_num() {
+        return license_num;
     }
 
-    public void setLicense_nul(String license_nul) {
-        this.license_nul = license_nul;
+    public void setLicense_num(String license_num) {
+        this.license_num = license_num;
     }
 }

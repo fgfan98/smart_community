@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gigsider.dao.HouseDao">
+
+    <insert id="insertHouse" parameterType="House">
+        insert into
+        house (house_id, building_id, floor, blueprint, area, saled, remark)
+        values (#{house_id}, #{building_id}, #{floor}, #{blueprint}, #{area}, #{saled}, #{remark});
+    </insert>
+
+    <delete id="deleteHouse" parameterType="String">
+        delete from
+        house
+        where
+        house_id = #{house_id};
+    </delete>
+
+    <update id="updateHouse" parameterType="House">
+        update
+        house
+        set
+        house_id = #{house_id}, building_id = #{building_id}, floor = #{floor}, blueprint = #{blueprint}, area = #{area}, sale = #{sale}, remark = #{remark}
+        where
+        house_id = #{house_id};
+    </update>
+
+    <select id="queryHouseByHouseId" parameterType="String" resultType="House">
+        select * from
+        house
+        where
+        house_id = #{house_id};
+    </select>
+
+    <select id="queryHouseByBuildingId" parameterType="String" resultType="House">
+        select * from
+        house
+        where
+        building_id = #{building_id};
+    </select>
+
+    <select id="queryHouseBySale" parameterType="Integer" resultType="House">
+        select * from
+        house
+        where
+        sale = #{sale};
+    </select>
+
+    <select id="queryAllHouse" resultType="House">
+        select * from
+        house;
+    </select>
+
+    <select id="queryHousePage" parameterType="Map" resultType="House">
+        select * from
+        house
+        limit #{page}, #{limit};
+    </select>
+
+</mapper>

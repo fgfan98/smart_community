@@ -20,7 +20,7 @@
         update
         user
         set
-        id_num = #{id_num}, user_name = #{user_name}, real_name = #{real_name}, mobile = #{mobile}, passwd = #{passwd}, sex = #{sex}, activated = #{activated}
+        id_num = #{id_num}, user_name = #{user_name}, real_name = #{real_name}, mobile = #{mobile}, passwd = #{passwd}, sex = #{sex}, activated = #{activated}, house = #{house}, license_num = #{license_num}
         where
         id = #{id};
     </update>

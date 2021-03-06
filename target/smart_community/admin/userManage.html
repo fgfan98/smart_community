@@ -34,6 +34,7 @@
         <div class="layui-side-scroll">
             <!-- 左侧导航区域（可配合layui已有的垂直导航） -->
             <ul class="layui-nav layui-nav-tree"  lay-filter="test">
+                <li class="layui-nav-item"><a href="houseFix.html">报修&安装</a></li>
                 <li class="layui-nav-item"><a href="feedback.html">意见反馈</a></li>
                 <li class="layui-nav-item">
                     <a class="" href="javascript:;">个人信息</a>
@@ -205,7 +206,19 @@
                     })
                 });
             } else if(obj.event === 'edit'){
-                layer.alert('编辑行：<br>'+ JSON.stringify(data))
+                sessionStorage.setItem('id', data.id);
+                layer.open({
+                    type: 2,
+                    title: '业主信息编辑',
+                    shadeClose: true,           //弹出框之外的地方是否可以点击
+                    offset: '10%',
+                    area: ['30%', '70%'],
+                    content: 'popup/editUser.html',
+                    end:function () {
+                        sessionStorage.removeItem('id');
+                        window.location.reload();
+                    }
+                });
             }
         });
 

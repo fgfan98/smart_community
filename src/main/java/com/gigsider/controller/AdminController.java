@@ -1,8 +1,10 @@
 package com.gigsider.controller;
 
 import com.alibaba.fastjson.JSONObject;
+import com.gigsider.po.House;
 import com.gigsider.po.User;
 import com.gigsider.service.AdminService;
+import com.gigsider.service.HouseService;
 import com.gigsider.service.UserService;
 import com.gigsider.utils.SessionPool;
 import com.gigsider.vo.AdminVO;
@@ -25,9 +27,10 @@ public class AdminController {
 
     @Autowired
     private AdminService adminService;
-
     @Autowired
     private UserService userService;
+    @Autowired
+    private HouseService houseService;
 
     @RequestMapping("/login.do")
     @ResponseBody
@@ -111,10 +114,22 @@ public class AdminController {
     @RequestMapping("/delUsers.do")
     @ResponseBody
     public boolean delUsers(String users) {
-        List<User> data = new ArrayList<>();
-        data = JSONObject.parseArray(users,User.class);
+        List<User> data = JSONObject.parseArray(users,User.class);
         for (int i = 0; i < data.size(); i++){
-            if(!userService.delUser(data.get(i).getId()))
+            int id = data.get(i).getId();
+
+            List<User> list = userService.getUserById(id);
+            User user = new User();
+            if (list.size() != 0)
+                user = list.get(0);
+
+            if (!user.getHouse().equals("") || !user.getHouse().equals(null)) {
+                House house = houseService.getHouseByHouseId(user.getHouse()).get(0);
+                house.setSale(0);
+                houseService.upHouse(house);
+            }
+
+            if(!userService.delUser(id))
                 return false;
         }
         return true;
@@ -123,6 +138,17 @@ public class AdminController {
     @RequestMapping("/delUser.do")
     @ResponseBody
     public boolean delUser(int id) {
+        List<User> list = userService.getUserById(id);
+        User user = new User();
+        if (list.size() != 0)
+            user = list.get(0);
+
+        if (!user.getHouse().equals("") || !user.getHouse().equals(null)) {
+            House house = houseService.getHouseByHouseId(user.getHouse()).get(0);
+            house.setSale(0);
+            houseService.upHouse(house);
+        }
+
         return userService.delUser(id);
     }
 
@@ -135,6 +161,37 @@ public class AdminController {
             user = list.get(0);
         }
         return user;
+    }
+
+    @RequestMapping("/getHouseOpts.do")
+    @ResponseBody
+    public List<House> getHouseOpts() {
+        return houseService.getAllHouse();
+    }
+
+    @RequestMapping("/upUser.do")
+    @ResponseBody
+    public boolean upUser(User user) {
+        List<House> house1 = houseService.getHouseByHouseId(user.getHouse_id());
+        List<House> house2 = houseService.getHouseByHouseId(user.getHouse());
+
+        if (house1.size() != 0) {
+            House house = house1.get(0);
+            house.setSale(0);
+            if (!houseService.upHouse(house))
+                return false;
+        }
+        if (house2.size() != 0) {
+            House house = house2.get(0);
+            house.setSale(1);
+            if (!houseService.upHouse(house))
+                return false;
+        }
+
+        if (!userService.upUser(user))
+            return false;
+
+        return true;
     }
 
 }

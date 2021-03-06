@@ -31,4 +31,7 @@ public interface UserService {
     //删除用户
     public boolean delUser(int id);
 
+    //更新用户信息
+    public boolean upUser(User user);
+
 }

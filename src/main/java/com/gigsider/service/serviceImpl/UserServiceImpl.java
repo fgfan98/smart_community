@@ -81,4 +81,9 @@ public class UserServiceImpl implements UserService {
     public List<User> getUserById(int id) {
         return userDao.queryUserById(id);
     }
+
+    @Override
+    public boolean upUser(User user) {
+        return userDao.updateUser(user);
+    }
 }
