@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="../../layui/css/layui.css">
+</head>
+<body>
+
+
+<div id="formFilter" class="layui-form layui-form-pane" lay-filter="houseForm" style="padding: 30px;">
+    <div class="layui-form-item">
+        <label class="layui-form-label">住宅编号</label>
+        <div class="layui-input-block">
+            <input type="text" id="house_id" name="house_id" disabled="" autocomplete="off" class="layui-input">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">楼栋号</label>
+        <div class="layui-input-block">
+            <input type="text" ID="building_id" name="building_id" autocomplete="off" class="layui-input" disabled="">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">楼层</label>
+        <div class="layui-input-block">
+            <input type="text" id="floor" name="floor" autocomplete="off" class="layui-input" disabled="">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">设计图</label>
+        <div class="layui-upload">
+            <a id="blueprint" target="view_window"></a>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">面积</label>
+        <div class="layui-input-block">
+            <input type="text" name="area" disabled="" autocomplete="off" class="layui-input">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">备注</label>
+        <div class="layui-input-block">
+            <input type="text" name="remark" disabled="" autocomplete="off" class="layui-input">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">售卖状态</label>
+        <div class="layui-input-block">
+            <input type="text" name="sale" disabled="" autocomplete="off" class="layui-input">
+        </div>
+    </div>
+</div>
+
+<script src="../../layui/layui.js"></script>
+<script src="../../layui/jquery.min.js"></script>
+<script>
+    var form;
+    layui.use([ 'form' ], function() {
+        var form = layui.form
+            ,layer = layui.layer
+
+        $.ajax({
+            type: 'get',
+            async: false,
+            url: '/smart_community/admin/getHouseByHouseId.do',
+            xhrFields: {
+                withCredentials: true
+            },
+            crossDomain: true,
+            data: {
+                "house_id": sessionStorage.getItem('house_id'),
+            },
+            dataType:'JSON',
+            success: function (res) {
+                if (res == null){
+                    layer.alert("加载失败...")
+                    return;
+                }
+                var sale = '';
+                if (res.sale == 0)
+                    sale = '未售出';
+                else if (res.sale == 1)
+                    sale = '已售出';
+                form.val('houseForm', {
+                    'house_id': res.house_id
+                    ,'building_id': res.building_id
+                    ,'floor': res.floor
+                    ,'area': res.area
+                    ,'remark': res.remark
+                    ,'sale': sale
+                });
+                if (res.blueprint != null && res.blueprint != undefined && res.blueprint != "" ) {
+                    $("#blueprint").html(res.house_id+"室的设计图");
+                    $("#blueprint").attr('href', '../../' + res.blueprint);
+                }
+            },
+            error: function () {
+                layer.alert("加载失败...")
+                return;
+            }
+        })
+    });
+</script>
+</body>
+</html>

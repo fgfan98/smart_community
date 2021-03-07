@@ -73,6 +73,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public boolean upUserHouse(String old_house, String new_house) {
+        Map<String, Object> data = new HashMap<>();
+        data.put("old_house", old_house);
+        data.put("new_house", new_house);
+        return userDao.updateUserHouse(data);
+    }
+
+    @Override
     public boolean delUser(int id) {
         return userDao.deleteUser(id);
     }

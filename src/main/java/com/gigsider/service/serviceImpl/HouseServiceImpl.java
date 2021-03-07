@@ -6,7 +6,9 @@ import com.gigsider.service.HouseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class HouseServiceImpl implements HouseService {
@@ -42,6 +44,23 @@ public class HouseServiceImpl implements HouseService {
     @Override
     public boolean addHouse(House house) {
         return houseDao.insertHouse(house);
+    }
+
+    @Override
+    public List<House> getHouseIdPage(int page, int limit, String house_id) {
+        Map<String, Object> data = new HashMap<>();
+        data.put("page", (page-1)*limit);
+        data.put("limit",limit);
+        data.put("house_id",house_id);
+        return houseDao.queryHouseIdPage(data);
+    }
+
+    @Override
+    public List<House> getHousePage(int page, int limit) {
+        Map<String, Object> data = new HashMap<>();
+        data.put("page", (page-1)*limit);
+        data.put("limit", limit);
+        return houseDao.queryHousePage(data);
     }
 
     @Override

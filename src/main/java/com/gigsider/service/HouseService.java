@@ -20,6 +20,12 @@ public interface HouseService {
     //查找未售出的住宅
     public List<House> getUnSoldHouse();
 
+    //分页查找住宅信息
+    public List<House> getHousePage(int page, int limit);
+
+    //获取住宅编号查找分页信息
+    public List<House> getHouseIdPage(int page, int limit, String house_id);
+
     //添加住宅
     public boolean addHouse(House house);
 

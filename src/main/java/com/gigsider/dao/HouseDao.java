@@ -29,4 +29,7 @@ public interface HouseDao {
 
     //分页查询
     public List<House> queryHousePage(Map<String, Object> data);
+
+    //住宅编号搜索分页查询
+    public List<House> queryHouseIdPage(Map<String, Object> data);
 }

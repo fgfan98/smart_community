@@ -34,4 +34,7 @@ public interface UserService {
     //更新用户信息
     public boolean upUser(User user);
 
+    //更新用户住宅编号信息
+    public boolean upUserHouse(String old_house, String new_house);
+
 }

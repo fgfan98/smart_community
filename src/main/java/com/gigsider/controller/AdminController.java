@@ -181,6 +181,7 @@ public class AdminController {
             if (!houseService.upHouse(house))
                 return false;
         }
+
         if (house2.size() != 0) {
             House house = house2.get(0);
             house.setSale(1);
@@ -188,10 +189,94 @@ public class AdminController {
                 return false;
         }
 
-        if (!userService.upUser(user))
+        if (!userService.upUser(user)) {
             return false;
+        }
 
         return true;
+    }
+
+    @RequestMapping("/addHouse.do")
+    @ResponseBody
+    public boolean addHouse(House house) {
+        return houseService.addHouse(house);
+    }
+
+    @RequestMapping("/getHousePage.do")
+    @ResponseBody
+    public Map<String, Object> getHousePage(int page, int limit) {
+        //获取全部住宅信息
+        List<House> houses = houseService.getAllHouse();
+        //获取分页后的每页住宅信息
+        List<House> house = houseService.getHousePage(page, limit);
+
+        Map<String,Object> tableData =new HashMap<String,Object>();
+        //这是layui要求返回的json数据格式
+        tableData.put("code", 0);
+        tableData.put("msg", "");
+        //将全部数据的条数作为count传给前台（一共多少条）
+        tableData.put("count", houses.size());
+        //将分页后的数据返回（每页要显示的数据）
+        tableData.put("data", house);
+        //返回给前端
+        return tableData;
+    }
+
+    @RequestMapping("/getHouseIdPage.do")
+    @ResponseBody
+    public Map<String, Object> getHouseIdPage(int page, int limit, String house_id) {
+        //获取全部住宅信息
+        List<House> houses = houseService.getHouseByHouseId(house_id);
+        //获取分页后的每页住宅信息
+        List<House> house = houseService.getHouseIdPage(page, limit, house_id);
+
+        Map<String,Object> tableData =new HashMap<String,Object>();
+        //这是layui要求返回的json数据格式
+        tableData.put("code", 0);
+        tableData.put("msg", "");
+        //将全部数据的条数作为count传给前台（一共多少条）
+        tableData.put("count", houses.size());
+        //将分页后的数据返回（每页要显示的数据）
+        tableData.put("data", house);
+        //返回给前端
+        return tableData;
+    }
+
+    @RequestMapping("/delHouses.do")
+    @ResponseBody
+    public boolean delHouses(String houses) {
+        List<House> data = JSONObject.parseArray(houses,House.class);
+        for (int i = 0; i < data.size(); i++){
+            String house_id = data.get(i).getHouse_id();
+            userService.upUserHouse(house_id,"");
+            if(!houseService.delHouse(house_id))
+                return false;
+        }
+        return true;
+    }
+
+    @RequestMapping("/delHouse.do")
+    @ResponseBody
+    public boolean delHouse(String house_id) {
+        userService.upUserHouse(house_id,"");
+        return houseService.delHouse(house_id);
+    }
+
+    @RequestMapping("/getHouseByHouseId.do")
+    @ResponseBody
+    public House getHouseByHouseId(String house_id) {
+        List<House> list = houseService.getHouseByHouseId(house_id);
+        House house = null;
+        if(list.size() > 0) {
+            house = list.get(0);
+        }
+        return house;
+    }
+
+    @RequestMapping("/upHouse.do")
+    @ResponseBody
+    public boolean upHouse(House house) {
+        return houseService.upHouse(house);
     }
 
 }

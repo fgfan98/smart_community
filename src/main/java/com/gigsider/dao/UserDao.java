@@ -38,4 +38,7 @@ public interface UserDao {
     //姓名搜索的分页
     public List<User> queryUserNamePage(Map<String, Object> data);
 
+    //更新用户住宅编号信息
+    public boolean updateUserHouse(Map<String, Object> data);
+
 }

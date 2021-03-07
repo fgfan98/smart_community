@@ -5,8 +5,8 @@
 
     <insert id="insertHouse" parameterType="House">
         insert into
-        house (house_id, building_id, floor, blueprint, area, saled, remark)
-        values (#{house_id}, #{building_id}, #{floor}, #{blueprint}, #{area}, #{saled}, #{remark});
+        house (house_id, building_id, floor, blueprint, area, sale, remark)
+        values (#{house_id}, #{building_id}, #{floor}, #{blueprint}, #{area}, #{sale}, #{remark});
     </insert>
 
     <delete id="deleteHouse" parameterType="String">
@@ -54,6 +54,14 @@
     <select id="queryHousePage" parameterType="Map" resultType="House">
         select * from
         house
+        limit #{page}, #{limit};
+    </select>
+
+    <select id="queryHouseIdPage" parameterType="Map" resultType="House">
+        select * from
+        house
+        where
+        house_id like concat('%',#{house_id},'%')
         limit #{page}, #{limit};
     </select>
 

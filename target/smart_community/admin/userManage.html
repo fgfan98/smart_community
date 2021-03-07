@@ -91,7 +91,7 @@
                 </div>
                 <div class="layui-col-md3 layui-col-md-offset4">
                     <div class="layui-btn-group tableEdit">
-                        <button class="layui-btn" id="addUser">添加业主</button>
+                        <button class="layui-btn" data-type="addUser">添加业主</button>
                         <button class="layui-btn layui-btn-danger" data-type="delCheck">删除选中</button>
                     </div>
                 </div>
@@ -259,10 +259,6 @@
                         })
                     })
             }
-            ,isAll: function(){ //验证是否全选
-                var checkStatus = table.checkStatus('userTable');
-                layer.msg(checkStatus.isAll ? '全选': '未全选')
-            }
             ,reload: function(){
                 var nameReload = $('#nameReload');
                 //执行重载
@@ -289,6 +285,19 @@
                     }
                 }, 'data');
             }
+            ,addUser: function () {
+                layer.open({
+                    type: 2,
+                    title: '添加业主',
+                    shadeClose: true,           //弹出框之外的地方是否可以点击
+                    offset: '10%',
+                    area: ['25%', '40%'],
+                    content: 'popup/addUser.html',
+                    end:function () {
+                        window.location.reload();
+                    }
+                });
+            }
         };
 
         $('.tableEdit .layui-btn').on('click', function(){
@@ -298,20 +307,6 @@
         $('.tableReload .layui-btn').on('click', function(){
             var type = $(this).data('type');
             active[type] ? active[type].call(this) : '';
-        });
-    });
-
-    $("#addUser").click(function(){
-        layer.open({
-            type: 2,
-            title: '添加业主',
-            shadeClose: true,           //弹出框之外的地方是否可以点击
-            offset: '10%',
-            area: ['25%', '40%'],
-            content: 'popup/addUser.html',
-            end:function () {
-                window.location.reload();
-            }
         });
     });
 

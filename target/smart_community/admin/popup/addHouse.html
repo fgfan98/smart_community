@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="../../layui/css/layui.css">
+</head>
+<body>
+
+
+<div id="formFilter" class="layui-form layui-form-pane" lay-filter="houseForm" style="padding: 30px;">
+    <div class="layui-form-item">
+        <label class="layui-form-label">住宅编号</label>
+        <div class="layui-input-block">
+            <input type="text" id="house_id" name="house_id" lay-verify="houseId" autocomplete="off" class="layui-input">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">楼栋号</label>
+        <div class="layui-input-block">
+            <input type="text" ID="building_id" name="building_id" autocomplete="off" class="layui-input" disabled="">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">楼层</label>
+        <div class="layui-input-block">
+            <input type="text" id="floor" name="floor" autocomplete="off" class="layui-input" disabled="">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">设计图</label>
+        <div class="layui-upload">
+            <a id="blueprint" target="view_window"></a>
+            <button type="button" class="layui-btn layui-btn-normal" id="choose">选择文件</button>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">面积</label>
+        <div class="layui-input-block">
+            <input type="text" name="area" autocomplete="off" class="layui-input">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">备注</label>
+        <div class="layui-input-block">
+            <input type="text" name="remark" autocomplete="off" class="layui-input">
+        </div>
+    </div>
+
+    <div class="layui-form-item" align="center">
+        <button class="layui-btn" lay-submit="saveform" lay-filter="saveform" id="saveform">添加</button>
+    </div>
+</div>
+
+<script src="../../layui/layui.js"></script>
+<script src="../../layui/jquery.min.js"></script>
+<script>
+    var form;
+    layui.use([ 'form', 'upload' ], function() {
+        var form = layui.form
+            ,layer = layui.layer
+            ,upload = layui.upload
+
+        var blueprint_url;
+
+        //自定义验证规则
+        form.verify({
+            houseId : function(value) {
+                if (value.length != 8 || value.indexOf('#') != 0 || value.indexOf('-') != 3) {
+                    return '格式不符合要求！';
+                }
+            }
+        });
+
+        //监听提交
+        form.on('submit(saveform)', function(data) {
+            var house = data.field;
+            $.ajax({
+                type: 'post',
+                async: true,
+                url: '/smart_community/admin/addHouse.do',
+                xhrFields: {
+                    withCredentials: true
+                },
+                crossDomain: true,
+                data: {
+                    'house_id': house.house_id,
+                    'building_id': house.building_id,
+                    'floor': house.floor,
+                    'blueprint': blueprint_url,
+                    'area': house.area,
+                    'remark': house.remark
+                },
+                success: function (res) {
+                    if (res){
+                        alert("添加成功！")
+                        parent.layer.close(parent.layer.index);
+                    }else
+                        layer.alert("添加失败...")
+                },
+                error: function () {
+                    layer.alert("添加失败...");
+                }
+            })
+        });
+
+        //选完文件后自动上传
+        upload.render({
+            elem: '#choose'
+            ,url: '/smart_community/upload/blueprint.do' //改成您自己的上传接口
+            ,auto: true
+            //,multiple: true
+            ,before: function () {
+                if ($("#house_id").val().length != 8 || $("#house_id").val().indexOf('#') != 0 || $("#house_id").val().indexOf('-') != 3) {
+                    this.data = {"house_id": 'wrong'};
+                }else {
+                    this.data = {"house_id": $("#house_id").val()};
+                }
+            }
+            ,done: function(res){
+                if (res.code > 0)
+                    layer.alert(res.msg);
+                else {
+                    blueprint_url = res.data.src;
+                    layer.msg(res.msg);
+                    console.log(blueprint_url)
+                    $("#blueprint").html($("#house_id").val());
+                    $("#blueprint").attr('href', '../../' + blueprint_url);
+                }
+            }
+        });
+    });
+
+    $("#house_id").blur(function () {
+        var house_id = $("#house_id").val();
+        if (house_id.indexOf('#') != -1 && house_id.indexOf('-') != -1){
+            $("#building_id").val(house_id.split('-')[0]);
+            $("#floor").val(house_id.split('-')[1].substr(0,2));
+        }
+    });
+</script>
+</body>
+</html>

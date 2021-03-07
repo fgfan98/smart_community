@@ -50,7 +50,7 @@
         select * from
         user
         where
-        real_name = #{real_name};
+        real_name like concat('%',#{real_name},'%');
     </select>
 
     <select id="queryAllUser" resultType="User">
@@ -68,8 +68,15 @@
         select * from
         user
         where
-        real_name = #{real_name}
+        real_name like concat('%',#{real_name},'%')
         limit #{page}, #{limit};
     </select>
+
+    <update id="updateUserHouse" parameterType="String">
+        update
+        user
+        set house = #{new_house}
+        where house = #{old_house};
+    </update>
 
 </mapper>

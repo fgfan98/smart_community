@@ -65,7 +65,46 @@
 
     <div class="layui-body">
         <!-- 内容主体区域 -->
-        <div style="padding: 15px;">内容主体区域</div>
+        <div style="padding: 30px;" class="layui-fluid">
+            <div class="layui-row">
+                <div class="layui-col-md12">
+                    <fieldset class="layui-elem-field layui-field-title"
+                              style="margin-top: 30px;">
+                        <legend>住宅管理</legend>
+                    </fieldset>
+                </div>
+            </div>
+
+            <div class="layui-row">
+                <div class="layui-col-md1">&nbsp;</div>
+                <div class="layui-col-md4">
+                    <div class="tableReload">
+                        搜索住宅：
+                        <div class="layui-inline">
+                            <input class="layui-input" name="id" id="houseIdReload" autocomplete="off">
+                        </div>
+                        <div class="layui-btn-group">
+                            <button class="layui-btn" data-type="reload">搜索</button>
+                            <button class="layui-btn" data-type="goBack">返回</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-col-md3 layui-col-md-offset4">
+                    <div class="layui-btn-group tableEdit">
+                        <button class="layui-btn" data-type="addHouse">添加住宅</button>
+                        <button class="layui-btn layui-btn-danger" data-type="delCheck">删除选中</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="layui-row">
+                <div class="layui-col-md1">&nbsp;</div>
+                <div class="layui-col-md10">
+                    <table class="layui-hide" id="houseTable" lay-filter="demo"></table>
+                </div>
+            </div>
+
+        </div>
     </div>
 
     <div class="layui-footer">
@@ -75,12 +114,197 @@
 </div>
 <script src="../layui/layui.js"></script>
 <script src="../layui/jquery.min.js"></script>
+<script type="text/html" id="barDemo">
+    <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="detail">查看</a>
+    <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
+<script type="text/html" id="saleTpl">
+    {{#  if(d.sale == 0){ }}
+    <span class="layui-badge layui-bg-cyan">未售出</span>
+    {{#  } else { }}
+    <span class="layui-badge layui-bg-green">已售出</span>
+    {{#  } }}
+</script>
 <script>
     //JavaScript代码区域
     var admin = JSON.parse(sessionStorage.getItem("vo"));
 
     layui.use('element', function(){
         var element = layui.element;
+    });
+
+    layui.use('table', function(){
+        var table = layui.table;
+
+        table.render({
+            elem: '#houseTable'
+            ,url: '/smart_community/admin/getHousePage.do'
+            ,limit: 10
+            ,limits: [10,30,50]
+            ,cols: [[
+                {type:'checkbox', width:'5%', fixed: 'left'}
+                ,{field:'house_id',width:'32.5%', title: '住宅编号'}
+                ,{field:'area',width:'30%', title: '面积(平方米)'}
+                ,{field:'sale', width:'20%', templet:'#saleTpl', title: '售卖状态'}
+                ,{fixed: 'right', minWidth:'178', align:'center', toolbar: '#barDemo'}
+            ]]
+            ,page: true
+        });
+
+        //监听表格复选框选择
+        table.on('checkbox(demo)', function(obj){
+            console.log(obj)
+        });
+        //监听工具条
+        table.on('tool(demo)', function(obj){
+            var data = obj.data;
+            if(obj.event === 'detail'){
+                sessionStorage.setItem('house_id', data.house_id);
+                layer.open({
+                    type: 2,
+                    title: '住宅信息',
+                    shadeClose: true,           //弹出框之外的地方是否可以点击
+                    offset: '10%',
+                    area: ['30%', '52%'],
+                    content: 'popup/checkHouse.html',
+                    end:function () {
+                        sessionStorage.removeItem('house_id');
+                    }
+                });
+            } else if(obj.event === 'del'){
+                layer.confirm('是否删除该行目标？', function(index){
+                    console.log(obj);
+                    $.ajax({
+                        type: 'post',
+                        async: true,
+                        url: '/smart_community/admin/delHouse.do',
+                        xhrFields: {
+                            withCredentials: true
+                        },
+                        crossDomain: true,
+                        dataType: 'JSON',
+                        data: {
+                            'house_id': obj.data.house_id
+                        },
+                        success: function (res) {
+                            if (res) {
+                                layer.msg("已删除该行目标！");
+                                setTimeout(function () {
+                                    window.location.reload();
+                                }, 2*1000);
+                            } else {
+                                layer.msg("删除失败...");
+                                setTimeout(function () {
+                                    window.location.reload();
+                                }, 2*1000);
+                            }
+                        }
+                    })
+                });
+            } else if(obj.event === 'edit'){
+                sessionStorage.setItem('house_id', data.house_id);
+                layer.open({
+                    type: 2,
+                    title: '住宅信息编辑',
+                    shadeClose: true,           //弹出框之外的地方是否可以点击
+                    offset: '10%',
+                    area: ['30%', '60%'],
+                    content: 'popup/editHouse.html',
+                    end:function () {
+                        sessionStorage.removeItem('house_id');
+                        window.location.reload();
+                    }
+                });
+            }
+        });
+
+        var $ = layui.$, active = {
+            delCheck: function(){ //获取选中数据
+                var checkStatus = table.checkStatus('houseTable')
+                    ,data = checkStatus.data;
+                if (data.length == 0){
+                    layer.msg("未选中目标..");
+                    return;
+                } else
+                    layer.confirm("是否删除选中目标？",function () {
+                        $.ajax({
+                            type: 'post',
+                            async: true,
+                            url: '/smart_community/admin/delHouses.do',
+                            xhrFields: {
+                                withCredentials: true
+                            },
+                            crossDomain: true,
+                            dataType: 'JSON',
+                            data: {
+                                'houses': JSON.stringify(data)
+                            },
+                            success: function (res) {
+                                if (res) {
+                                    layer.msg("删除成功！");
+                                    setTimeout(function () {
+                                        window.location.reload();
+                                    }, 2*1000);
+                                } else {
+                                    layer.msg("部分删除失败...");
+                                    setTimeout(function () {
+                                        window.location.reload();
+                                    }, 2*1000);
+                                }
+                            }
+                        })
+                    })
+            }
+            ,reload: function(){
+                var houseIdReload = $('#houseIdReload');
+                //执行重载
+                table.reload('houseTable', {
+                    url: '/smart_community/admin/getHouseIdPage.do',
+                    page: {
+                        curr: 1 //重新从第 1 页开始
+                    }
+                    ,where: {
+                        house_id: houseIdReload.val()
+                    }
+                }, 'data');
+            }
+            ,goBack: function(){
+                var houseIdReload = $('#houseIdReload');
+                //执行重载
+                table.reload('houseTable', {
+                    url: '/smart_community/admin/getHousePage.do',
+                    page: {
+                        curr: 1 //重新从第 1 页开始
+                    }
+                    ,where: {
+                        house_id: houseIdReload.val()
+                    }
+                }, 'data');
+            }
+            ,addHouse: function () {
+                layer.open({
+                    type: 2,
+                    title: '添加住宅',
+                    shadeClose: true,           //弹出框之外的地方是否可以点击
+                    offset: '10%',
+                    area: ['25%', '50%'],
+                    content: 'popup/addHouse.html',
+                    end:function () {
+                        window.location.reload();
+                    }
+                });
+            }
+        };
+
+        $('.tableEdit .layui-btn').on('click', function(){
+            var type = $(this).data('type');
+            active[type] ? active[type].call(this) : '';
+        });
+        $('.tableReload .layui-btn').on('click', function(){
+            var type = $(this).data('type');
+            active[type] ? active[type].call(this) : '';
+        });
     });
 
     function pageInit() {

@@ -40,7 +40,6 @@
 
     <div class="layui-form-item" align="center">
         <button class="layui-btn" lay-submit="saveform" lay-filter="saveform">添加</button>
-        <button type="reset" class="layui-btn layui-btn-primary">重置</button>
     </div>
 </div>
 
@@ -84,10 +83,10 @@
                         alert("添加成功！")
                         parent.layer.close(parent.layer.index);
                     }else
-                        alert("添加失败...")
+                        layer.alert("添加失败...")
                 },
                 error: function () {
-                    alert("添加失败...");
+                    layer.alert("添加失败...");
                 }
             })
         });
