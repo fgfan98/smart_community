@@ -65,7 +65,46 @@
 
     <div class="layui-body">
         <!-- 内容主体区域 -->
-        <div style="padding: 15px;">内容主体区域</div>
+        <div style="padding: 30px;" class="layui-fluid">
+            <div class="layui-row">
+                <div class="layui-col-md12">
+                    <fieldset class="layui-elem-field layui-field-title"
+                              style="margin-top: 30px;">
+                        <legend>车位管理</legend>
+                    </fieldset>
+                </div>
+            </div>
+
+            <div class="layui-row">
+                <div class="layui-col-md1">&nbsp;</div>
+                <div class="layui-col-md4">
+                    <div class="tableReload">
+                        搜索车位：
+                        <div class="layui-inline">
+                            <input class="layui-input" name="parkingId" id="parkingIdReload" autocomplete="off">
+                        </div>
+                        <div class="layui-btn-group">
+                            <button class="layui-btn" data-type="reload">搜索</button>
+                            <button class="layui-btn" data-type="goBack">返回</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-col-md3 layui-col-md-offset4">
+                    <div class="layui-btn-group tableEdit">
+                        <button class="layui-btn" data-type="addParking">添加车位</button>
+                        <button class="layui-btn layui-btn-danger" data-type="delCheck">删除选中</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="layui-row">
+                <div class="layui-col-md1">&nbsp;</div>
+                <div class="layui-col-md10">
+                    <table class="layui-hide" id="parkingTable" lay-filter="demo"></table>
+                </div>
+            </div>
+
+        </div>
     </div>
 
     <div class="layui-footer">
@@ -75,12 +114,195 @@
 </div>
 <script src="../layui/layui.js"></script>
 <script src="../layui/jquery.min.js"></script>
+<script type="text/html" id="barDemo">
+    <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="detail">查看</a>
+    <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
+<script type="text/html" id="statusTpl">
+    {{#  if(d.status == 0){ }}
+    <span class="layui-badge layui-bg-cyan">未售出</span>
+    {{#  } else if(d.status == 1) { }}
+    <span class="layui-badge layui-bg-orange">待办理</span>
+    {{#  } else if(d.status == 2) { }}
+    <span class="layui-badge layui-bg-blue">已租出</span>
+    {{#  } else { }}
+    <span class="layui-badge layui-bg-green">已售出</span>
+    {{#  } }}
+</script>
 <script>
     //JavaScript代码区域
     var admin = JSON.parse(sessionStorage.getItem("vo"));
 
-    layui.use('element', function(){
-        var element = layui.element;
+    layui.use(['element','table'], function(){
+        var element = layui.element
+            ,table = layui.table;
+
+        table.render({
+            elem: '#parkingTable'
+            ,url: '/smart_community/admin/getParkingPage.do'
+            ,limit: 10
+            ,limits: [10,30,50]
+            ,cols: [[
+                {type:'checkbox', width:'5%', fixed: 'left'}
+                ,{field:'parking_id',width:'30%', title: '车位编号'}
+                ,{field:'place',width:'20%', title: '位置'}
+                ,{field:'rent',width:'12.5%', title: '月租金/元'}
+                ,{field:'status', width:'20%', templet:'#statusTpl', title: '状态'}
+                ,{fixed: 'right', minWidth:'178', align:'center', toolbar: '#barDemo'}
+            ]]
+            ,page: true
+        });
+
+        //监听工具条
+        table.on('tool(demo)', function(obj){
+            var data = obj.data;
+            if(obj.event === 'detail'){
+                sessionStorage.setItem('parking_id', data.parking_id);
+                layer.open({
+                    type: 2,
+                    title: '车位信息',
+                    shadeClose: true,           //弹出框之外的地方是否可以点击
+                    offset: '10%',
+                    area: ['25%', '49%'],
+                    content: 'popup/checkParking.html',
+                    end:function () {
+                        sessionStorage.removeItem('parking_id');
+                    }
+                });
+            } else if(obj.event === 'del'){
+                layer.confirm('是否删除该行目标？', function(index){
+                    console.log(obj);
+                    $.ajax({
+                        type: 'post',
+                        async: true,
+                        url: '/smart_community/admin/delParking.do',
+                        xhrFields: {
+                            withCredentials: true
+                        },
+                        crossDomain: true,
+                        dataType: 'JSON',
+                        data: {
+                            'parking_id': obj.data.parking_id
+                        },
+                        success: function (res) {
+                            if (res) {
+                                layer.msg("已删除该行目标！");
+                                setTimeout(function () {
+                                    window.location.reload();
+                                }, 2*1000);
+                            } else {
+                                layer.msg("删除失败...");
+                                setTimeout(function () {
+                                    window.location.reload();
+                                }, 2*1000);
+                            }
+                        }
+                    })
+                });
+            } else if(obj.event === 'edit'){
+                sessionStorage.setItem('parking_id', data.parking_id);
+                layer.open({
+                    type: 2,
+                    title: '车位信息编辑',
+                    shadeClose: true,           //弹出框之外的地方是否可以点击
+                    offset: '10%',
+                    area: ['25%', '52%'],
+                    content: 'popup/editParking.html',
+                    end:function () {
+                        sessionStorage.removeItem('parking_id');
+                        window.location.reload();
+                    }
+                });
+            }
+        });
+
+        var $ = layui.$, active = {
+            delCheck: function(){ //获取选中数据
+                var checkStatus = table.checkStatus('parkingTable')
+                    ,data = checkStatus.data;
+                if (data.length == 0){
+                    layer.msg("未选中目标..");
+                    return;
+                } else
+                    layer.confirm("是否删除选中目标？",function () {
+                        $.ajax({
+                            type: 'post',
+                            async: true,
+                            url: '/smart_community/admin/delParkings.do',
+                            xhrFields: {
+                                withCredentials: true
+                            },
+                            crossDomain: true,
+                            dataType: 'JSON',
+                            data: {
+                                'parkings': JSON.stringify(data)
+                            },
+                            success: function (res) {
+                                if (res) {
+                                    layer.msg("删除成功！");
+                                    setTimeout(function () {
+                                        window.location.reload();
+                                    }, 2*1000);
+                                } else {
+                                    layer.msg("部分删除失败...");
+                                    setTimeout(function () {
+                                        window.location.reload();
+                                    }, 2*1000);
+                                }
+                            }
+                        })
+                    })
+            }
+            ,reload: function(){
+                var parkingIdReload = $('#parkingIdReload');
+                //执行重载
+                table.reload('parkingTable', {
+                    url: '/smart_community/admin/getParkingIdPage.do',
+                    page: {
+                        curr: 1 //重新从第 1 页开始
+                    }
+                    ,where: {
+                        parking_id: parkingIdReload.val()
+                    }
+                }, 'data');
+            }
+            ,goBack: function(){
+                var parkingIdReload = $('#parkingIdReload');
+                //执行重载
+                table.reload('parkingTable', {
+                    url: '/smart_community/admin/getParkingPage.do',
+                    page: {
+                        curr: 1 //重新从第 1 页开始
+                    }
+                    ,where: {
+                        parking_id: parkingIdReload.val()
+                    }
+                }, 'data');
+            }
+            ,addParking: function () {
+                layer.open({
+                    type: 2,
+                    title: '添加车位',
+                    shadeClose: true,           //弹出框之外的地方是否可以点击
+                    offset: '10%',
+                    area: ['25%', '40%'],
+                    content: 'popup/addParking.html',
+                    end:function () {
+                        window.location.reload();
+                    }
+                });
+            }
+        };
+
+        $('.tableEdit .layui-btn').on('click', function(){
+            var type = $(this).data('type');
+            active[type] ? active[type].call(this) : '';
+        });
+        $('.tableReload .layui-btn').on('click', function(){
+            var type = $(this).data('type');
+            active[type] ? active[type].call(this) : '';
+        });
     });
 
     function pageInit() {

@@ -2,9 +2,11 @@ package com.gigsider.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.gigsider.po.House;
+import com.gigsider.po.Parking;
 import com.gigsider.po.User;
 import com.gigsider.service.AdminService;
 import com.gigsider.service.HouseService;
+import com.gigsider.service.ParkingService;
 import com.gigsider.service.UserService;
 import com.gigsider.utils.SessionPool;
 import com.gigsider.vo.AdminVO;
@@ -31,6 +33,8 @@ public class AdminController {
     private UserService userService;
     @Autowired
     private HouseService houseService;
+    @Autowired
+    private ParkingService parkingService;
 
     @RequestMapping("/login.do")
     @ResponseBody
@@ -119,11 +123,23 @@ public class AdminController {
             int id = data.get(i).getId();
 
             List<User> list = userService.getUserById(id);
+            List<Parking> parkings = new ArrayList<>();
             User user = new User();
-            if (list.size() != 0)
+            if (list.size() != 0) {
                 user = list.get(0);
+                parkings = parkingService.getParkingByLicenseNum(user.getLicense_num());
+            }
 
-            if (!user.getHouse().equals("") || !user.getHouse().equals(null)) {
+            //将该业主的车位置为未售出状态
+            if(parkings.size() != 0) {
+                Parking parking = parkings.get(0);
+                parking.setStatus(0);
+                parking.setLicense_num(null);
+                parkingService.upParking(parking);
+            }
+
+            //将该业主的住宅置为未售出状态
+            if (!user.getHouse().equals("") && user.getHouse() != null) {
                 House house = houseService.getHouseByHouseId(user.getHouse()).get(0);
                 house.setSale(0);
                 houseService.upHouse(house);
@@ -139,11 +155,23 @@ public class AdminController {
     @ResponseBody
     public boolean delUser(int id) {
         List<User> list = userService.getUserById(id);
+        List<Parking> parkings = new ArrayList<>();
         User user = new User();
-        if (list.size() != 0)
+        if (list.size() != 0) {
             user = list.get(0);
+            parkings = parkingService.getParkingByLicenseNum(user.getLicense_num());
+        }
 
-        if (!user.getHouse().equals("") || !user.getHouse().equals(null)) {
+        //将该业主的车位置为未售出状态
+        if(parkings.size() != 0) {
+            Parking parking = parkings.get(0);
+            parking.setStatus(0);
+            parking.setLicense_num(null);
+            parkingService.upParking(parking);
+        }
+
+        //将该业主的住宅置为未售出状态
+        if (!user.getHouse().equals("") && user.getHouse() != null) {
             House house = houseService.getHouseByHouseId(user.getHouse()).get(0);
             house.setSale(0);
             houseService.upHouse(house);
@@ -248,7 +276,7 @@ public class AdminController {
         List<House> data = JSONObject.parseArray(houses,House.class);
         for (int i = 0; i < data.size(); i++){
             String house_id = data.get(i).getHouse_id();
-            userService.upUserHouse(house_id,"");
+            userService.upUserHouse(house_id,null);
             if(!houseService.delHouse(house_id))
                 return false;
         }
@@ -258,7 +286,7 @@ public class AdminController {
     @RequestMapping("/delHouse.do")
     @ResponseBody
     public boolean delHouse(String house_id) {
-        userService.upUserHouse(house_id,"");
+        userService.upUserHouse(house_id,null);
         return houseService.delHouse(house_id);
     }
 
@@ -277,6 +305,83 @@ public class AdminController {
     @ResponseBody
     public boolean upHouse(House house) {
         return houseService.upHouse(house);
+    }
+
+    @RequestMapping("/getParkingPage.do")
+    @ResponseBody
+    public Map<String, Object> getParkingPage(int page, int limit) {
+        //获取全部车位信息
+        List<Parking> parkings = parkingService.getAllParking();
+        //获取分页后的每页车位信息
+        List<Parking> parking = parkingService.getParkingPage(page, limit);
+
+        Map<String,Object> tableData =new HashMap<String,Object>();
+        //这是layui要求返回的json数据格式
+        tableData.put("code", 0);
+        tableData.put("msg", "");
+        //将全部数据的条数作为count传给前台（一共多少条）
+        tableData.put("count", parkings.size());
+        //将分页后的数据返回（每页要显示的数据）
+        tableData.put("data", parking);
+        //返回给前端
+        return tableData;
+    }
+
+    @RequestMapping("/getParkingIdPage.do")
+    @ResponseBody
+    public Map<String, Object> getParkingIdPage(int page, int limit, String parking_id) {
+        List<Parking> parkings = parkingService.getParkingByParkingId(parking_id);
+        List<Parking> parking = parkingService.getParkingIdPage(page, limit, parking_id);
+
+        Map<String,Object> tableData =new HashMap<String,Object>();
+
+        tableData.put("code", 0);
+        tableData.put("msg", "");
+        tableData.put("count", parkings.size());
+        tableData.put("data", parking);
+        //返回给前端
+        return tableData;
+    }
+
+    @RequestMapping("/getParkingByParkingId.do")
+    @ResponseBody
+    public Parking getParkingByParkingId(String parking_id) {
+        List<Parking> list = parkingService.getParkingByParkingId(parking_id);
+        Parking parking = null;
+        if(list.size() > 0) {
+            parking = list.get(0);
+        }
+        return parking;
+    }
+
+    @RequestMapping("/upParking.do")
+    @ResponseBody
+    public boolean upParking(Parking parking) {
+        return parkingService.upParking(parking);
+    }
+
+    @RequestMapping("/addParking.do")
+    @ResponseBody
+    public boolean addParking(Parking parking) {
+        return parkingService.addParking(parking);
+    }
+
+    @RequestMapping("/delParkings.do")
+    @ResponseBody
+    public boolean delParkings(String parkings) {
+        List<Parking> data = JSONObject.parseArray(parkings,Parking.class);
+        for (int i = 0; i < data.size(); i++){
+            String parking_id = data.get(i).getParking_id();
+            if(!parkingService.delParking(parking_id))
+                return false;
+        }
+        return true;
+    }
+
+    @RequestMapping("/delParking.do")
+    @ResponseBody
+    public boolean delParking(String parking_id) {
+        return parkingService.delParking(parking_id);
     }
 
 }

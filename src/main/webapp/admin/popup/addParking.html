@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="../../layui/css/layui.css">
+</head>
+<body>
+
+
+<div id="formFilter" class="layui-form layui-form-pane" lay-filter="parkingForm" style="padding: 30px;">
+    <div class="layui-form-item">
+        <label class="layui-form-label">车位编号</label>
+        <div class="layui-input-block">
+            <input type="text" id="parking_id" name="parking_id" lay-verify="required" autocomplete="off" class="layui-input">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">位置</label>
+        <div class="layui-input-block">
+            <input type="text" id="place" name="place" autocomplete="off" class="layui-input" disabled="">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">月租金/元</label>
+        <div class="layui-input-block">
+            <input type="text" name="rent" lay-verify="required|number" autocomplete="off" class="layui-input">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">总价/元</label>
+        <div class="layui-input-block">
+            <input type="text" name="price" lay-verify="required|number" autocomplete="off" class="layui-input">
+        </div>
+    </div>
+
+    <div class="layui-form-item" align="center">
+        <button class="layui-btn" lay-submit="saveform" lay-filter="saveform">添加</button>
+    </div>
+</div>
+
+<script src="../../layui/layui.js"></script>
+<script src="../../layui/jquery.min.js"></script>
+<script>
+    var form;
+    layui.use('form', function() {
+        var form = layui.form
+            ,layer = layui.layer
+
+        //监听提交
+        form.on('submit(saveform)', function(data) {
+            var parking = data.field;
+            $.ajax({
+                type: 'post',
+                async: true,
+                url: '/smart_community/admin/addParking.do',
+                xhrFields: {
+                    withCredentials: true
+                },
+                crossDomain: true,
+                data: {
+                    'parking_id': parking.parking_id
+                    ,'place': parking.place
+                    ,'rent': parking.rent
+                    ,'price': parking.price
+                },
+                success: function (res) {
+                    if (res){
+                        alert("添加成功！");
+                        parent.layer.close(parent.layer.index);
+                    }else
+                        layer.alert("添加失败...")
+                },
+                error: function () {
+                    layer.alert("添加失败...");
+                }
+            })
+        });
+
+    });
+
+    $("#parking_id").blur(function () {
+        var parking_id = $("#parking_id").val();
+        if(parking_id.indexOf('#') != -1) {
+            $("#place").val('地上');
+        } else {
+            $("#place").val('地下');
+        }
+    })
+</script>
+</body>
+</html>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gigsider.dao.ParkingDao">
+
+    <insert id="insertParking" parameterType="Parking">
+        insert into
+        parking (parking_id, place, rent, price)
+        values (#{parking_id}, #{place}, #{rent}, #{price});
+    </insert>
+
+    <delete id="deleteParking" parameterType="String">
+        delete from
+        parking
+        where
+        parking_id = #{parking_id};
+    </delete>
+
+    <update id="updateParking" parameterType="Parking">
+        update
+        parking
+        set
+        place = #{place}, rent = #{rent}, price = #{price}, status = #{status}, license_num = #{license_num}, pay_time = #{pay_time}
+        where
+        parking_id = #{parking_id};
+    </update>
+
+    <select id="queryParkingByParkingId" parameterType="String" resultType="Parking">
+        select * from
+        parking
+        where
+        parking_id like concat('%',#{parking_id},'%');
+    </select>
+
+    <select id="queryParkingByLicenseNum" parameterType="String" resultType="Parking">
+        select * from
+        parking
+        where
+        license_num = #{license_num};
+    </select>
+
+    <select id="queryAllParking" resultType="Parking">
+        select * from
+        parking;
+    </select>
+
+    <select id="queryParkingPage" parameterType="Map" resultType="Parking">
+        select * from
+        parking
+        limit #{page}, #{limit};
+    </select>
+    
+    <select id="queryParkingIdPage" parameterType="Map" resultType="Parking">
+        select * from
+        parking
+        where
+        parking_id like concat('%',#{parking_id},'%')
+        limit #{page}, #{limit};
+    </select>
+
+</mapper>

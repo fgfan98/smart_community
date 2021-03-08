@@ -13,7 +13,7 @@
         delete from
         house
         where
-        house_id = #{house_id};
+        house_id like concat('%',#{house_id},'%');
     </delete>
 
     <update id="updateHouse" parameterType="House">

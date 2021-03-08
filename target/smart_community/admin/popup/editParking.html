@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="../../layui/css/layui.css">
+</head>
+<body>
+
+
+<div id="formFilter" class="layui-form layui-form-pane" lay-filter="parkingForm" style="padding: 30px;">
+    <div class="layui-form-item">
+        <label class="layui-form-label">车位编号</label>
+        <div class="layui-input-block">
+            <input type="text" id="parking_id" name="parking_id" disabled="" autocomplete="off" class="layui-input">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">位置</label>
+        <div class="layui-input-block">
+            <input type="text" name="place" autocomplete="off" class="layui-input" disabled="">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">月租金/元</label>
+        <div class="layui-input-block">
+            <input type="text" name="rent" lay-verify="required|number" autocomplete="off" class="layui-input">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">总价/元</label>
+        <div class="layui-input-block">
+            <input type="text" name="price" lay-verify="required|number" autocomplete="off" class="layui-input">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">状态</label>
+        <div class="layui-input-block">
+            <select name="status" lay-filter="required">
+                <option value="0">未售出</option>
+                <option value="1">待办理</option>
+                <option value="2">已租出</option>
+                <option value="3">已售出</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">绑定的车牌</label>
+        <div class="layui-input-block">
+            <select id="licenseSelect" name="license_num" lay-filter="required" lay-search="">
+                <option value="">请选择</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="layui-form-item" align="center">
+        <button class="layui-btn" lay-submit="saveform" lay-filter="saveform">提交</button>
+    </div>
+</div>
+
+<script src="../../layui/layui.js"></script>
+<script src="../../layui/jquery.min.js"></script>
+<script>
+    var form;
+    layui.use('form', function() {
+        var form = layui.form
+            ,layer = layui.layer
+
+        $.ajax({
+            type: 'get',
+            async: false,
+            url: '/smart_community/admin/getAllUser.do',
+            xhrFields: {
+                withCredentials: true
+            },
+            crossDomain: true,
+            dataType:'JSON',
+            success: function (res) {
+                if (res == null){
+                    layer.alert("选项加载失败...")
+                    return;
+                }
+                for(var i=0;i<res.length;i++){
+                    if (res[i].license_num != null && res[i].license_num != undefined && res[i].license_num != "")
+                    $("#licenseSelect").append("<option value="+res[i].license_num+">"+res[i].license_num+"</option>");
+                }
+                renderForm();
+                fillForm(form);
+            },
+            error: function () {
+                layer.alert("选项加载失败...")
+                return;
+            }
+        })
+
+        //监听提交
+        form.on('submit(saveform)', function(data) {
+            var parking = data.field;
+            $.ajax({
+                type: 'post',
+                async: true,
+                url: '/smart_community/admin/upParking.do',
+                xhrFields: {
+                    withCredentials: true
+                },
+                crossDomain: true,
+                data: {
+                    'parking_id': parking.parking_id
+                    ,'place': parking.place
+                    ,'rent': parking.rent
+                    ,'price': parking.price
+                    ,'status': parking.status
+                    ,'license_num': parking.license_num
+                },
+                success: function (res) {
+                    if (res){
+                        alert("提交成功！");
+                        parent.layer.close(parent.layer.index);
+                    }else
+                        layer.alert("提交失败...")
+                },
+                error: function () {
+                    layer.alert("提交失败...");
+                }
+            })
+        });
+
+    });
+
+    function fillForm(form) {
+        $.ajax({
+            type: 'get',
+            async: false,
+            url: '/smart_community/admin/getParkingByParkingId.do',
+            xhrFields: {
+                withCredentials: true
+            },
+            crossDomain: true,
+            data: {
+                "parking_id": sessionStorage.getItem('parking_id'),
+            },
+            dataType:'JSON',
+            success: function (res) {
+                if (res == null){
+                    layer.alert("加载失败...")
+                    return;
+                }
+                form.val('parkingForm', {
+                    'parking_id': res.parking_id
+                    ,'place': res.place
+                    ,'rent': res.rent
+                    ,'price': res.price
+                    ,'status': res.status
+                    ,'license_num': res.license_num
+                });
+            },
+            error: function () {
+                layer.alert("加载失败...")
+                return;
+            }
+        })
+    }
+
+    //重新渲染表单
+    function renderForm(){
+        layui.use('form', function(){
+            var form = layui.form;
+            form.render();
+        });
+    }
+</script>
+</body>
+</html>
