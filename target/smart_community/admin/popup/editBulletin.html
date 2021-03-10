@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="../../layui/css/layui.css">
+</head>
+<body>
+
+<div id="formFilter" class="layui-form layui-form-pane" lay-filter="bulletinForm" style="padding: 30px;">
+    <div class="layui-form-item layui-form-text">
+        <label class="layui-form-label">公告内容</label>
+        <div class="layui-input-block">
+            <textarea id="content" name="content" placeholder="请输入内容" style="display: none;"></textarea>
+        </div>
+    </div>
+
+    <div class="layui-form-item" align="center">
+        <button class="layui-btn" lay-submit="saveform" lay-filter="saveform">提交</button>
+    </div>
+</div>
+
+<script src="../../layui/layui.js"></script>
+<script src="../../layui/jquery.min.js"></script>
+<script>
+    layui.use(['form','layedit'], function () {
+        var form = layui.form,
+            layedit = layui.layedit;
+
+        var index = layedit.build('content',{
+            height: '400',
+            tool: [ 'strong' //加粗
+                ,'italic' //斜体
+                ,'underline' //下划线
+                ,'del' //删除线
+                ,'|' //分割线
+                ,'left' //左对齐
+                ,'center' //居中对齐
+                ,'right' //右对齐
+                ,'|'
+                ,'face' //表情
+            ]
+        }); //建立编辑器
+
+        $.ajax({
+            type: 'get',
+            async: false,
+            url: '/smart_community/admin/getBulletinById.do',
+            xhrFields: {
+                withCredentials: true
+            },
+            crossDomain: true,
+            data: {
+                "id": sessionStorage.getItem('bulletin_id'),
+            },
+            dataType:'JSON',
+            success: function (res) {
+                if (res == null){
+                    layer.alert("加载失败...")
+                    return;
+                }
+                form.val('bulletinForm', {
+                    'content': res.content
+                });
+            },
+            error: function () {
+                layer.alert("加载失败...")
+                return;
+            }
+        })
+
+        //监听提交
+        form.on('submit(saveform)', function(data) {
+            var bulletin = data.field;
+            $.ajax({
+                type: 'post',
+                async: true,
+                url: '/smart_community/admin/upBulletin.do',
+                xhrFields: {
+                    withCredentials: true
+                },
+                crossDomain: true,
+                data: {
+                    'id': sessionStorage.getItem('bulletin_id'),
+                    'content': layedit.getContent(index)
+                },
+                success: function (res) {
+                    if (res){
+                        alert("提交成功！");
+                        parent.layer.close(parent.layer.index);
+                    }else
+                        layer.alert("提交失败...")
+                },
+                error: function () {
+                    layer.alert("提交失败...");
+                }
+            })
+        });
+    })
+</script>
+
+<style>
+    .st1 {
+        width:100%;/*自动适应父布局宽度*/
+        height:100%;
+        overflow:auto;
+        word-break:break-all;/*在ie中解决断行问题(防止自动变为在一行显示，主要解决ie兼容问题，ie8中当设宽度为100%时，文本域类容超过一行时，当我们双击文本内容就会自动变为一行显示，所以只能用ie的专有断行属性“word-break或word-wrap”控制其断行)*/
+    }
+</style>
+
+</body>
+</html>

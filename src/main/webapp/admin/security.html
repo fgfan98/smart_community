@@ -65,7 +65,50 @@
 
     <div class="layui-body">
         <!-- 内容主体区域 -->
-        <div style="padding: 15px;">内容主体区域</div>
+        <div style="padding: 30px;" class="layui-fluid">
+            <div class="layui-row">
+                <div class="layui-col-md12">
+                    <fieldset class="layui-elem-field layui-field-title"
+                              style="margin-top: 30px;">
+                        <legend>安全设置</legend>
+                    </fieldset>
+                </div>
+            </div>
+
+            <div id="formFilter" class="layui-form layui-form-pane" lay-filter="secForm" style="padding: 30px; margin-left: 25%; margin-right: 25%">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">新密码</label>
+                    <div class="layui-input-block">
+                        <input type="password" id="new_passwd" name="new_passwd" placeholder="请输入新密码（不填即不修改）" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label">新联系方式</label>
+                    <div class="layui-input-block">
+                        <input type="text" id="mobile" name="mobile" placeholder="请输入新的联系方式（不填即不修改）" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+
+                <fieldset class="layui-elem-field layui-field-title"
+                          style="margin-top: 30px;"></fieldset>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label">原密码</label>
+                    <div class="layui-input-block">
+                        <input type="password" id="old_passwd" name="old_passwd" placeholder="请输入原密码" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+            </div>
+
+            <fieldset class="layui-elem-field layui-field-title"
+                      style="margin-top: 30px;"></fieldset>
+
+            <div class="layui-form-item" align="center">
+                <button class="layui-btn" id="saveform">修改</button>
+                <button class="layui-btn layui-btn-primary" id="resetform">清空</button>
+            </div>
+        </div>
     </div>
 
     <div class="layui-footer">
@@ -79,9 +122,84 @@
     //JavaScript代码区域
     var admin = JSON.parse(sessionStorage.getItem("vo"));
 
-    layui.use('element', function(){
-        var element = layui.element;
+    layui.use(['element', 'form'], function(){
+        var element = layui.element,
+            form = layui.form
     });
+
+    $("#resetform").click(function () {
+        layui.form.val('secForm', {
+            'new_passwd': ''
+            ,'mobile': ''
+            ,'old_passwd': ''
+        })
+    })
+
+    $("#saveform").click(function () {
+        var old_p = $("#old_passwd").val();
+        if(old_p == admin.passwd) {
+            var new_p = $("#new_passwd").val();
+            var mobile = $("#mobile").val();
+            if (new_p == null || new_p == undefined || new_p == "")
+                new_p = admin.passwd;
+            if (mobile == null || mobile == undefined || mobile == "")
+                mobile = admin.mobile;
+            $.ajax({
+                type: 'post',
+                async: false,
+                url: '/smart_community/admin/upAdmin.do',
+                xhrFields: {
+                    withCredentials: true
+                },
+                crossDomain: true,
+                data: {
+                    "id": admin.id,
+                    "job_num": admin.job_num,
+                    "real_name": admin.real_name,
+                    "id_num": admin.id_num,
+                    "mobile": mobile,
+                    "sex": admin.sex,
+                    "passwd": new_p
+                },
+                dataType:'JSON',
+                success: function (res) {
+                    alert("保存成功！");
+                    upVo();
+                    window.location.reload();
+                },
+                error: function () {
+                    layer.alert("保存失败...")
+                    return;
+                }
+            })
+        } else {
+            alert("愿密码输入错误！！")
+        }
+    })
+
+    function upVo() {
+        $.ajax({
+            type: 'get',
+            async: false,
+            url: '/smart_community/admin/getAdminByJobNum.do',
+            xhrFields: {
+                withCredentials: true
+            },
+            crossDomain: true,
+            data: {
+                "job_num": admin.job_num
+            },
+            dataType:'JSON',
+            success: function (res) {
+                sessionStorage.setItem('vo',JSON.stringify(res));
+            },
+            error: function () {
+                alert("更新浏览器缓存错误...请重新登录...");
+                window.location.href = '../index.html';
+                return;
+            }
+        })
+    }
 
     function pageInit() {
         $("#user_name").html(admin.real_name);

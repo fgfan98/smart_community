@@ -1,13 +1,8 @@
 package com.gigsider.controller;
 
 import com.alibaba.fastjson.JSONObject;
-import com.gigsider.po.House;
-import com.gigsider.po.Parking;
-import com.gigsider.po.User;
-import com.gigsider.service.AdminService;
-import com.gigsider.service.HouseService;
-import com.gigsider.service.ParkingService;
-import com.gigsider.service.UserService;
+import com.gigsider.po.*;
+import com.gigsider.service.*;
 import com.gigsider.utils.SessionPool;
 import com.gigsider.vo.AdminVO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,9 +10,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -35,6 +28,8 @@ public class AdminController {
     private HouseService houseService;
     @Autowired
     private ParkingService parkingService;
+    @Autowired
+    private BulletinService bulletinService;
 
     @RequestMapping("/login.do")
     @ResponseBody
@@ -61,6 +56,22 @@ public class AdminController {
     @ResponseBody
     public void exit(String job_num) {
         SessionPool.destroyExistSession(job_num);
+    }
+
+    @RequestMapping("/getAdminByJobNum.do")
+    @ResponseBody
+    public Admin getAdminByJobNum(String job_num) {
+        List<Admin> list = adminService.getAdminByJobNum(job_num);
+        Admin admin = null;
+        if (list.size() > 0)
+            admin = list.get(0);
+        return admin;
+    }
+
+    @RequestMapping("/upAdmin.do")
+    @ResponseBody
+    public boolean upAdmin(Admin admin) {
+        return adminService.upAdmin(admin);
     }
 
     @RequestMapping("/getAllUser.do")
@@ -382,6 +393,68 @@ public class AdminController {
     @ResponseBody
     public boolean delParking(String parking_id) {
         return parkingService.delParking(parking_id);
+    }
+
+    @RequestMapping("/addBulletin.do")
+    @ResponseBody
+    public boolean addBulletin(Bulletin bulletin) {
+        return bulletinService.addBulletin(bulletin);
+    }
+
+    @RequestMapping("/delBulletin.do")
+    @ResponseBody
+    public boolean delBulletin(int id) {
+        return bulletinService.delBulletin(id);
+    }
+
+    @RequestMapping("/delBulletins.do")
+    @ResponseBody
+    public boolean delBulletins(String bulletins) {
+        List<Bulletin> data = JSONObject.parseArray(bulletins,Bulletin.class);
+        for (int i = 0; i < data.size(); i++){
+            int id = data.get(i).getId();
+            if(!bulletinService.delBulletin(id))
+                return false;
+        }
+        return true;
+    }
+
+    @RequestMapping("/upBulletin.do")
+    @ResponseBody
+    public boolean upBulletin(Bulletin bulletin) {
+        return bulletinService.upBulletin(bulletin);
+    }
+
+    @RequestMapping("/getAllBulletin.do")
+    @ResponseBody
+    public List<Bulletin> getAllBulletin() {
+        return bulletinService.getAllBulletin();
+    }
+
+    @RequestMapping("/getBulletinById.do")
+    @ResponseBody
+    public Bulletin getBulletinById(int id) {
+        List<Bulletin> list = bulletinService.getBulletinById(id);
+        Bulletin bulletin = null;
+        if (list.size() > 0)
+            bulletin = list.get(0);
+        return bulletin;
+    }
+
+    @RequestMapping("/getBulletinPage.do")
+    @ResponseBody
+    public Map<String,Object> getBulletinPage(int page, int limit) {
+        List<Bulletin> bulletins = bulletinService.getAllBulletin();
+        List<Bulletin> bulletin = bulletinService.getBulletinPage(page, limit);
+
+        Map<String,Object> tableData =new HashMap<String,Object>();
+
+        tableData.put("code", 0);
+        tableData.put("msg", "");
+        tableData.put("count", bulletins.size());
+        tableData.put("data", bulletin);
+        //返回给前端
+        return tableData;
     }
 
 }

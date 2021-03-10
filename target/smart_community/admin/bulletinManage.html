@@ -65,7 +65,34 @@
 
     <div class="layui-body">
         <!-- 内容主体区域 -->
-        <div style="padding: 15px;">内容主体区域</div>
+        <div style="padding: 30px;" class="layui-fluid">
+            <div class="layui-row">
+                <div class="layui-col-md12">
+                    <fieldset class="layui-elem-field layui-field-title"
+                              style="margin-top: 30px;">
+                        <legend>公告栏管理</legend>
+                    </fieldset>
+                </div>
+            </div>
+
+            <div class="layui-row">
+                <div class="layui-col-md1">&nbsp;</div>
+                <div class="layui-col-md10">
+                    <div class="layui-btn-group tableEdit">
+                        <button class="layui-btn" data-type="addBulletin">发布公告</button>
+                        <button class="layui-btn layui-btn-danger" data-type="delCheck">删除选中</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="layui-row">
+                <div class="layui-col-md1">&nbsp;</div>
+                <div class="layui-col-md10">
+                    <table class="layui-hide" id="bulletinTable" lay-filter="demo"></table>
+                </div>
+            </div>
+
+        </div>
     </div>
 
     <div class="layui-footer">
@@ -75,12 +102,140 @@
 </div>
 <script src="../layui/layui.js"></script>
 <script src="../layui/jquery.min.js"></script>
+<script type="text/html" id="barDemo">
+    <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
 <script>
     //JavaScript代码区域
     var admin = JSON.parse(sessionStorage.getItem("vo"));
 
-    layui.use('element', function(){
-        var element = layui.element;
+    layui.use(['element','table'], function(){
+        var element = layui.element
+            ,table = layui.table;
+
+        table.render({
+            elem: '#bulletinTable'
+            ,url: '/smart_community/admin/getBulletinPage.do'
+            ,limit: 10
+            ,limits: [10,30,50]
+            ,cols: [[
+                {type:'checkbox', width:'5%', fixed: 'left'}
+                ,{field:'id',width:'15%', title: '编号'}
+                ,{field:'post_date',width:'20%', title: '发布日期'}
+                ,{field:'content',width:'35%', title: '内容'}
+                ,{field:'job_num', width:'12.5%', title: '发布人'}
+                ,{fixed: 'right', minWidth:'178', align:'center', toolbar: '#barDemo'}
+            ]]
+            ,page: true
+        });
+
+        //监听工具条
+        table.on('tool(demo)', function(obj){
+            var data = obj.data;
+            if(obj.event === 'del'){
+                layer.confirm('是否删除该行目标？', function(index){
+                    console.log(obj);
+                    $.ajax({
+                        type: 'post',
+                        async: true,
+                        url: '/smart_community/admin/delBulletin.do',
+                        xhrFields: {
+                            withCredentials: true
+                        },
+                        crossDomain: true,
+                        dataType: 'JSON',
+                        data: {
+                            'id': obj.data.id
+                        },
+                        success: function (res) {
+                            if (res) {
+                                layer.msg("已删除该行目标！");
+                                setTimeout(function () {
+                                    window.location.reload();
+                                }, 2*1000);
+                            } else {
+                                layer.msg("删除失败...");
+                                setTimeout(function () {
+                                    window.location.reload();
+                                }, 2*1000);
+                            }
+                        }
+                    })
+                });
+            } else if(obj.event === 'edit'){
+                sessionStorage.setItem('bulletin_id', data.id);
+                layer.open({
+                    type: 2,
+                    title: '公告编辑',
+                    shadeClose: true,           //弹出框之外的地方是否可以点击
+                    offset: '10%',
+                    area: ['50%', '70%'],
+                    content: 'popup/editBulletin.html',
+                    end:function () {
+                        sessionStorage.removeItem('bulletin_id');
+                        window.location.reload();
+                    }
+                });
+            }
+        });
+
+        var $ = layui.$, active = {
+            delCheck: function(){ //获取选中数据
+                var checkStatus = table.checkStatus('bulletinTable')
+                    ,data = checkStatus.data;
+                if (data.length == 0){
+                    layer.msg("未选中目标..");
+                    return;
+                } else
+                    layer.confirm("是否删除选中目标？",function () {
+                        $.ajax({
+                            type: 'post',
+                            async: true,
+                            url: '/smart_community/admin/delBulletins.do',
+                            xhrFields: {
+                                withCredentials: true
+                            },
+                            crossDomain: true,
+                            dataType: 'JSON',
+                            data: {
+                                'bulletins': JSON.stringify(data)
+                            },
+                            success: function (res) {
+                                if (res) {
+                                    layer.msg("删除成功！");
+                                    setTimeout(function () {
+                                        window.location.reload();
+                                    }, 2*1000);
+                                } else {
+                                    layer.msg("部分删除失败...");
+                                    setTimeout(function () {
+                                        window.location.reload();
+                                    }, 2*1000);
+                                }
+                            }
+                        })
+                    })
+            }
+            ,addBulletin: function () {
+                layer.open({
+                    type: 2,
+                    title: '发布公告',
+                    shadeClose: true,           //弹出框之外的地方是否可以点击
+                    offset: '10%',
+                    area: ['50%', '70%'],
+                    content: 'popup/addBulletin.html',
+                    end:function () {
+                        window.location.reload();
+                    }
+                });
+            }
+        };
+
+        $('.tableEdit .layui-btn').on('click', function(){
+            var type = $(this).data('type');
+            active[type] ? active[type].call(this) : '';
+        });
     });
 
     function pageInit() {
@@ -91,7 +246,7 @@
         $.ajax({
             type: 'post',
             async: false,
-            url: 'http://127.0.0.1:8080/smart_community/admin/exit.do',
+            url: '/smart_community/admin/exit.do',
             xhrFields: {
                 withCredentials: true
             },

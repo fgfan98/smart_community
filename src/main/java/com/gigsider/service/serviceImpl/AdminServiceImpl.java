@@ -38,4 +38,14 @@ public class AdminServiceImpl implements AdminService {
         return adminVO;
 
     }
+
+    @Override
+    public List<Admin> getAdminByJobNum(String job_num) {
+        return adminDao.queryAdminByJobNum(job_num);
+    }
+
+    @Override
+    public boolean upAdmin(Admin admin) {
+        return adminDao.updateAdmin(admin);
+    }
 }
