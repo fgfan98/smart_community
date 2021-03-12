@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gigsider.dao.FeedbackDao">
+
+    <insert id="insertFeedback" parameterType="Feedback">
+        insert into
+        feedback (post_time, user_name, title, content)
+        values (#{post_time}, #{user_name}, #{title}, #{content});
+    </insert>
+
+    <delete id="deleteFeedback" parameterType="Integer">
+        delete from
+        feedback
+        where
+        id = #{id};
+    </delete>
+
+    <update id="updateFeedback" parameterType="Feedback">
+        update
+        feedback
+        set
+        reply = #{reply}, job_num = #{job_num}, reply_time = #{reply_time}
+        where
+        id = #{id};
+    </update>
+
+    <select id="queryAllFeedback" resultType="Feedback">
+        select * from
+        feedback
+        order by id desc;
+    </select>
+
+    <select id="queryFeedbackPage" parameterType="Map" resultType="Feedback">
+        select * from
+        feedback
+        order by id desc
+        limit #{page}, #{limit};
+    </select>
+
+    <select id="queryFeedbackById" parameterType="Integer" resultType="Feedback">
+        select * from
+        feedback
+        where
+        id = #{id};
+    </select>
+
+    <select id="queryFeedbackLike" parameterType="String" resultType="Feedback">
+        select * from
+        feedback
+        where
+        post_time like concat('%',#{data},'%') or title like concat('%',#{data},'%')
+        order by id desc;
+    </select>
+
+    <select id="queryFeedbackNull" resultType="Feedback">
+        select * from
+        feedback
+        where
+        reply is null
+        order by id desc;
+    </select>
+
+    <select id="queryFeedbackNNull" resultType="Feedback">
+        select * from
+        feedback
+        where
+        reply is not null
+        order by id desc;
+    </select>
+
+</mapper>

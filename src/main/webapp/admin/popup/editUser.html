@@ -142,7 +142,8 @@
                     'sex': user.sex,
                     'house': user.house,
                     'license_num': user.license_num,
-                    'house_id': house_id
+                    'house_id': house_id,
+                    'activated': user.activated=='未激活'?0:1
                 },
                 success: function (res) {
                     if (res){

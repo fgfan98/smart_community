@@ -30,6 +30,8 @@ public class AdminController {
     private ParkingService parkingService;
     @Autowired
     private BulletinService bulletinService;
+    @Autowired
+    private FeedbackService feedbackService;
 
     @RequestMapping("/login.do")
     @ResponseBody
@@ -231,7 +233,7 @@ public class AdminController {
         if (!userService.upUser(user)) {
             return false;
         }
-
+        
         return true;
     }
 
@@ -455,6 +457,52 @@ public class AdminController {
         tableData.put("data", bulletin);
         //返回给前端
         return tableData;
+    }
+
+    @RequestMapping("/upFeedback.do")
+    @ResponseBody
+    public boolean upFeedback(Feedback feedback) {
+        return feedbackService.upFeedback(feedback);
+    }
+
+    @RequestMapping("/getAllFeedback.do")
+    @ResponseBody
+    public List<Feedback> getAllFeedback() {
+        return feedbackService.getAllFeedback();
+    }
+
+    @RequestMapping("/getFeedbackPage.do")
+    @ResponseBody
+    public Map<String,Object> getFeedbackPage(int page, int limit) {
+        List<Feedback> feedbacks = feedbackService.getAllFeedback();
+        List<Feedback> feedback = feedbackService.getFeedbackPage(page, limit);
+
+        Map<String,Object> tableData =new HashMap<String,Object>();
+
+        tableData.put("code", 0);
+        tableData.put("msg", "");
+        tableData.put("count", feedbacks.size());
+        tableData.put("data", feedback);
+        //返回给前端
+        return tableData;
+    }
+
+    @RequestMapping("/getFeedbackLike.do")
+    @ResponseBody
+    public List<Feedback> getFeedbackLike(String data) {
+        return feedbackService.getFeedbackLike(data);
+    }
+
+    @RequestMapping("/getFeedbackNull.do")
+    @ResponseBody
+    public List<Feedback> getFeedbackNull() {
+        return feedbackService.getFeedbackNull();
+    }
+
+    @RequestMapping("/getFeedbackNNull.do")
+    @ResponseBody
+    public List<Feedback> getFeedbackNNull() {
+        return feedbackService.getFeedbackNNull();
     }
 
 }
