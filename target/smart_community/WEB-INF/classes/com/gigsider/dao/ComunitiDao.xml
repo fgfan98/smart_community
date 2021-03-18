@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gigsider.dao.ComunitiDao">
+
+    <insert id="insertComuniti" parameterType="Comuniti">
+        insert into
+        comuniti (title, content, post_id, post_time, official)
+        values (#{title}, #{content}, #{post_id}, #{post_time}, #{official});
+    </insert>
+
+    <delete id="deleteComuniti" parameterType="Integer">
+        delete from
+        comuniti
+        where
+        id = #{id};
+    </delete>
+
+    <update id="updateComuniti" parameterType="Comuniti">
+        update
+        comuniti
+        set
+        title = #{title}, content = #{content}
+        where
+        id = #{id};
+    </update>
+
+    <select id="queryAllComuniti" resultType="Comuniti">
+        select * from
+        comuniti
+        order by id desc;
+    </select>
+
+    <select id="queryComunitiPage" parameterType="Map" resultType="Comuniti">
+        select * from
+        comuniti
+        order by id desc
+        limit #{page}, #{limit};
+    </select>
+
+    <select id="queryComunitiById" parameterType="Integer" resultType="Comuniti">
+        select * from
+        comuniti
+        where
+        id = #{id};
+    </select>
+
+    <select id="queryComunitiLikePage" parameterType="Map" resultType="Comuniti">
+        select * from
+        comuniti
+        where
+        title like concat('%',#{like},'%')
+        order by id desc
+        limit #{page}, #{limit};
+    </select>
+
+    <select id="queryComunitiLike" parameterType="String" resultType="Comuniti">
+        select * from
+        comuniti
+        where
+        title like concat('%',#{like},'%')
+        order by id desc;
+    </select>
+
+</mapper>

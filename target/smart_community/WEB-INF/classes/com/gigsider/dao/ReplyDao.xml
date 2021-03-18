@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gigsider.dao.ReplyDao">
+
+    <insert id="insertReply" parameterType="Reply">
+        insert into
+        reply (comuniti_id, content, reply_id, reply_time, official)
+        values (#{comuniti_id}, #{content}, #{reply_id}, #{reply_time}, #{official});
+    </insert>
+
+    <delete id="deleteReply" parameterType="Integer">
+        delete from
+        reply
+        where
+        id = #{id};
+    </delete>
+
+    <update id="updateReply" parameterType="Reply">
+        update
+        reply
+        set
+        content = #{content}
+        where
+        id = #{id};
+    </update>
+
+    <select id="queryReplyByComunitiId" parameterType="Integer" resultType="Reply">
+        select * from
+        reply
+        where
+        comuniti_id = #{comuniti_id};
+    </select>
+
+    <select id="queryReplyByComunitiIdPage" parameterType="Map" resultType="Reply">
+        select * from
+        reply
+        where
+        comuniti_id = #{comuniti_id}
+        limit #{page}, #{limit};
+    </select>
+
+</mapper>

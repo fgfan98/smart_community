@@ -32,6 +32,10 @@ public class AdminController {
     private BulletinService bulletinService;
     @Autowired
     private FeedbackService feedbackService;
+    @Autowired
+    private ComunitiService comunitiService;
+    @Autowired
+    private ReplyService replyService;
 
     @RequestMapping("/login.do")
     @ResponseBody
@@ -503,6 +507,93 @@ public class AdminController {
     @ResponseBody
     public List<Feedback> getFeedbackNNull() {
         return feedbackService.getFeedbackNNull();
+    }
+
+    @RequestMapping("/getComunitiPage.do")
+    @ResponseBody
+    public Map<String,Object> getComunitiPage(int page, int limit) {
+        List<Comuniti> comunitis = comunitiService.getAllComuniti();
+        List<Comuniti> comuniti = comunitiService.getComunitiPage(page, limit);
+
+        Map<String,Object> tableData =new HashMap<String,Object>();
+
+        tableData.put("code", 0);
+        tableData.put("msg", "");
+        tableData.put("count", comunitis.size());
+        tableData.put("data", comuniti);
+        //返回给前端
+        return tableData;
+    }
+
+    @RequestMapping("getComunitiById.do")
+    @ResponseBody
+    public Comuniti getComunitiById(int id) {
+        Comuniti comuniti = null;
+
+        List<Comuniti> list = comunitiService.getComunitiById(id);
+        if (list.size() > 0)
+            comuniti = list.get(0);
+        else
+            return null;
+
+        List<Reply> replies = replyService.getReplyByComunitiId(id);
+        comuniti.setReplies(replies);
+
+        if (comuniti.getOfficial() == 1) {
+            List<Admin> adminList = adminService.getAdminByJobNum(comuniti.getPost_id());
+            if (adminList.size() > 0)
+                comuniti.setAdmin(adminList.get(0));
+            else
+                comuniti.setAdmin(null);
+        } else {
+            List<User> userList = userService.getUserByUserName(comuniti.getPost_id());
+            if(userList.size() > 0)
+                comuniti.setUser(userList.get(0));
+            else
+                comuniti.setUser(null);
+        }
+
+        return comuniti;
+    }
+
+    @RequestMapping("/addReply.do")
+    @ResponseBody
+    public boolean addReply(Reply reply) {
+        return replyService.addReply(reply);
+    }
+
+    @RequestMapping("/delReply.do")
+    @ResponseBody
+    public boolean delReply(int id) {
+        return replyService.delReply(id);
+    }
+
+    @RequestMapping("/delComuniti.do")
+    @ResponseBody
+    public boolean delComuniti(int id) {
+        return comunitiService.delComuniti(id);
+    }
+
+    @RequestMapping("/addComuniti.do")
+    @ResponseBody
+    public boolean addComuniti(Comuniti comuniti) {
+        return comunitiService.addComuniti(comuniti);
+    }
+
+    @RequestMapping("/getComunitiLike.do")
+    @ResponseBody
+    public Map<String,Object> getComunitiLike(String title, int page, int limit) {
+        List<Comuniti> comunitis = comunitiService.getComunitiLike(title);
+        List<Comuniti> comuniti = comunitiService.getComunitiLikePage(title, page, limit);
+
+        Map<String,Object> tableData =new HashMap<String,Object>();
+
+        tableData.put("code", 0);
+        tableData.put("msg", "");
+        tableData.put("count", comunitis.size());
+        tableData.put("data", comuniti);
+        //返回给前端
+        return tableData;
     }
 
 }

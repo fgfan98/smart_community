@@ -51,6 +51,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public List<User> getUserByUserName(String user_name) {
+        return userDao.queryUserByUserName(user_name);
+    }
+
+    @Override
     public List<User> getUserNamePage(int page, int limit, String real_name) {
         Map<String, Object> data = new HashMap<>();
         data.put("page", (page-1)*limit);

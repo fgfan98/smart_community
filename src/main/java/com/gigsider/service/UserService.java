@@ -22,6 +22,9 @@ public interface UserService {
     //通过姓名查找用户
     public List<User> getUserByName(String real_name);
 
+    //通过用户名查找用户
+    public List<User> getUserByUserName(String user_name);
+
     //获取用户姓名查找分页信息
     public List<User> getUserNamePage(int page, int limit, String real_name);
 

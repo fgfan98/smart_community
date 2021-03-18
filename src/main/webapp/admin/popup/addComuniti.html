@@ -8,15 +8,22 @@
 <body>
 
 <div id="formFilter" class="layui-form layui-form-pane" lay-filter="bulletinForm" style="padding: 30px;">
-    <div class="layui-form-item layui-form-text">
-        <label class="layui-form-label">回复内容</label>
+    <div class="layui-form-item">
+        <label class="layui-form-label">标题</label>
         <div class="layui-input-block">
-            <textarea id="reply" name="reply" style="display: none;"></textarea>
+            <input type="text" name="title" lay-verify="required" autocomplete="off" class="layui-input">
+        </div>
+    </div>
+
+    <div class="layui-form-item layui-form-text">
+        <label class="layui-form-label">内容</label>
+        <div class="layui-input-block">
+            <textarea id="content" name="content" placeholder="请输入内容" style="display: none;"></textarea>
         </div>
     </div>
 
     <div class="layui-form-item" align="center">
-        <button class="layui-btn" lay-submit="saveform" lay-filter="saveform">提交</button>
+        <button class="layui-btn" lay-submit="saveform" lay-filter="saveform">发布</button>
     </div>
 </div>
 
@@ -28,7 +35,7 @@
         var form = layui.form,
             layedit = layui.layedit;
 
-        var index = layedit.build('reply',{
+        var index = layedit.build('content',{
             height: '300',
             tool: [ 'strong' //加粗
                 ,'italic' //斜体
@@ -39,6 +46,8 @@
                 ,'center' //居中对齐
                 ,'right' //右对齐
                 ,'|'
+                ,'link' //超链接
+                ,'unlink' //清除链接
                 ,'face' //表情
             ]
         }); //建立编辑器
@@ -50,26 +59,27 @@
             $.ajax({
                 type: 'post',
                 async: true,
-                url: '/smart_community/admin/upFeedback.do',
+                url: '/smart_community/admin/addComuniti.do',
                 xhrFields: {
                     withCredentials: true
                 },
                 crossDomain: true,
                 data: {
-                    'reply': layedit.getContent(index),
-                    'job_num': admin.job_num,
-                    'reply_time': time,
-                    'id': sessionStorage.getItem('feedback_id')
+                    'content': layedit.getContent(index),
+                    'title': data.field.title,
+                    'post_id': admin.job_num,
+                    'post_time': time,
+                    'official': 1
                 },
                 success: function (res) {
                     if (res){
-                        alert("提交成功！");
+                        alert("发布成功！");
                         parent.layer.close(parent.layer.index);
                     }else
-                        layer.alert("提交失败...")
+                        layer.alert("发布失败...")
                 },
                 error: function () {
-                    layer.alert("提交失败...");
+                    layer.alert("发布失败...");
                 }
             })
         });

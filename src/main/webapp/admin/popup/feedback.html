@@ -46,7 +46,7 @@
         //监听提交
         form.on('submit(saveform)', function(data) {
             var d = new Date();
-            var time = d.getMonth()+1+'月'+d.getDate()+'日'+d.getHours()+':'+d.getMinutes();
+            var time = d.getFullYear()+'年'+ (Number(d.getMonth())+1)+'月'+d.getDate()+'日'+d.getHours()+':'+d.getMinutes();
             $.ajax({
                 type: 'post',
                 async: true,

@@ -65,7 +65,58 @@
 
     <div class="layui-body">
         <!-- 内容主体区域 -->
-        <div style="padding: 15px;">内容主体区域</div>
+        <div style="padding: 30px;" class="layui-fluid">
+            <div class="layui-row">
+                <div class="layui-col-md12">
+                    <div class="layui-tab" style="margin-top: 30px">
+                        <ul class="layui-tab-title">
+                            <li class="layui-this">交流区</li>
+                            <li>我的帖子</li>
+                        </ul>
+                        <div class="layui-tab-content">
+                            <div class="layui-tab-item layui-show">
+                                <div class="layui-row">
+                                    <div class="tableReload">
+                                        <div class="layui-col-md1">&nbsp;</div>
+                                        <div class="layui-col-md4">
+                                            搜索：
+                                            <div class="layui-inline">
+                                                <input class="layui-input" id="findInput" autocomplete="off">
+                                            </div>
+                                            <div class="layui-btn-group">
+                                                <button class="layui-btn" data-type="find">搜索</button>
+                                                <button class="layui-btn" data-type="getAll">显示全部</button>
+                                            </div>
+                                        </div>
+                                        <div class="layui-col-md2 layui-col-md-offset5">
+                                            <div class="layui-btn-group">
+                                                <button class="layui-btn" data-type="post">发帖</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="layui-row">
+                                    <div class="layui-col-md1">&nbsp;</div>
+                                    <div class="layui-col-md10">
+                                        <table id="comunitiTable" lay-filter="comunitiTable" class="layui-table" lay-skin="nob" lay-size="lg">
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="layui-tab-item">
+                                <div class="layui-row">
+                                    <div class="layui-col-md1">&nbsp;</div>
+                                    <div class="layui-col-md10">
+                                        <table id="myComunitiTable" class="layui-table" lay-skin="nob" lay-size="lg">
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="layui-footer">
@@ -79,19 +130,94 @@
     //JavaScript代码区域
     var admin = JSON.parse(sessionStorage.getItem("vo"));
 
-    layui.use('element', function(){
-        var element = layui.element;
+    layui.use(['element','table','layer'], function(){
+        var element = layui.element,
+            table = layui.table,
+            layer = layui.layer;
+
+        table.render({
+            elem: '#comunitiTable'
+            ,skin: 'nob' //行边框风格
+            ,size: 'lg' //小尺寸的表格
+            ,url: '/smart_community/admin/getComunitiPage.do'
+            ,limit: 10
+            ,limits: [10,15,30]
+            ,cols: [[
+                ,{field:'id',width:'0%', title: 'ID', hide:true}
+                ,{field:'title',width:'75%', title: '标题'}
+                ,{field:'post_id',width:'10%', title: '用户名'}
+                ,{field:'post_time', width:'15%', title: '发帖时间'}
+            ]]
+            ,page: true
+        });
+        //监听行单击事件（双击事件为：rowDouble）
+        table.on('row(comunitiTable)', function(obj){
+            var data = obj.data;
+
+            sessionStorage.setItem('comuniti_id', data.id);
+            window.location.href = './comunitiDetail.html';
+
+            //标注选中样式
+            obj.tr.addClass('layui-table-click').siblings().removeClass('layui-table-click');
+        });
+
+        var $ = layui.$, active = {
+            find: function(){
+                var findInput = $('#findInput');
+                //执行重载
+                table.reload('comunitiTable', {
+                    url: '/smart_community/admin/getComunitiLike.do',
+                    page: {
+                        curr: 1 //重新从第 1 页开始
+                    }
+                    ,where: {
+                        title: findInput.val()
+                    }
+                }, 'data');
+            }
+            ,getAll: function () {
+                //执行重载
+                table.reload('comunitiTable', {
+                    url: '/smart_community/admin/getComunitiPage.do',
+                    page: {
+                        curr: 1 //重新从第 1 页开始
+                    }
+                    ,where: {
+                        title: ''
+                    }
+                }, 'data');
+            }
+            ,post: function () {
+                layer.open({
+                    type: 2,
+                    title: '发布帖子',
+                    shadeClose: true,           //弹出框之外的地方是否可以点击
+                    offset: '10%',
+                    area: ['50%', '70%'],
+                    content: 'popup/addComuniti.html',
+                    end:function () {
+                        window.location.reload();
+                    }
+                });
+            }
+        };
+
+        $('.tableReload .layui-btn').on('click', function(){
+            var type = $(this).data('type');
+            active[type] ? active[type].call(this) : '';
+        });
     });
 
     function pageInit() {
         $("#user_name").html(admin.real_name);
+        sessionStorage.removeItem('comuniti_id');
     }
 
     function exit() {
         $.ajax({
             type: 'post',
             async: false,
-            url: 'http://127.0.0.1:8080/smart_community/admin/exit.do',
+            url: '/smart_community/admin/exit.do',
             xhrFields: {
                 withCredentials: true
             },
