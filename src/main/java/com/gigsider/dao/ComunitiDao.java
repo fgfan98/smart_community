@@ -31,4 +31,19 @@ public interface ComunitiDao {
     //模糊搜索
     public List<Comuniti> queryComunitiLike(String like);
 
+    //根据 post_id 查询帖子
+    public List<Comuniti> queryComunitiByPostId(String post_id);
+
+    //post_id 分页
+    public List<Comuniti> queryComunitiByPostIdPage(Map<String,Object> data);
+
+    //查询被举报的帖子
+    public List<Comuniti> queryReportedComuniti();
+
+    //举报帖子
+    public boolean reportComuniti(int id);
+
+    //取消举报
+    public boolean unReportComuniti(int id);
+
 }

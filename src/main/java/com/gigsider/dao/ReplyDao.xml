@@ -16,6 +16,13 @@
         id = #{id};
     </delete>
 
+    <delete id="deleteReplyByComunitiId" parameterType="Integer">
+        delete from
+        reply
+        where
+        comuniti_id = #{comuniti_id};
+    </delete>
+
     <update id="updateReply" parameterType="Reply">
         update
         reply
@@ -39,5 +46,31 @@
         comuniti_id = #{comuniti_id}
         limit #{page}, #{limit};
     </select>
+
+    <select id="queryReportedReply" resultType="Reply">
+        select * from
+        reply
+        where
+        reported = 1
+        order by id desc;
+    </select>
+
+    <update id="reportReply" parameterType="Integer">
+        update
+        reply
+        set
+        reported = 1
+        where
+        id = #{id};
+    </update>
+
+    <update id="unReportReply" parameterType="Integer">
+        update
+        reply
+        set
+        reported = 0
+        where
+        id = #{id};
+    </update>
 
 </mapper>

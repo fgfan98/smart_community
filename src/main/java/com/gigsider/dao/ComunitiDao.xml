@@ -62,4 +62,47 @@
         order by id desc;
     </select>
 
+    <select id="queryComunitiByPostId" parameterType="String" resultType="Comuniti">
+        select * from
+        comuniti
+        where
+        post_id = #{post_id}
+        order by id desc;
+    </select>
+
+    <select id="queryComunitiByPostIdPage" parameterType="Map" resultType="Comuniti">
+        select * from
+        comuniti
+        where
+        post_id = #{post_id}
+        order by id desc
+        limit #{page}, #{limit};
+    </select>
+
+    <select id="queryReportedComuniti" resultType="Comuniti">
+        select * from
+        comuniti
+        where
+        reported = 1
+        order by id desc;
+    </select>
+
+    <update id="reportComuniti" parameterType="Integer">
+        update
+        comuniti
+        set
+        reported = 1
+        where
+        id = #{id};
+    </update>
+
+    <update id="unReportComuniti" parameterType="Integer">
+        update
+        comuniti
+        set
+        reported = 0
+        where
+        id = #{id};
+    </update>
+
 </mapper>

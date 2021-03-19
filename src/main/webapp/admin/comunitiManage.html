@@ -65,7 +65,58 @@
 
     <div class="layui-body">
         <!-- 内容主体区域 -->
-        <div style="padding: 15px;">内容主体区域</div>
+        <div style="padding: 30px;" class="layui-fluid">
+            <div class="layui-row">
+                <div class="layui-col-md12">
+                    <div class="layui-tab" style="margin-top: 30px">
+                        <ul class="layui-tab-title">
+                            <li class="layui-this">所有帖子</li>
+                            <li>被举报</li>
+                        </ul>
+                        <div class="layui-tab-content">
+                            <div class="layui-tab-item layui-show">
+                                <div class="layui-row">
+                                    <div class="tableReload">
+                                        <div class="layui-col-md1">&nbsp;</div>
+                                        <div class="layui-col-md4">
+                                            搜索：
+                                            <div class="layui-inline">
+                                                <input class="layui-input" id="findInput" autocomplete="off">
+                                            </div>
+                                            <div class="layui-btn-group">
+                                                <button class="layui-btn" data-type="find">搜索</button>
+                                                <button class="layui-btn" data-type="getAll">显示全部</button>
+                                            </div>
+                                        </div>
+                                        <div class="layui-col-md2 layui-col-md-offset5">
+                                            <div class="layui-btn-group">
+                                                <button class="layui-btn layui-btn-danger" data-type="delCheck">删除选中</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="layui-row">
+                                    <div class="layui-col-md1">&nbsp;</div>
+                                    <div class="layui-col-md10">
+                                        <table id="comunitiTable" lay-filter="comunitiTable" class="layui-table">
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="layui-tab-item">
+                                <div class="layui-row">
+                                    <div class="layui-col-md1">&nbsp;</div>
+                                    <div class="layui-col-md10">
+                                        <div class="layui-collapse" id="beReported" style="margin-top: 30px;">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="layui-footer">
@@ -75,23 +126,328 @@
 </div>
 <script src="../layui/layui.js"></script>
 <script src="../layui/jquery.min.js"></script>
+<script type="text/html" id="barDemo">
+    <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="detail">查看</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
 <script>
     //JavaScript代码区域
     var admin = JSON.parse(sessionStorage.getItem("vo"));
 
-    layui.use('element', function(){
-        var element = layui.element;
+    layui.use(['element','table','layer'], function(){
+        var element = layui.element,
+            table = layui.table,
+            layer = layui.layer;
+
+        table.render({
+            elem: '#comunitiTable'
+            ,url: '/smart_community/admin/getComunitiPage.do'
+            ,limit: 10
+            ,limits: [10,15,30]
+            ,cols: [[
+                {type:'checkbox', width:'5%', fixed: 'left'}
+                ,{field:'title',width:'57.5%', title: '标题'}
+                ,{field:'post_id',width:'10%', title: '用户名'}
+                ,{field:'post_time', width:'15%', title: '发帖时间'}
+                ,{fixed: 'right', minWidth:'145', align:'center', toolbar: '#barDemo'}
+            ]]
+            ,page: true
+        });
+
+        //监听工具条
+        table.on('tool(comunitiTable)', function(obj){
+            var data = obj.data;
+            if(obj.event === 'detail'){
+                sessionStorage.setItem('comuniti_id', data.id);
+                layer.open({
+                    type: 2,
+                    title: '帖子详情',
+                    shadeClose: true,           //弹出框之外的地方是否可以点击
+                    offset: '10%',
+                    area: ['40%', '80%'],
+                    content: 'popup/comunitiDetail.html',
+                    end:function () {
+                        sessionStorage.removeItem('id');
+                        window.location.reload();
+                    }
+                });
+            } else if(obj.event === 'del'){
+                layer.confirm('是否删除该行目标？', function(index){
+                    $.ajax({
+                        type: 'post',
+                        async: true,
+                        url: '/smart_community/admin/delComuniti.do',
+                        xhrFields: {
+                            withCredentials: true
+                        },
+                        crossDomain: true,
+                        dataType: 'JSON',
+                        data: {
+                            'id': obj.data.id
+                        },
+                        success: function (res) {
+                            if (res) {
+                                layer.msg("已删除该行目标！");
+                                setTimeout(function () {
+                                    window.location.reload();
+                                }, 2*1000);
+                            } else {
+                                layer.msg("删除失败...");
+                                setTimeout(function () {
+                                    window.location.reload();
+                                }, 2*1000);
+                            }
+                        }
+                    })
+                });
+            }
+        });
+
+        var $ = layui.$, active = {
+            find: function(){
+                var findInput = $('#findInput');
+                //执行重载
+                table.reload('comunitiTable', {
+                    url: '/smart_community/admin/getComunitiLike.do',
+                    page: {
+                        curr: 1 //重新从第 1 页开始
+                    }
+                    ,where: {
+                        title: findInput.val()
+                    }
+                }, 'data');
+            }
+            ,getAll: function () {
+                //执行重载
+                table.reload('comunitiTable', {
+                    url: '/smart_community/admin/getComunitiPage.do',
+                    page: {
+                        curr: 1 //重新从第 1 页开始
+                    }
+                    ,where: {
+                        title: ''
+                    }
+                }, 'data');
+            }
+            ,delCheck: function(){ //获取选中数据
+                var checkStatus = table.checkStatus('comunitiTable')
+                    ,data = checkStatus.data;
+                if (data.length == 0){
+                    layer.msg("未选中目标..");
+                    return;
+                } else
+                    layer.confirm("是否删除选中目标？",function () {
+                        $.ajax({
+                            type: 'post',
+                            async: true,
+                            url: '/smart_community/admin/delComunitis.do',
+                            xhrFields: {
+                                withCredentials: true
+                            },
+                            crossDomain: true,
+                            dataType: 'JSON',
+                            data: {
+                                'comunitis': JSON.stringify(data)
+                            },
+                            success: function (res) {
+                                if (res) {
+                                    layer.msg("删除成功！");
+                                    setTimeout(function () {
+                                        window.location.reload();
+                                    }, 2*1000);
+                                } else {
+                                    layer.msg("部分删除失败...");
+                                    setTimeout(function () {
+                                        window.location.reload();
+                                    }, 2*1000);
+                                }
+                            }
+                        })
+                    })
+            }
+        };
+
+        $('.tableReload .layui-btn').on('click', function(){
+            var type = $(this).data('type');
+            active[type] ? active[type].call(this) : '';
+        });
     });
 
     function pageInit() {
         $("#user_name").html(admin.real_name);
+        $("#beReported").html("暂无举报");
+
+        $.ajax({
+            type: 'post',
+            async: false,
+            url: '/smart_community/admin/getReportedComuniti.do',
+            xhrFields: {
+                withCredentials: true
+            },
+            crossDomain: true,
+            success: function (comuniti) {
+                fillReportedComuniti(comuniti);
+                layui.element.init();
+
+                $.ajax({
+                    type: 'post',
+                    async: false,
+                    url: '/smart_community/admin/getReportedReply.do',
+                    xhrFields: {
+                        withCredentials: true
+                    },
+                    crossDomain: true,
+                    data:{
+                        "job_num": admin.job_num
+                    },
+                    success: function (reply) {
+                        fillReportedReply(reply);
+                        layui.element.init();
+                    },
+                    error: function () {
+                        layui.layer.alert("被举报的回复加载失败！");
+                    }
+                });
+            },
+            error: function () {
+                layui.layer.alert("被举报的帖子加载失败！");
+            }
+        });
+    }
+
+    function fillReportedComuniti(data) {
+        if (data.length == 0)
+            return;
+        var beReported = '';
+        for (var i = 0; i < data.length; i++) {
+            beReported += '<div class="layui-colla-item">';
+            beReported += '<h1 class="layui-colla-title">帖子：' + data[i].title + ' <button type="button" class="layui-btn layui-btn-danger layui-btn-xs" onclick="delComuniti(' + data[i].id + ')">删除</button><button type="button" class="layui-btn layui-btn-xs" onclick="unReportComuniti(' + data[i].id + ')">无异常</button></h1>';
+            beReported += '<div class="layui-colla-content">' + data[i].content + '</div></div>'
+        }
+        $("#beReported").html(beReported);
+    }
+
+    function fillReportedReply(data) {
+        if (data.length == 0)
+            return;
+        var beReported = $("#beReported").html();
+        for (var i = 0; i < data.length; i++) {
+            beReported += '<div class="layui-colla-item">';
+            beReported += '<h1 class="layui-colla-title">回复  <button type="button" class="layui-btn layui-btn-danger layui-btn-xs" onclick="delReply(' + data[i].id + ')">删除</button><button type="button" class="layui-btn layui-btn-xs" onclick="unReportReply(' + data[i].id + ')">无异常</button></h1>';
+            beReported += '<div class="layui-colla-content">' + data[i].content + '</div></div>'
+        }
+        $("#beReported").html(beReported);
+    }
+
+    function delReply(id) {
+        if (confirm("是否删除该评论？"))
+            $.ajax({
+                type: 'post',
+                async: false,
+                url: '/smart_community/admin/delReply.do',
+                xhrFields: {
+                    withCredentials: true
+                },
+                crossDomain: true,
+                data:{
+                    "id": id
+                },
+                success: function (res) {
+                    if (res) {
+                        alert("删除成功！");
+                        window.location.reload();
+                    } else
+                        alert("删除失败！");
+                },
+                error: function () {
+                    alert("删除失败！");
+                }
+            });
+    }
+
+    function unReportReply(id) {
+        if (confirm("是否确认该评论没有违规？"))
+            $.ajax({
+                type: 'post',
+                async: false,
+                url: '/smart_community/admin/unReportReply.do',
+                xhrFields: {
+                    withCredentials: true
+                },
+                crossDomain: true,
+                data:{
+                    "id": id
+                },
+                success: function (res) {
+                    if (res) {
+                        alert("成功！");
+                        window.location.reload();
+                    } else
+                        alert("失败！");
+                },
+                error: function () {
+                    alert("失败！");
+                }
+            });
+    }
+
+    function delComuniti(id) {
+        if (confirm("是否删除本帖？"))
+            $.ajax({
+                type: 'post',
+                async: false,
+                url: '/smart_community/admin/delComuniti.do',
+                xhrFields: {
+                    withCredentials: true
+                },
+                crossDomain: true,
+                data:{
+                    "id": id
+                },
+                success: function (res) {
+                    if (res) {
+                        alert("删除成功！");
+                        window.location.reload();
+                    } else
+                        alert("删除失败！");
+                },
+                error: function () {
+                    alert("删除失败！");
+                }
+            });
+    }
+
+    function unReportComuniti(id) {
+        if (confirm("是否确认该条帖子没有违规？"))
+            $.ajax({
+                type: 'post',
+                async: false,
+                url: '/smart_community/admin/unReportComuniti.do',
+                xhrFields: {
+                    withCredentials: true
+                },
+                crossDomain: true,
+                data:{
+                    "id": id
+                },
+                success: function (res) {
+                    if (res) {
+                        alert("成功！");
+                        window.location.reload();
+                    } else
+                        alert("失败！");
+                },
+                error: function () {
+                    alert("失败！");
+                }
+            });
     }
 
     function exit() {
         $.ajax({
             type: 'post',
             async: false,
-            url: 'http://127.0.0.1:8080/smart_community/admin/exit.do',
+            url: '/smart_community/admin/exit.do',
             xhrFields: {
                 withCredentials: true
             },

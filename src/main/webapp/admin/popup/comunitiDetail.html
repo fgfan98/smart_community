@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="../../layui/css/layui.css">
+</head>
+<body>
+
+
+<div style="padding: 30px;" class="layui-fluid">
+    <div class="layui-row">
+        <div class="layui-col-md12">
+
+
+            <div class="layui-tab" style="margin-top: 30px">
+                <fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
+                    <legend id="title"></legend>
+                </fieldset>
+
+                <div style="padding: 20px; background-color: #FAFAFA;">
+                    <div class="layui-row layui-col-space15" id="replies">
+                        <div class="layui-col-md12">
+                            <div class="layui-card">
+                                <div class="layui-card-header" id="post_id">null</div>
+                                <div class="layui-card-body" id="post_content">
+                                    null
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="../../layui/layui.js"></script>
+<script src="../../layui/jquery.min.js"></script>
+<script>
+    //JavaScript代码区域
+    var admin = JSON.parse(sessionStorage.getItem("vo"));
+    var comuniti_id = sessionStorage.getItem("comuniti_id");
+
+    layui.use(['element','layer','layedit'], function(){
+        var element = layui.element,
+            layer = layui.layer,
+            layedit = layui.layedit;
+
+        $.ajax({
+            type: 'post',
+            async: true,
+            url: '/smart_community/admin/getComunitiById.do',
+            xhrFields: {
+                withCredentials: true
+            },
+            crossDomain: true,
+            dataType: 'JSON',
+            data: {
+                'id': comuniti_id
+            },
+            success: function (res) {
+                if (res == null)
+                    alert('加载失败...');
+                else
+                    fillComuniti(res);
+            },
+            error: function () {
+                alert('加载失败...');
+            }
+        })
+
+        var index = layedit.build('reply',{
+            height: '100',
+            tool: [ 'strong' //加粗
+                ,'italic' //斜体
+                ,'underline' //下划线
+                ,'del' //删除线
+                ,'|' //分割线
+                ,'left' //左对齐
+                ,'center' //居中对齐
+                ,'right' //右对齐
+                ,'|'
+                ,'link' //超链接
+                ,'unlink' //清除链接
+                ,'face' //表情
+            ]
+        }); //建立编辑器
+    });
+
+    function fillComuniti(data) {
+        $("#title").html(data.title);
+        $("#post_id").html(data.post_id + '&nbsp;(' + data.post_time + ')' + '&nbsp;<button type="button" class="layui-btn layui-btn-danger layui-btn-xs" onclick="delComuniti(' + data.id + ')">' + '删除帖子' + '</button>');
+        $("#post_content").html(data.content);
+
+        var replies = $("#replies").html();
+        for (var i = 0; i < data.replies.length; i++) {
+            replies += '<div class="layui-col-md12"><div class="layui-card">';
+            replies += '<div class="layui-card-header">' + data.replies[i].reply_id + '&nbsp;(' + data.replies[i].reply_time + ')' + '&nbsp;<button type="button" class="layui-btn layui-btn-primary layui-btn-xs" onclick="delReply('+ data.replies[i].id +')">' + '删除回复' + '</button>' + '</div>';
+            replies += '<div class="layui-card-body">' + data.replies[i].content + '</div>';
+            replies += '</div></div>';
+        }
+        $("#replies").html(replies);
+    }
+
+    function delReply(id) {
+        if (confirm("是否删除该评论？"))
+            $.ajax({
+                type: 'post',
+                async: false,
+                url: '/smart_community/admin/delReply.do',
+                xhrFields: {
+                    withCredentials: true
+                },
+                crossDomain: true,
+                data:{
+                    "id": id
+                },
+                success: function (res) {
+                    if (res) {
+                        alert("删除成功！");
+                        window.location.reload();
+                    } else
+                        alert("删除失败！");
+                },
+                error: function () {
+                    alert("删除失败！");
+                }
+            });
+    }
+
+    function delComuniti(id) {
+        if (confirm("是否删除本帖？"))
+            $.ajax({
+                type: 'post',
+                async: false,
+                url: '/smart_community/admin/delComuniti.do',
+                xhrFields: {
+                    withCredentials: true
+                },
+                crossDomain: true,
+                data:{
+                    "id": id
+                },
+                success: function (res) {
+                    if (res) {
+                        alert("删除成功！");
+                        parent.layer.close(parent.layer.index);
+                    } else
+                        alert("删除失败！");
+                },
+                error: function () {
+                    alert("删除失败！");
+                }
+            });
+    }
+</script>
+</body>
+</html>

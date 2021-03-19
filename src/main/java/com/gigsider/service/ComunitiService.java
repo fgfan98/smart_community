@@ -3,6 +3,7 @@ package com.gigsider.service;
 import com.gigsider.po.Comuniti;
 
 import java.util.List;
+import java.util.Map;
 
 public interface ComunitiService {
 
@@ -29,5 +30,20 @@ public interface ComunitiService {
 
     //模糊查询
     public List<Comuniti> getComunitiLike(String like);
+
+    //根据 post_id 查询帖子
+    public List<Comuniti> getComunitiByPostId(String post_id);
+
+    //post_id 分页
+    public List<Comuniti> getComunitiByPostIdPage(String post_id, int page, int limit);
+
+    //获取被举报的帖子
+    public List<Comuniti> getReportedComuniti();
+
+    //举报帖子
+    public boolean reportComuniti(int id);
+
+    //取消举报
+    public boolean unReportComuniti(int id);
 
 }

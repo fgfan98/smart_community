@@ -8,10 +8,19 @@ public class Reply {
     private String reply_id;
     private String reply_time;
     private int official;
+    private int reported;
 
     //表外字段
     private Admin admin;
     private User user;
+
+    public int getReported() {
+        return reported;
+    }
+
+    public void setReported(int reported) {
+        this.reported = reported;
+    }
 
     public int getOfficial() {
         return official;

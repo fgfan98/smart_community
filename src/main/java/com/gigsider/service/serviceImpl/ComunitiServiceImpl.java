@@ -62,4 +62,33 @@ public class ComunitiServiceImpl implements ComunitiService {
     public List<Comuniti> getComunitiLike(String like) {
         return comunitiDao.queryComunitiLike(like);
     }
+
+    @Override
+    public List<Comuniti> getComunitiByPostId(String post_id) {
+        return comunitiDao.queryComunitiByPostId(post_id);
+    }
+
+    @Override
+    public List<Comuniti> getComunitiByPostIdPage(String post_id, int page, int limit) {
+        Map<String,Object> data = new HashMap<>();
+        data.put("post_id", post_id);
+        data.put("page", (page-1)*limit);
+        data.put("limit", limit);
+        return comunitiDao.queryComunitiByPostIdPage(data);
+    }
+
+    @Override
+    public List<Comuniti> getReportedComuniti() {
+        return comunitiDao.queryReportedComuniti();
+    }
+
+    @Override
+    public boolean reportComuniti(int id) {
+        return comunitiDao.reportComuniti(id);
+    }
+
+    @Override
+    public boolean unReportComuniti(int id) {
+        return comunitiDao.unReportComuniti(id);
+    }
 }

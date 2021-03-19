@@ -107,8 +107,11 @@
                                 <div class="layui-row">
                                     <div class="layui-col-md1">&nbsp;</div>
                                     <div class="layui-col-md10">
-                                        <table id="myComunitiTable" class="layui-table" lay-skin="nob" lay-size="lg">
-                                        </table>
+                                        <fieldset class="layui-elem-field layui-field-title" style="margin-top: 30px;">
+                                            <legend>我的帖子</legend>
+                                        </fieldset>
+                                        <div class="layui-collapse" id="myComuniti">
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -211,6 +214,67 @@
     function pageInit() {
         $("#user_name").html(admin.real_name);
         sessionStorage.removeItem('comuniti_id');
+
+        $.ajax({
+            type: 'post',
+            async: true,
+            url: '/smart_community/admin/getMyComuniti.do',
+            xhrFields: {
+                withCredentials: true
+            },
+            crossDomain: true,
+            dataType: 'JSON',
+            data: {
+                'post_id': admin.job_num
+            },
+            success: function (res) {
+                if (res == null)
+                    alert('加载失败...');
+                else {
+                    fillMyComuniti(res);
+                    layui.element.init();
+                }
+            },
+            error: function () {
+                alert('加载失败...');
+            }
+        })
+    }
+
+    function fillMyComuniti(data) {
+        var myComuniti = '';
+        for (var i = 0; i < data.length; i++) {
+            myComuniti += '<div class="layui-colla-item">';
+            myComuniti += '<h1 class="layui-colla-title">' + data[i].title + ' <button type="button" class="layui-btn layui-btn-danger layui-btn-xs" onclick="delComuniti(' + data[i].id + ')">删除</button></h1>';
+            myComuniti += '<div class="layui-colla-content">' + data[i].content + '</div></div>'
+        }
+        $("#myComuniti").html(myComuniti);
+    }
+
+    function delComuniti(id) {
+        if (confirm("是否删除本帖？"))
+            $.ajax({
+                type: 'post',
+                async: false,
+                url: '/smart_community/admin/delComuniti.do',
+                xhrFields: {
+                    withCredentials: true
+                },
+                crossDomain: true,
+                data:{
+                    "id": id
+                },
+                success: function (res) {
+                    if (res) {
+                        alert("删除成功！");
+                        window.location.href = './comuniti.html';
+                    } else
+                        alert("删除失败！");
+                },
+                error: function () {
+                    alert("删除失败！");
+                }
+            });
     }
 
     function exit() {

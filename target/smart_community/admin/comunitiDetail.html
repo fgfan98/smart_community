@@ -90,7 +90,10 @@
                         <div style="padding: 20px; background-color: #FAFAFA;">
                             <textarea id="reply" name="reply" placeholder="请输入内容" style="display: none;"></textarea>
                             <div class="layui-form-item" align="center">
-                                <button class="layui-btn" id="submit_reply">回复</button>
+                                <div class="layui-btn-group">
+                                    <button class="layui-btn" id="submit_reply">回复</button>
+                                    <button class="layui-btn layui-btn-primary" onclick="javascript:window.location.href='./comuniti.html'">返回</button>
+                                </div>
                             </div>
                         </div>
 
@@ -160,6 +163,11 @@
         $("#submit_reply").click(function () {
             var d = new Date();
             var time = d.getFullYear()+'年'+ (Number(d.getMonth())+1)+'月'+d.getDate()+'日'+d.getHours()+':'+d.getMinutes();
+            var content = layedit.getContent(index);
+            if (content == null || content == undefined || content == "") {
+                layui.layer.alert("请输入内容！");
+                return;
+            }
             $.ajax({
                 type: 'post',
                 async: true,
@@ -169,7 +177,7 @@
                 },
                 crossDomain: true,
                 data: {
-                    'content': layedit.getContent(index),
+                    'content': content,
                     'reply_id': admin.job_num,
                     'reply_time': time,
                     'official': 1,

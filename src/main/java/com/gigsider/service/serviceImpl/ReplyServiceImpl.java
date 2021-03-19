@@ -44,4 +44,24 @@ public class ReplyServiceImpl implements ReplyService {
         data.put("limit", limit);
         return replyDao.queryReplyByComunitiIdPage(data);
     }
+
+    @Override
+    public boolean delReplyByComunitiId(int comuniti_id) {
+        return replyDao.deleteReplyByComunitiId(comuniti_id);
+    }
+
+    @Override
+    public List<Reply> getReportedReply() {
+        return replyDao.queryReportedReply();
+    }
+
+    @Override
+    public boolean reportReply(int id) {
+        return replyDao.reportReply(id);
+    }
+
+    @Override
+    public boolean unReportReply(int id) {
+        return replyDao.unReportReply(id);
+    }
 }

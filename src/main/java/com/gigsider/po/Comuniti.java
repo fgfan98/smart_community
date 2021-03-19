@@ -10,11 +10,20 @@ public class Comuniti {
     private String post_id;
     private String post_time;
     private int official;
+    private int reported;
 
     //表外字段
     private Admin admin;
     private User user;
     private List<Reply> replies;
+
+    public int getReported() {
+        return reported;
+    }
+
+    public void setReported(int reported) {
+        this.reported = reported;
+    }
 
     public int getOfficial() {
         return official;

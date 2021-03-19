@@ -571,7 +571,20 @@ public class AdminController {
     @RequestMapping("/delComuniti.do")
     @ResponseBody
     public boolean delComuniti(int id) {
-        return comunitiService.delComuniti(id);
+        return comunitiService.delComuniti(id) && replyService.delReplyByComunitiId(id);
+    }
+
+    @RequestMapping("/delComunitis.do")
+    @ResponseBody
+    public boolean delComunitis(String comunitis) {
+        List<Comuniti> data = JSONObject.parseArray(comunitis,Comuniti.class);
+        for (int i = 0; i < data.size(); i++){
+            int id = data.get(i).getId();
+            replyService.delReplyByComunitiId(id);
+            if (!comunitiService.delComuniti(id))
+                return false;
+        }
+        return true;
     }
 
     @RequestMapping("/addComuniti.do")
@@ -594,6 +607,48 @@ public class AdminController {
         tableData.put("data", comuniti);
         //返回给前端
         return tableData;
+    }
+
+    @RequestMapping("/getMyComuniti.do")
+    @ResponseBody
+    public List<Comuniti> getMyComuniti(String post_id) {
+        return comunitiService.getComunitiByPostId(post_id);
+    }
+
+    @RequestMapping("/getReportedComuniti.do")
+    @ResponseBody
+    public List<Comuniti> getReportedComuniti() {
+        return comunitiService.getReportedComuniti();
+    }
+
+    @RequestMapping("/reportComuniti.do")
+    @ResponseBody
+    public boolean reportComuniti(int id) {
+        return comunitiService.reportComuniti(id);
+    }
+
+    @RequestMapping("/unReportComuniti.do")
+    @ResponseBody
+    public boolean unReportComuniti(int id) {
+         return comunitiService.unReportComuniti(id);
+    }
+
+    @RequestMapping("/getReportedReply.do")
+    @ResponseBody
+    public List<Reply> getReportedReply() {
+        return replyService.getReportedReply();
+    }
+
+    @RequestMapping("/reportReply.do")
+    @ResponseBody
+    public boolean reportReply(int id) {
+        return replyService.reportReply(id);
+    }
+
+    @RequestMapping("/unReportReply.do")
+    @ResponseBody
+    public boolean unReportReply(int id) {
+        return replyService.unReportReply(id);
     }
 
 }
