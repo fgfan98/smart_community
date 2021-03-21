@@ -72,7 +72,7 @@
 				  if(res.msg == "success" || res.msg == "warning")
 				  {
 					  sessionStorage.setItem("identity","user");
-					  sessionStorage.setItem("user_id",res.user)
+					  sessionStorage.setItem("vo",JSON.stringify(res.user))
 					  window.location.href = "user/index.html";
 				  }
 				  else
@@ -80,6 +80,78 @@
 			  }
 		  })
 	  }
+
+	  function userSignUp() {
+	  	var id_num = $("#idNum").val()
+		  ,user_name = $("#userName").val()
+		  ,mobile = $("#mobile").val()
+		  ,passwd = $("#password").val()
+		  ,passwd_confirm = $("#passwordConfirm").val();
+
+	  	if(!(passwd === passwd_confirm)) {
+			alert("两次密码不一致！请重新输入！");
+			return ;
+		}
+
+		  $.ajax({
+			  type: 'post',
+			  async: false,
+			  url: '/smart_community/user/isUserExistByIdNum.do',
+			  xhrFields: {
+				  withCredentials: true
+			  },
+			  crossDomain: true,
+			  data: {
+				  "id_num": id_num
+			  },
+			  dataType:'JSON',
+			  success: function (res) {
+				  if(res != null) {
+				  	if (res.activated == 1) {
+						alert("您的账户已激活，请直接登录。");
+						return ;
+					} else {
+						$.ajax({
+							type: 'post',
+							async: false,
+							url: '/smart_community/user/upUser.do',
+							xhrFields: {
+								withCredentials: true
+							},
+							crossDomain: true,
+							data: {
+								"id_num": id_num,
+								"user_name": user_name,
+								"real_name": res.real_name,
+								"mobile": mobile,
+								"passwd": passwd,
+								"sex": res.sex,
+								"activated": 1,
+								"house": res.house,
+								"license_num": res.license_num,
+								"id": res.id
+							},
+							dataType:'JSON',
+							success: function (res) {
+								if (res) {
+									alert("成功激活业主账户！");
+									window.location.href = "./index.html";
+								}
+								else
+									alert("激活失败...");
+							},
+							error: function () {
+								alert("激活失败...");
+							}
+						})
+					}
+				  } else {
+				  	alert("您还不是业主！");
+				  }
+			  }
+		  })
+	  }
+
 	 addEventListener("load", function () { setTimeout(hideURLbar, 0); }, false); function hideURLbar() { window.scrollTo(0, 1); }
   </script>
   <!-- Meta tags -->
@@ -119,7 +191,7 @@
 
 		<div class="w3layouts_more-buttn">
 		   <h3>还没有账号..?
-			  <a href="#content1">业主注册
+			  <a href="#content1">业主账号激活
 			  </a>
 		   </h3>
 		</div>
@@ -128,24 +200,24 @@
 		   <div class="popup">
 			  <!--login form-->
 			  <div class="letter-w3ls">
-				 <form action="#" method="post">
+				 <form action="javascript:userSignUp()" method="post">
 					 <div class="form-left-to-w3l">
-						 <input type="text" name="IDCard" placeholder="身份证号" required="true">
+						 <input type="text" id="idNum" placeholder="身份证号" required="true">
 					 </div>
 					<div class="form-left-to-w3l">
-					   <input type="text" name="userName" placeholder="用户名" required="true">
+					   <input type="text" id="userName" placeholder="用户名" required="true">
 					</div>
 					<div class="form-left-to-w3l">
-					   <input type="text" name="phone" placeholder="电话" required="true">
+					   <input type="text" id="mobile" placeholder="电话" required="true">
 					</div>
 					<div class="form-left-to-w3l">
-					   <input type="password" name="password" placeholder="密码" required="true">
+					   <input type="password" id="password" placeholder="密码" required="true">
 					</div>
 					<div class="form-left-to-w3l margin-zero">
-					   <input type="password" name="passwordConfirm" placeholder="确认密码" required="true">
+					   <input type="password" id="passwordConfirm" placeholder="确认密码" required="true">
 					</div>
 					<div class="btnn">
-					   <button type="submit">注册</button>
+					   <button type="submit">激活</button>
 					   <br>
 					</div>
 				 </form>

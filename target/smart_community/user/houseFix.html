@@ -12,7 +12,7 @@
         <div class="layui-logo">智能社区--业主</div>
         <!-- 头部区域（可配合layui已有的水平导航） -->
         <ul class="layui-nav layui-layout-left">
-            <li class="layui-nav-item layui-this"><a href="bulletin.html">公告栏</a></li>
+            <li class="layui-nav-item"><a href="bulletin.html">公告栏</a></li>
             <li class="layui-nav-item"><a href="comuniti.html">交流区</a></li>
         </ul>
         <ul class="layui-nav layui-layout-right">
@@ -57,20 +57,6 @@
 
     <div class="layui-body">
         <!-- 内容主体区域 -->
-        <!-- 内容主体区域 -->
-        <div style="padding: 30px;" class="layui-fluid">
-            <div class="layui-row">
-                <div class="layui-col-md12">
-                    <fieldset class="layui-elem-field layui-field-title"
-                              style="margin-top: 30px;">
-                        <legend>公告栏</legend>
-                    </fieldset>
-                </div>
-            </div>
-        </div>
-
-        <div id="bulletin" style="padding: 30px; margin-left: 10%; margin-right: 40%">
-        </div>
     </div>
 
     <div class="layui-footer">
@@ -87,88 +73,7 @@
     layui.use(['element','layer'], function(){
         var element = layui.element;
 
-        $.ajax({
-            type: 'get',
-            async: false,
-            url: '/smart_community/user/getAllBulletin.do',
-            xhrFields: {
-                withCredentials: true
-            },
-            crossDomain: true,
-            dataType:'JSON',
-            success: function (res) {
-                if (res == null){
-                    layer.alert("加载失败...")
-                    return;
-                }
-                fillBulletin(res);
-            },
-            error: function () {
-                layer.alert("加载失败...")
-                return;
-            }
-        })
-
     });
-
-    function fillBulletin(data) {
-        var b = '<ul class="layui-timeline">';
-        for (var i = 0; i < data.length; i++) {
-            b = b + '<li class="layui-timeline-item">\n' +
-                '                    <i class="layui-icon layui-timeline-axis" onclick="viewFull('+data[i].id+')"></i>\n' +
-                '                    <div class="layui-timeline-content layui-text">';
-            b = b + '<h3 class="layui-timeline-title">' + data[i].post_date + '</h3>';
-            b = b + '<p>' + data[i].content.substring(0,100) + '</p>';
-            b = b + '</div>' + '</li>';
-        }
-        b = b + '</ul>';
-        $("#bulletin").html(b);
-    }
-
-    function viewFull(id) {
-        $.ajax({
-            type: 'get',
-            async: false,
-            url: '/smart_community/user/getBulletinById.do',
-            xhrFields: {
-                withCredentials: true
-            },
-            crossDomain: true,
-            data: {
-                'id': id
-            },
-            dataType:'JSON',
-            success: function (res) {
-                if (res == null){
-                    layer.alert("加载失败...")
-                    return;
-                }
-                //公告层
-                layui.layer.open({
-                    type: 1
-                    ,title: false //不显示标题栏
-                    ,closeBtn: false
-                    ,area: 'auto'
-                    ,maxWidth: '800'
-                    ,shade: 0.8
-                    ,id: 'LAY_layuipro' //设定一个id，防止重复弹出
-                    ,btn: ['了解']
-                    ,btnAlign: 'c'
-                    ,moveType: 1 //拖拽模式，0或者1
-                    ,content: '<div style="padding: 50px; line-height: 22px; background-color: #393D49; color: #fff; font-weight: 300;">'+res.content+'</div>'
-                    ,success: function(layero){
-                        var btn = layero.find('.layui-layer-btn');
-                        btn.find('.layui-layer-btn0').attr({
-                        });
-                    }
-                });
-            },
-            error: function () {
-                layer.alert("加载失败...")
-                return;
-            }
-        })
-    }
 
     function pageInit() {
         $("#user_name").html(user.real_name);

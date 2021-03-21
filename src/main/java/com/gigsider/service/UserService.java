@@ -28,6 +28,9 @@ public interface UserService {
     //获取用户姓名查找分页信息
     public List<User> getUserNamePage(int page, int limit, String real_name);
 
+    //通过 id_num 查找用户
+    public List<User> getUserByIdNum(String id_num);
+
     //添加用户
     public boolean addUser(User user);
 

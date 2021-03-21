@@ -571,7 +571,8 @@ public class AdminController {
     @RequestMapping("/delComuniti.do")
     @ResponseBody
     public boolean delComuniti(int id) {
-        return comunitiService.delComuniti(id) && replyService.delReplyByComunitiId(id);
+        replyService.delReplyByComunitiId(id);
+        return comunitiService.delComuniti(id);
     }
 
     @RequestMapping("/delComunitis.do")

@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>layout 后台大布局 - Layui</title>
+    <link rel="stylesheet" href="../layui/css/layui.css">
+</head>
+<body class="layui-layout-body" onload="pageInit()">
+<div class="layui-layout layui-layout-admin">
+    <div class="layui-header">
+        <div class="layui-logo">智能社区--业主</div>
+        <!-- 头部区域（可配合layui已有的水平导航） -->
+        <ul class="layui-nav layui-layout-left">
+            <li class="layui-nav-item"><a href="bulletin.html">公告栏</a></li>
+            <li class="layui-nav-item layui-this"><a href="comuniti.html">交流区</a></li>
+        </ul>
+        <ul class="layui-nav layui-layout-right">
+            <li class="layui-nav-item">
+                <a href="javascript:;">
+                    <img src="http://t.cn/RCzsdCq" class="layui-nav-img">
+                    <label id="user_name">null</label>
+                </a>
+                <dl class="layui-nav-child">
+                    <dd><a href="userInfo.html">基本资料</a></dd>
+                    <dd><a href="security.html">安全设置</a></dd>
+                </dl>
+            </li>
+            <li class="layui-nav-item"><a href="javascript:exit()">安全退出</a></li>
+        </ul>
+    </div>
+
+    <div class="layui-side layui-bg-black">
+        <div class="layui-side-scroll">
+            <!-- 左侧导航区域（可配合layui已有的垂直导航） -->
+            <ul class="layui-nav layui-nav-tree"  lay-filter="test">
+                <li class="layui-nav-item"><a href="houseFix.html">报修&安装</a></li>
+                <li class="layui-nav-item"><a href="feedback.html">意见反馈</a></li>
+                <li class="layui-nav-item layui-nav-itemed">
+                    <a class="" href="javascript:;">个人信息</a>
+                    <dl class="layui-nav-child">
+                        <dd><a href="userInfo.html">基本资料</a></dd>
+                        <dd><a href="security.html">安全设置</a></dd>
+                    </dl>
+                </li>
+                <li class="layui-nav-item layui-nav-itemed">
+                    <a href="javascript:;">社区</a>
+                    <dl class="layui-nav-child">
+                        <dd><a href="house.html">住宅信息</a></dd>
+                        <dd><a href="parking.html">车位信息</a></dd>
+                        <dd><a href="payment.html">缴费</a></dd>
+                    </dl>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="layui-body">
+        <!-- 内容主体区域 -->
+        <div style="padding: 30px;" class="layui-fluid">
+            <div class="layui-row">
+                <div class="layui-col-md12">
+                    <div class="layui-tab" style="margin-top: 30px">
+                        <ul class="layui-tab-title">
+                            <li class="layui-this">交流区</li>
+                            <li>我的帖子</li>
+                        </ul>
+                        <div class="layui-tab-content">
+                            <div class="layui-tab-item layui-show">
+                                <div class="layui-row">
+                                    <div class="tableReload">
+                                        <div class="layui-col-md1">&nbsp;</div>
+                                        <div class="layui-col-md4">
+                                            搜索：
+                                            <div class="layui-inline">
+                                                <input class="layui-input" id="findInput" autocomplete="off">
+                                            </div>
+                                            <div class="layui-btn-group">
+                                                <button class="layui-btn" data-type="find">搜索</button>
+                                                <button class="layui-btn" data-type="getAll">显示全部</button>
+                                            </div>
+                                        </div>
+                                        <div class="layui-col-md2 layui-col-md-offset5">
+                                            <div class="layui-btn-group">
+                                                <button class="layui-btn" data-type="post">发帖</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="layui-row">
+                                    <div class="layui-col-md1">&nbsp;</div>
+                                    <div class="layui-col-md10">
+                                        <table id="comunitiTable" lay-filter="comunitiTable" class="layui-table" lay-skin="nob" lay-size="lg">
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="layui-tab-item">
+                                <div class="layui-row">
+                                    <div class="layui-col-md1">&nbsp;</div>
+                                    <div class="layui-col-md10">
+                                        <fieldset class="layui-elem-field layui-field-title" style="margin-top: 30px;">
+                                            <legend>我的帖子</legend>
+                                        </fieldset>
+                                        <div class="layui-collapse" id="myComuniti">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="layui-footer">
+        <!-- 底部固定区域 -->
+        B17041711方凡
+    </div>
+</div>
+<script src="../layui/layui.js"></script>
+<script src="../layui/jquery.min.js"></script>
+<script>
+    //JavaScript代码区域
+    var user = JSON.parse(sessionStorage.getItem("vo"));
+
+    layui.use(['element','table','layer'], function(){
+        var element = layui.element,
+            table = layui.table,
+            layer = layui.layer;
+
+        table.render({
+            elem: '#comunitiTable'
+            ,skin: 'nob' //行边框风格
+            ,size: 'lg' //小尺寸的表格
+            ,url: '/smart_community/user/getComunitiPage.do'
+            ,limit: 10
+            ,limits: [10,15,30]
+            ,cols: [[
+                ,{field:'id',width:'0%', title: 'ID', hide:true}
+                ,{field:'title',width:'75%', title: '标题'}
+                ,{field:'post_id',width:'10%', title: '用户名'}
+                ,{field:'post_time', width:'15%', title: '发帖时间'}
+            ]]
+            ,page: true
+        });
+        //监听行单击事件（双击事件为：rowDouble）
+        table.on('row(comunitiTable)', function(obj){
+            var data = obj.data;
+
+            sessionStorage.setItem('comuniti_id', data.id);
+            window.location.href = './comunitiDetail.html';
+
+            //标注选中样式
+            obj.tr.addClass('layui-table-click').siblings().removeClass('layui-table-click');
+        });
+
+        var $ = layui.$, active = {
+            find: function(){
+                var findInput = $('#findInput');
+                //执行重载
+                table.reload('comunitiTable', {
+                    url: '/smart_community/user/getComunitiLike.do',
+                    page: {
+                        curr: 1 //重新从第 1 页开始
+                    }
+                    ,where: {
+                        title: findInput.val()
+                    }
+                }, 'data');
+            }
+            ,getAll: function () {
+                //执行重载
+                table.reload('comunitiTable', {
+                    url: '/smart_community/user/getComunitiPage.do',
+                    page: {
+                        curr: 1 //重新从第 1 页开始
+                    }
+                    ,where: {
+                        title: ''
+                    }
+                }, 'data');
+            }
+            ,post: function () {
+                layer.open({
+                    type: 2,
+                    title: '发布帖子',
+                    shadeClose: true,           //弹出框之外的地方是否可以点击
+                    offset: '10%',
+                    area: ['50%', '70%'],
+                    content: 'popup/addComuniti.html',
+                    end:function () {
+                        window.location.reload();
+                    }
+                });
+            }
+        };
+
+        $('.tableReload .layui-btn').on('click', function(){
+            var type = $(this).data('type');
+            active[type] ? active[type].call(this) : '';
+        });
+    });
+
+    function pageInit() {
+        $("#user_name").html(user.real_name);
+        sessionStorage.removeItem('comuniti_id');
+
+        $.ajax({
+            type: 'post',
+            async: true,
+            url: '/smart_community/user/getMyComuniti.do',
+            xhrFields: {
+                withCredentials: true
+            },
+            crossDomain: true,
+            dataType: 'JSON',
+            data: {
+                'post_id': user.id_num
+            },
+            success: function (res) {
+                if (res == null)
+                    alert('加载失败...');
+                else {
+                    fillMyComuniti(res);
+                    layui.element.init();
+                }
+            },
+            error: function () {
+                alert('加载失败...');
+            }
+        })
+    }
+
+    function fillMyComuniti(data) {
+        var myComuniti = '';
+        for (var i = 0; i < data.length; i++) {
+            myComuniti += '<div class="layui-colla-item">';
+            myComuniti += '<h1 class="layui-colla-title">' + data[i].title + ' <button type="button" class="layui-btn layui-btn-danger layui-btn-xs" onclick="delComuniti(' + data[i].id + ')">删除</button></h1>';
+            myComuniti += '<div class="layui-colla-content">' + data[i].content + '</div></div>'
+        }
+        $("#myComuniti").html(myComuniti);
+    }
+
+    function delComuniti(id) {
+        if (confirm("是否删除本帖？"))
+            $.ajax({
+                type: 'post',
+                async: false,
+                url: '/smart_community/user/delComuniti.do',
+                xhrFields: {
+                    withCredentials: true
+                },
+                crossDomain: true,
+                data:{
+                    "id": id
+                },
+                success: function (res) {
+                    if (res) {
+                        alert("删除成功！");
+                        window.location.href = './comuniti.html';
+                    } else
+                        alert("删除失败！");
+                },
+                error: function () {
+                    alert("删除失败！");
+                }
+            });
+    }
+
+    function exit() {
+        $.ajax({
+            type: 'post',
+            async: false,
+            url: '/smart_community/user/exit.do',
+            xhrFields: {
+                withCredentials: true
+            },
+            crossDomain: true,
+            data:{
+                "id_num": user.id_num
+            },
+            success: function () {
+                sessionStorage.clear();
+                alert("已退出登录");
+                window.location.href = "../index.html";
+            }
+        });
+    }
+</script>
+</body>
+</html>

@@ -407,7 +407,7 @@
                 success: function (res) {
                     if (res) {
                         alert("删除成功！");
-                        parent.layer.close(parent.layer.index);
+                        window.location.reload();
                     } else
                         alert("删除失败！");
                 },

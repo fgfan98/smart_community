@@ -35,8 +35,8 @@
             <!-- 左侧导航区域（可配合layui已有的垂直导航） -->
             <ul class="layui-nav layui-nav-tree"  lay-filter="test">
                 <li class="layui-nav-item"><a href="houseFix.html">报修&安装</a></li>
-                <li class="layui-nav-item"><a href="feedback.html">意见反馈</a></li>
-                <li class="layui-nav-item layui-nav-itemed">
+                <li class="layui-nav-item layui-this"><a href="feedback.html">意见反馈</a></li>
+                <li class="layui-nav-item">
                     <a class="" href="javascript:;">个人信息</a>
                     <dl class="layui-nav-child">
                         <dd><a href="adminInfo.html">基本资料</a></dd>
@@ -65,7 +65,43 @@
 
     <div class="layui-body">
         <!-- 内容主体区域 -->
-        <div style="padding: 15px;">内容主体区域</div>
+        <div style="padding: 30px;" class="layui-fluid">
+            <div class="layui-row">
+                <div class="layui-col-md12">
+                    <fieldset class="layui-elem-field layui-field-title"
+                              style="margin-top: 30px;">
+                        <legend>意见反馈</legend>
+                    </fieldset>
+                </div>
+            </div>
+        </div>
+
+        <div class="layui-row">
+            <div class="layui-col-md1">&nbsp;</div>
+            <div class="layui-col-md4">
+                <div class="tableReload">
+                    搜索：
+                    <div class="layui-inline">
+                        <input class="layui-input" id="find" autocomplete="off">
+                    </div>
+                    <div class="layui-btn-group">
+                        <button class="layui-btn" onclick="find()">搜索</button>
+                        <button class="layui-btn" onclick="getAll()">显示全部</button>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-col-md3 layui-col-md-offset4">
+                <div class="layui-btn-group">
+                    <button class="layui-btn" onclick="getReplied()">已回复</button>
+                    <button class="layui-btn layui-btn-warm" onclick="getUnReplied()">未回复</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="layui-row">
+            <div id="feedback" class="layui-collapse" lay-accordion="" style="margin-top: 1%; margin-left: 8%; margin-right: 14%">
+            </div>
+        </div>
     </div>
 
     <div class="layui-footer">
@@ -79,9 +115,145 @@
     //JavaScript代码区域
     var admin = JSON.parse(sessionStorage.getItem("vo"));
 
-    layui.use('element', function(){
-        var element = layui.element;
+    layui.use(['element','layer'], function(){
+        var element = layui.element
+            ,layer = layui.layer;
+
+        getAll();
+
     });
+
+    function fill(data) {
+        var content = '';
+        for (var i = 0; i < data.length; i++) {
+            content += '<div class="layui-colla-item">';
+            content += '<h2 class="layui-colla-title">' + data[i].title + '（' + data[i].post_time + '）' + '<i class="layui-icon layui-colla-icon"></i> </h2>';
+            content += '<div class="layui-colla-content">';
+            content += '<fieldset class="layui-elem-field">';
+            content += '<legend>意见内容</legend>';
+            content += '<div class="layui-field-box">' + data[i].content + '</div>';
+            content += '</fieldset>';
+            if (data[i].reply != null && data[i].reply != undefined && data[i].reply != "") {
+                content += '<fieldset class="layui-elem-field">';
+                content += '<legend>回复内容' + '（' + data[i].reply_time + '）' + '</legend>';
+                content += '<div class="layui-field-box">' + data[i].reply + '</div>';
+                content += '</fieldset>';
+            } else {
+                content += '<button class="layui-btn layui-btn-fluid layui-btn-primary layui-btn-radius" onclick="addReply('+ data[i].id +')">回复</button>'
+            }
+            content += '</div></div>';
+        }
+
+        $("#feedback").html(content);
+    }
+
+    function addReply(id) {
+        sessionStorage.setItem('feedback_id', id);
+        layui.layer.open({
+            type: 2,
+            title: '回复',
+            shadeClose: true,           //弹出框之外的地方是否可以点击
+            offset: '10%',
+            area: ['40%', '60%'],
+            content: 'popup/feedback.html',
+            end:function () {
+                sessionStorage.removeItem('feedback_id');
+                window.location.reload();
+            }
+        });
+    }
+
+    function getAll() {
+        $.ajax({
+            type: 'get',
+            async: false,
+            url: '/smart_community/admin/getAllFeedback.do',
+            xhrFields: {
+                withCredentials: true
+            },
+            crossDomain: true,
+            dataType:'JSON',
+            success: function (res) {
+                fill(res);
+                layui.element.init();
+            },
+            error: function () {
+                layer.alert("加载失败...")
+                return;
+            }
+        })
+    }
+
+    function find() {
+        var data = $("#find").val();
+        if (data == null || data == undefined || data == "") {
+            layui.layer.alert("请输入需要搜索的内容！");
+            return;
+        }
+        $.ajax({
+            type: 'post',
+            async: false,
+            url: '/smart_community/admin/getFeedbackLike.do',
+            xhrFields: {
+                withCredentials: true
+            },
+            crossDomain: true,
+            data: {
+                'data': data
+            },
+            dataType:'JSON',
+            success: function (res) {
+                fill(res);
+                layui.element.init();
+            },
+            error: function () {
+                layer.alert("加载失败...")
+                return;
+            }
+        })
+    }
+
+    function getReplied() {
+        $.ajax({
+            type: 'get',
+            async: false,
+            url: '/smart_community/admin/getFeedbackNNull.do',
+            xhrFields: {
+                withCredentials: true
+            },
+            crossDomain: true,
+            dataType:'JSON',
+            success: function (res) {
+                fill(res);
+                layui.element.init();
+            },
+            error: function () {
+                layer.alert("加载失败...")
+                return;
+            }
+        })
+    }
+
+    function getUnReplied() {
+        $.ajax({
+            type: 'get',
+            async: false,
+            url: '/smart_community/admin/getFeedbackNull.do',
+            xhrFields: {
+                withCredentials: true
+            },
+            crossDomain: true,
+            dataType:'JSON',
+            success: function (res) {
+                fill(res);
+                layui.element.init();
+            },
+            error: function () {
+                layer.alert("加载失败...")
+                return;
+            }
+        })
+    }
 
     function pageInit() {
         $("#user_name").html(admin.real_name);
@@ -91,7 +263,7 @@
         $.ajax({
             type: 'post',
             async: false,
-            url: 'http://127.0.0.1:8080/smart_community/admin/exit.do',
+            url: '/smart_community/admin/exit.do',
             xhrFields: {
                 withCredentials: true
             },

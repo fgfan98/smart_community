@@ -6,36 +6,27 @@
     <title>layout 后台大布局 - Layui</title>
     <link rel="stylesheet" href="../layui/css/layui.css">
 </head>
-<body class="layui-layout-body">
+<body class="layui-layout-body" onload="pageInit()">
 <div class="layui-layout layui-layout-admin">
     <div class="layui-header">
-        <div class="layui-logo">layui 后台布局</div>
+        <div class="layui-logo">智能社区--业主</div>
         <!-- 头部区域（可配合layui已有的水平导航） -->
         <ul class="layui-nav layui-layout-left">
-            <li class="layui-nav-item"><a href="">控制台</a></li>
-            <li class="layui-nav-item"><a href="">商品管理</a></li>
-            <li class="layui-nav-item"><a href="">用户</a></li>
-            <li class="layui-nav-item">
-                <a href="javascript:;">其它系统</a>
-                <dl class="layui-nav-child">
-                    <dd><a href="">邮件管理</a></dd>
-                    <dd><a href="">消息管理</a></dd>
-                    <dd><a href="">授权管理</a></dd>
-                </dl>
-            </li>
+            <li class="layui-nav-item layui-this"><a href="bulletin.html">公告栏</a></li>
+            <li class="layui-nav-item"><a href="comuniti.html">交流区</a></li>
         </ul>
         <ul class="layui-nav layui-layout-right">
             <li class="layui-nav-item">
                 <a href="javascript:;">
                     <img src="http://t.cn/RCzsdCq" class="layui-nav-img">
-                    贤心
+                    <label id="user_name">null</label>
                 </a>
                 <dl class="layui-nav-child">
-                    <dd><a href="">基本资料</a></dd>
-                    <dd><a href="">安全设置</a></dd>
+                    <dd><a href="userInfo.html">基本资料</a></dd>
+                    <dd><a href="security.html">安全设置</a></dd>
                 </dl>
             </li>
-            <li class="layui-nav-item"><a href="javascript:test()">退了</a></li>
+            <li class="layui-nav-item"><a href="javascript:exit()">安全退出</a></li>
         </ul>
     </div>
 
@@ -43,65 +34,164 @@
         <div class="layui-side-scroll">
             <!-- 左侧导航区域（可配合layui已有的垂直导航） -->
             <ul class="layui-nav layui-nav-tree"  lay-filter="test">
+                <li class="layui-nav-item"><a href="houseFix.html">报修&安装</a></li>
+                <li class="layui-nav-item"><a href="feedback.html">意见反馈</a></li>
                 <li class="layui-nav-item layui-nav-itemed">
-                    <a class="" href="javascript:;">所有商品</a>
+                    <a class="" href="javascript:;">个人信息</a>
                     <dl class="layui-nav-child">
-                        <dd><a href="javascript:;">列表一</a></dd>
-                        <dd><a href="javascript:;">列表二</a></dd>
-                        <dd><a href="javascript:;">列表三</a></dd>
-                        <dd><a href="">超链接</a></dd>
+                        <dd><a href="userInfo.html">基本资料</a></dd>
+                        <dd><a href="security.html">安全设置</a></dd>
                     </dl>
                 </li>
-                <li class="layui-nav-item">
-                    <a href="javascript:;">解决方案</a>
+                <li class="layui-nav-item layui-nav-itemed">
+                    <a href="javascript:;">社区</a>
                     <dl class="layui-nav-child">
-                        <dd><a href="javascript:;">列表一</a></dd>
-                        <dd><a href="javascript:;">列表二</a></dd>
-                        <dd><a href="">超链接</a></dd>
+                        <dd><a href="house.html">住宅信息</a></dd>
+                        <dd><a href="parking.html">车位信息</a></dd>
+                        <dd><a href="payment.html">缴费</a></dd>
                     </dl>
                 </li>
-                <li class="layui-nav-item"><a href="">云市场</a></li>
-                <li class="layui-nav-item"><a href="">发布商品</a></li>
             </ul>
         </div>
     </div>
 
     <div class="layui-body">
         <!-- 内容主体区域 -->
-        <div style="padding: 15px;">内容主体区域</div>
+        <!-- 内容主体区域 -->
+        <div style="padding: 30px;" class="layui-fluid">
+            <div class="layui-row">
+                <div class="layui-col-md12">
+                    <fieldset class="layui-elem-field layui-field-title"
+                              style="margin-top: 30px;">
+                        <legend>公告栏</legend>
+                    </fieldset>
+                </div>
+            </div>
+        </div>
+
+        <div id="bulletin" style="padding: 30px; margin-left: 10%; margin-right: 40%">
+        </div>
     </div>
 
     <div class="layui-footer">
         <!-- 底部固定区域 -->
-        © layui.com - 底部固定区域
+        B17041711方凡
     </div>
 </div>
 <script src="../layui/layui.js"></script>
 <script src="../layui/jquery.min.js"></script>
 <script>
     //JavaScript代码区域
-    layui.use('element', function(){
+    var user = JSON.parse(sessionStorage.getItem("vo"));
+
+    layui.use(['element','layer'], function(){
         var element = layui.element;
-
-    });
-
-    function test() {
 
         $.ajax({
             type: 'get',
             async: false,
-            url: '/smart_community/test/getAll.do',
+            url: '/smart_community/user/getAllBulletin.do',
             xhrFields: {
                 withCredentials: true
             },
             crossDomain: true,
-            data:{},
             dataType:'JSON',
             success: function (res) {
-                alert(res);
+                if (res == null){
+                    layer.alert("加载失败...")
+                    return;
+                }
+                fillBulletin(res);
+            },
+            error: function () {
+                layer.alert("加载失败...")
+                return;
+            }
+        })
+
+    });
+
+    function fillBulletin(data) {
+        var b = '<ul class="layui-timeline">';
+        for (var i = 0; i < data.length; i++) {
+            b = b + '<li class="layui-timeline-item">\n' +
+                '                    <i class="layui-icon layui-timeline-axis" onclick="viewFull('+data[i].id+')"></i>\n' +
+                '                    <div class="layui-timeline-content layui-text">';
+            b = b + '<h3 class="layui-timeline-title">' + data[i].post_date + '</h3>';
+            b = b + '<p>' + data[i].content.substring(0,100) + '</p>';
+            b = b + '</div>' + '</li>';
+        }
+        b = b + '</ul>';
+        $("#bulletin").html(b);
+    }
+
+    function viewFull(id) {
+        $.ajax({
+            type: 'get',
+            async: false,
+            url: '/smart_community/user/getBulletinById.do',
+            xhrFields: {
+                withCredentials: true
+            },
+            crossDomain: true,
+            data: {
+                'id': id
+            },
+            dataType:'JSON',
+            success: function (res) {
+                if (res == null){
+                    layer.alert("加载失败...")
+                    return;
+                }
+                //公告层
+                layui.layer.open({
+                    type: 1
+                    ,title: false //不显示标题栏
+                    ,closeBtn: false
+                    ,area: 'auto'
+                    ,maxWidth: '800'
+                    ,shade: 0.8
+                    ,id: 'LAY_layuipro' //设定一个id，防止重复弹出
+                    ,btn: ['了解']
+                    ,btnAlign: 'c'
+                    ,moveType: 1 //拖拽模式，0或者1
+                    ,content: '<div style="padding: 50px; line-height: 22px; background-color: #393D49; color: #fff; font-weight: 300;">'+res.content+'</div>'
+                    ,success: function(layero){
+                        var btn = layero.find('.layui-layer-btn');
+                        btn.find('.layui-layer-btn0').attr({
+                        });
+                    }
+                });
+            },
+            error: function () {
+                layer.alert("加载失败...")
+                return;
+            }
+        })
+    }
+
+    function pageInit() {
+        $("#user_name").html(user.real_name);
+    }
+
+    function exit() {
+        $.ajax({
+            type: 'post',
+            async: false,
+            url: '/smart_community/user/exit.do',
+            xhrFields: {
+                withCredentials: true
+            },
+            crossDomain: true,
+            data:{
+                "id_num": user.id_num
+            },
+            success: function () {
+                sessionStorage.clear();
+                alert("已退出登录");
+                window.location.href = "../index.html";
             }
         });
-
     }
 </script>
 </body>
