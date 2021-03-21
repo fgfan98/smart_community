@@ -19,7 +19,8 @@ public class MytestController {
 
     @RequestMapping("/getAll.do")
     @ResponseBody
-    public List<Mytest> getAll(HttpSession session){
+    public String  getAll(HttpSession session){
+        System.out.println(session.getId());
         session.setAttribute("token","success");
         session.setAttribute("identity","user");
         List<Mytest> list = mytestService.findAll();
@@ -27,7 +28,7 @@ public class MytestController {
             System.out.println(mytest);
 
         System.out.println(session.getId());
-        return list;
+        return session.getId();
     }
 
     @RequestMapping("/save.do")

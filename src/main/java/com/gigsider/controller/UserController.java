@@ -38,7 +38,7 @@ public class UserController {
                 SessionPool.getExistSession(userVO.getUser().getId_num()) == null){
             SessionPool.sessions.put(userVO.getUser().getId_num(),httpSession);
             httpSession.setAttribute("id",userVO.getUser().getId_num());
-            httpSession.setAttribute("token","success");
+            httpSession.setAttribute("login_status","success");
             httpSession.setAttribute("identity","user");
             httpSession.setMaxInactiveInterval(5*60*1000);
         }else if (userVO.getUser() != null){

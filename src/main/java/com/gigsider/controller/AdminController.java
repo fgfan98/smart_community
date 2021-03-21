@@ -45,7 +45,7 @@ public class AdminController {
         if (adminVO.getAdmin() != null &&
                 SessionPool.getExistSession(adminVO.getAdmin().getJob_num()) == null){
             httpSession.setAttribute("id", adminVO.getAdmin().getJob_num());
-            httpSession.setAttribute("token", "success");
+            httpSession.setAttribute("login_status", "success");
             httpSession.setAttribute("identity", "admin");
             httpSession.setMaxInactiveInterval(5*60*1000);
             SessionPool.addToSessionPool(adminVO.getAdmin().getJob_num(), httpSession);
