@@ -181,4 +181,14 @@ public class UserController {
         return comunitiService.addComuniti(comuniti);
     }
 
+    @RequestMapping("/getUserById.do")
+    @ResponseBody
+    public User getUserById(int id) {
+        User user = null;
+        List<User> list = userService.getUserById(id);
+        if (list.size() > 0)
+            user = list.get(0);
+
+        return user;
+    }
 }

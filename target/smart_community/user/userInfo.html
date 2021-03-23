@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>智能社区系统</title>
+    <link rel="stylesheet" href="../layui/css/layui.css">
+</head>
+<body class="layui-layout-body" onload="pageInit()">
+<div class="layui-layout layui-layout-admin">
+    <div class="layui-header">
+        <div class="layui-logo">智能社区--业主</div>
+        <!-- 头部区域（可配合layui已有的水平导航） -->
+        <ul class="layui-nav layui-layout-left">
+            <li class="layui-nav-item"><a href="bulletin.html">公告栏</a></li>
+            <li class="layui-nav-item"><a href="comuniti.html">交流区</a></li>
+        </ul>
+        <ul class="layui-nav layui-layout-right">
+            <li class="layui-nav-item">
+                <a href="javascript:;">
+                    <img src="http://t.cn/RCzsdCq" class="layui-nav-img">
+                    <label id="user_name">null</label>
+                </a>
+                <dl class="layui-nav-child">
+                    <dd><a href="userInfo.html">基本资料</a></dd>
+                    <dd><a href="security.html">安全设置</a></dd>
+                </dl>
+            </li>
+            <li class="layui-nav-item"><a href="javascript:exit()">安全退出</a></li>
+        </ul>
+    </div>
+
+    <div class="layui-side layui-bg-black">
+        <div class="layui-side-scroll">
+            <!-- 左侧导航区域（可配合layui已有的垂直导航） -->
+            <ul class="layui-nav layui-nav-tree"  lay-filter="test">
+                <li class="layui-nav-item"><a href="houseFix.html">报修&安装</a></li>
+                <li class="layui-nav-item"><a href="feedback.html">意见反馈</a></li>
+                <li class="layui-nav-item layui-nav-itemed">
+                    <a class="" href="javascript:;">个人信息</a>
+                    <dl class="layui-nav-child">
+                        <dd class="layui-this"><a href="userInfo.html">基本资料</a></dd>
+                        <dd><a href="security.html">安全设置</a></dd>
+                    </dl>
+                </li>
+                <li class="layui-nav-item layui-nav-itemed">
+                    <a href="javascript:;">社区</a>
+                    <dl class="layui-nav-child">
+                        <dd><a href="house.html">住宅信息</a></dd>
+                        <dd><a href="parking.html">车位信息</a></dd>
+                        <dd><a href="payment.html">缴费</a></dd>
+                    </dl>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="layui-body">
+        <!-- 内容主体区域 -->
+        <div style="padding: 30px;" class="layui-fluid">
+            <div class="layui-row">
+                <div class="layui-col-md12">
+                    <fieldset class="layui-elem-field layui-field-title"
+                              style="margin-top: 30px;">
+                        <legend>个人信息</legend>
+                    </fieldset>
+                </div>
+            </div>
+
+            <div id="formFilter" class="layui-form layui-form-pane" lay-filter="userForm" style="padding: 30px; margin-left: 25%; margin-right: 25%">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">姓名</label>
+                    <div class="layui-input-block">
+                        <input type="text" id="real_name" name="real_name" lay-verify="required" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label">性别</label>
+                    <div class="layui-input-block">
+                        <select id="sex" name="sex" lay-filter="required">
+                            <option value="男">男</option>
+                            <option value="女">女</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label">身份证号</label>
+                    <div class="layui-input-block">
+                        <input type="text" id="id_num" name="id_num" lay-verify="required|identity" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label">账号</label>
+                    <div class="layui-input-block">
+                        <input type="text" id="username" name="username" lay-verify="required" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label">联系电话</label>
+                    <div class="layui-input-block">
+                        <input type="text" id="mobile" name="mobile" disabled="" lay-verify="required|phone" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label">住宅号</label>
+                    <div class="layui-input-block">
+                        <input type="text" id="house" name="house" disabled="" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label">车牌号</label>
+                    <div class="layui-input-block">
+                        <input type="text" id="license_num" name="license_num" disabled="" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+            </div>
+
+            <fieldset class="layui-elem-field layui-field-title"
+                      style="margin-top: 30px;"></fieldset>
+
+            <div class="layui-form-item" align="center">
+                <button class="layui-btn" id="saveform">修改</button>
+                <button class="layui-btn layui-btn-primary" id="resetform">重置</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="layui-footer">
+        <!-- 底部固定区域 -->
+        B17041711方凡
+    </div>
+</div>
+<script src="../layui/layui.js"></script>
+<script src="../layui/jquery.min.js"></script>
+<script>
+    //JavaScript代码区域
+    var user = JSON.parse(sessionStorage.getItem("vo"));
+
+    layui.use(['element','form'], function(){
+        var element = layui.element,
+            form = layui.form;
+
+        fillForm(form);
+    });
+
+    $("#resetform").click(function () {
+        layui.form.val('userForm', {
+            'real_name': user.real_name
+            ,'sex': user.sex
+            ,'id_num': user.id_num
+            ,'username': user.user_name
+            ,'mobile': user.mobile
+            ,'license_num': user.license_num
+            ,'house': user.house
+        });
+    })
+
+    $("#saveform").click(function () {
+        $.ajax({
+            type: 'post',
+            async: false,
+            url: '/smart_community/user/upUser.do',
+            xhrFields: {
+                withCredentials: true
+            },
+            crossDomain: true,
+            data: {
+                "id": user.id,
+                "id_num": $("#id_num").val(),
+                "user_name": $("#username").val(),
+                "real_name": $("#real_name").val(),
+                "mobile": user.mobile,
+                "sex": $("#sex").val(),
+                "passwd": user.passwd,
+                "house": user.house,
+                "license_num": user.license_num,
+                "activated": user.activated
+            },
+            dataType:'JSON',
+            success: function (res) {
+                alert("保存成功！");
+                fillForm(layui.form);
+                window.location.reload();
+            },
+            error: function () {
+                layer.alert("保存失败...")
+                return;
+            }
+        })
+    })
+
+    function fillForm(form) {
+        $.ajax({
+            type: 'get',
+            async: false,
+            url: '/smart_community/user/getUserById.do',
+            xhrFields: {
+                withCredentials: true
+            },
+            crossDomain: true,
+            data: {
+                "id": user.id
+            },
+            dataType:'JSON',
+            success: function (res) {
+                form.val('userForm', {
+                    'real_name': user.real_name
+                    ,'sex': user.sex
+                    ,'id_num': user.id_num
+                    ,'username': user.user_name
+                    ,'mobile': user.mobile
+                    ,'license_num': user.license_num
+                    ,'house': user.house
+                });
+                sessionStorage.setItem('vo',JSON.stringify(res));
+            },
+            error: function () {
+                layer.alert("数据加载失败...")
+                return;
+            }
+        })
+    }
+
+    function pageInit() {
+        $("#user_name").html(user.real_name);
+    }
+
+    function exit() {
+        $.ajax({
+            type: 'post',
+            async: false,
+            url: '/smart_community/user/exit.do',
+            xhrFields: {
+                withCredentials: true
+            },
+            crossDomain: true,
+            data:{
+                "id_num": user.id_num
+            },
+            success: function () {
+                sessionStorage.clear();
+                alert("已退出登录");
+                window.location.href = "../login.html";
+            }
+        });
+    }
+
+    function test() {
+        $.ajax({
+            type: 'post',
+            async: false,
+            url: '/smart_community/test/getAll.do',
+            xhrFields: {
+                withCredentials: true
+            },
+            crossDomain: true,
+            success: function (res) {
+                console.log(res)
+            }
+        });
+    }
+</script>
+</body>
+</html>

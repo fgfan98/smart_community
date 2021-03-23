@@ -86,7 +86,7 @@
                 <div class="layui-form-item">
                     <label class="layui-form-label">新联系方式</label>
                     <div class="layui-input-block">
-                        <input type="text" id="mobile" name="mobile" placeholder="请输入新的联系方式（不填即不修改）" autocomplete="off" class="layui-input">
+                        <input type="text" id="mobile" name="mobile" placeholder="请输入新的联系方式（不填即不修改）" lay-verify="phone" autocomplete="off" class="layui-input">
                     </div>
                 </div>
 
@@ -209,7 +209,7 @@
         $.ajax({
             type: 'post',
             async: false,
-            url: 'http://127.0.0.1:8080/smart_community/admin/exit.do',
+            url: '/smart_community/admin/exit.do',
             xhrFields: {
                 withCredentials: true
             },

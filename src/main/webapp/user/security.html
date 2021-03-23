@@ -9,7 +9,7 @@
 <body class="layui-layout-body" onload="pageInit()">
 <div class="layui-layout layui-layout-admin">
     <div class="layui-header">
-        <div class="layui-logo">智能社区--管理员</div>
+        <div class="layui-logo">智能社区--业主</div>
         <!-- 头部区域（可配合layui已有的水平导航） -->
         <ul class="layui-nav layui-layout-left">
             <li class="layui-nav-item"><a href="bulletin.html">公告栏</a></li>
@@ -22,11 +22,11 @@
                     <label id="user_name">null</label>
                 </a>
                 <dl class="layui-nav-child">
-                    <dd><a href="adminInfo.html">基本资料</a></dd>
+                    <dd><a href="userInfo.html">基本资料</a></dd>
                     <dd><a href="security.html">安全设置</a></dd>
                 </dl>
             </li>
-            <li class="layui-nav-item"><a href="javascript:exit()">安全退出</a></li>
+            <li class="layui-nav-item"><a href="javascript:test()">安全退出</a></li>
         </ul>
     </div>
 
@@ -39,24 +39,16 @@
                 <li class="layui-nav-item layui-nav-itemed">
                     <a class="" href="javascript:;">个人信息</a>
                     <dl class="layui-nav-child">
-                        <dd><a href="adminInfo.html">基本资料</a></dd>
-                        <dd class="layui-this"><a href="security.html">安全设置</a></dd>
+                        <dd><a href="userInfo.html">基本资料</a></dd>
+                        <dd><a href="security.html">安全设置</a></dd>
                     </dl>
                 </li>
-                <li class="layui-nav-item">
-                    <a href="javascript:;">社区管理</a>
+                <li class="layui-nav-item layui-nav-itemed">
+                    <a href="javascript:;">社区</a>
                     <dl class="layui-nav-child">
-                        <dd><a href="userManage.html">业主管理</a></dd>
-                        <dd><a href="houseManage.html">住宅管理</a></dd>
-                        <dd><a href="parkingManage.html">车位管理</a></dd>
-                        <dd><a href="payManage.html">缴费管理</a></dd>
-                    </dl>
-                </li>
-                <li class="layui-nav-item">
-                    <a href="javascript:;">平台管理</a>
-                    <dl class="layui-nav-child">
-                        <dd><a href="bulletinManage.html">公告栏管理</a></dd>
-                        <dd><a href="comunitiManage.html">交流区管理</a></dd>
+                        <dd><a href="house.html">住宅信息</a></dd>
+                        <dd><a href="parking.html">车位信息</a></dd>
+                        <dd><a href="payment.html">缴费</a></dd>
                     </dl>
                 </li>
             </ul>
@@ -120,11 +112,12 @@
 <script src="../layui/jquery.min.js"></script>
 <script>
     //JavaScript代码区域
-    var admin = JSON.parse(sessionStorage.getItem("vo"));
+    var user = JSON.parse(sessionStorage.getItem("vo"));
 
     layui.use(['element', 'form'], function(){
         var element = layui.element,
             form = layui.form
+
     });
 
     $("#resetform").click(function () {
@@ -137,29 +130,36 @@
 
     $("#saveform").click(function () {
         var old_p = $("#old_passwd").val();
-        if(old_p == admin.passwd) {
+        if(old_p == user.passwd) {
             var new_p = $("#new_passwd").val();
             var mobile = $("#mobile").val();
             if (new_p == null || new_p == undefined || new_p == "")
-                new_p = admin.passwd;
+                new_p = user.passwd;
             if (mobile == null || mobile == undefined || mobile == "")
-                mobile = admin.mobile;
+                mobile = user.mobile;
+            else if (mobile.length != 11 || !/^\d+$/.test(mobile)) {
+                alert("手机号格式错误！");
+                return;
+            }
             $.ajax({
                 type: 'post',
                 async: false,
-                url: '/smart_community/admin/upAdmin.do',
+                url: '/smart_community/user/upUser.do',
                 xhrFields: {
                     withCredentials: true
                 },
                 crossDomain: true,
                 data: {
-                    "id": admin.id,
-                    "job_num": admin.job_num,
-                    "real_name": admin.real_name,
-                    "id_num": admin.id_num,
+                    "id": user.id,
+                    "id_num": user.id_num,
+                    "user_name": user.user_name,
+                    "real_name": user.real_name,
                     "mobile": mobile,
-                    "sex": admin.sex,
-                    "passwd": new_p
+                    "passwd": new_p,
+                    "sex": user.sex,
+                    "house": user.house,
+                    "license_num": user.license_num,
+                    "activated": user.activated
                 },
                 dataType:'JSON',
                 success: function (res) {
@@ -181,13 +181,13 @@
         $.ajax({
             type: 'get',
             async: false,
-            url: '/smart_community/admin/getAdminByJobNum.do',
+            url: '/smart_community/user/getUserById.do',
             xhrFields: {
                 withCredentials: true
             },
             crossDomain: true,
             data: {
-                "job_num": admin.job_num
+                "id": user.id
             },
             dataType:'JSON',
             success: function (res) {
@@ -202,25 +202,40 @@
     }
 
     function pageInit() {
-        $("#user_name").html(admin.real_name);
+        $("#user_name").html(user.real_name);
     }
 
     function exit() {
         $.ajax({
             type: 'post',
             async: false,
-            url: '/smart_community/admin/exit.do',
+            url: '/smart_community/user/exit.do',
             xhrFields: {
                 withCredentials: true
             },
             crossDomain: true,
             data:{
-                "job_num": admin.job_num
+                "id_num": user.id_num
             },
             success: function () {
                 sessionStorage.clear();
                 alert("已退出登录");
                 window.location.href = "../login.html";
+            }
+        });
+    }
+
+    function test() {
+        $.ajax({
+            type: 'post',
+            async: false,
+            url: '/smart_community/test/getAll.do',
+            xhrFields: {
+                withCredentials: true
+            },
+            crossDomain: true,
+            success: function (res) {
+                console.log(res)
             }
         });
     }

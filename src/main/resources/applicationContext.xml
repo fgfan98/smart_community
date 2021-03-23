@@ -21,7 +21,7 @@
     <property name="driverClassName" value="com.mysql.jdbc.Driver" />
     <property name="url" value="jdbc:mysql://localhost:3306/db_smart_community?characterEncoding=UTF-8" />
     <property name="username" value="root" />
-    <property name="password" value="123456" />
+    <property name="password" value="846632996" />
   </bean>
 
   <!-- spring 整合 mybatis 框架，SqlSessionFactoryBean 创建工厂对象 -->
