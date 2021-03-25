@@ -69,4 +69,12 @@
         order by id desc;
     </select>
 
+    <select id="queryFeedbackByUserName" parameterType="String" resultType="Feedback">
+        select * from
+        feedback
+        where
+        user_name = #{user_name}
+        order by id desc;
+    </select>
+
 </mapper>

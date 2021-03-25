@@ -26,7 +26,7 @@
                     <dd><a href="security.html">安全设置</a></dd>
                 </dl>
             </li>
-            <li class="layui-nav-item"><a href="javascript:test()">安全退出</a></li>
+            <li class="layui-nav-item"><a href="javascript:exit()">安全退出</a></li>
         </ul>
     </div>
 
@@ -95,21 +95,6 @@
                 sessionStorage.clear();
                 alert("已退出登录");
                 window.location.href = "../login.html";
-            }
-        });
-    }
-
-    function test() {
-        $.ajax({
-            type: 'post',
-            async: false,
-            url: '/smart_community/test/getAll.do',
-            xhrFields: {
-                withCredentials: true
-            },
-            crossDomain: true,
-            success: function (res) {
-                console.log(res)
             }
         });
     }

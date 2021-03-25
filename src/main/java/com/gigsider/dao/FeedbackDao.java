@@ -25,6 +25,9 @@ public interface FeedbackDao {
     //根据 id 查询反馈
     public List<Feedback> queryFeedbackById(int id);
 
+    //根据 user_name 查询反馈
+    public List<Feedback> queryFeedbackByUserName(String user_name);
+
     //模糊搜索
     public List<Feedback> queryFeedbackLike(String data);
 

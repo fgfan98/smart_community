@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>智能社区系统</title>
+    <link rel="stylesheet" href="../layui/css/layui.css">
+</head>
+<body class="layui-layout-body" onload="pageInit()">
+<div class="layui-layout layui-layout-admin">
+    <div class="layui-header">
+        <div class="layui-logo">智能社区--业主</div>
+        <!-- 头部区域（可配合layui已有的水平导航） -->
+        <ul class="layui-nav layui-layout-left">
+            <li class="layui-nav-item"><a href="bulletin.html">公告栏</a></li>
+            <li class="layui-nav-item"><a href="comuniti.html">交流区</a></li>
+        </ul>
+        <ul class="layui-nav layui-layout-right">
+            <li class="layui-nav-item">
+                <a href="javascript:;">
+                    <img src="http://t.cn/RCzsdCq" class="layui-nav-img">
+                    <label id="user_name">null</label>
+                </a>
+                <dl class="layui-nav-child">
+                    <dd><a href="userInfo.html">基本资料</a></dd>
+                    <dd><a href="security.html">安全设置</a></dd>
+                </dl>
+            </li>
+            <li class="layui-nav-item"><a href="javascript:exit()">安全退出</a></li>
+        </ul>
+    </div>
+
+    <div class="layui-side layui-bg-black">
+        <div class="layui-side-scroll">
+            <!-- 左侧导航区域（可配合layui已有的垂直导航） -->
+            <ul class="layui-nav layui-nav-tree"  lay-filter="test">
+                <li class="layui-nav-item"><a href="houseFix.html">报修&安装</a></li>
+                <li class="layui-nav-item layui-this"><a href="feedback.html">意见反馈</a></li>
+                <li class="layui-nav-item layui-nav-itemed">
+                    <a class="" href="javascript:;">个人信息</a>
+                    <dl class="layui-nav-child">
+                        <dd><a href="userInfo.html">基本资料</a></dd>
+                        <dd><a href="security.html">安全设置</a></dd>
+                    </dl>
+                </li>
+                <li class="layui-nav-item layui-nav-itemed">
+                    <a href="javascript:;">社区</a>
+                    <dl class="layui-nav-child">
+                        <dd><a href="house.html">住宅信息</a></dd>
+                        <dd><a href="parking.html">车位信息</a></dd>
+                        <dd><a href="payment.html">缴费</a></dd>
+                    </dl>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="layui-body">
+        <!-- 内容主体区域 -->
+        <div style="padding: 30px;" class="layui-fluid">
+            <div class="layui-row">
+                <div class="layui-col-md12">
+                    <fieldset class="layui-elem-field layui-field-title"
+                              style="margin-top: 30px;">
+                        <legend>意见反馈</legend>
+                    </fieldset>
+                </div>
+            </div>
+        </div>
+
+        <div class="layui-row">
+            <div id="feedback" class="layui-collapse" lay-accordion="" style="margin-top: 1%; margin-left: 8%; margin-right: 14%">
+            </div>
+        </div>
+
+        <div class="layui-row">
+            <fieldset class="layui-elem-field layui-field-title"
+                      style="margin-top: 30px; margin-left: 6%; margin-right: 12%">
+                <h1 align="center">添加反馈</h1>
+            </fieldset>
+            <div class="layui-col-md1">&nbsp;</div>
+            <div class="layui-col-md9">
+                <div id="formFilter" class="layui-form layui-form-pane" lay-filter="bulletinForm">
+                    <div class="layui-form-item layui-form-text">
+                        <label class="layui-form-label">主题</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="title" lay-verify="required" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-form-item layui-form-text">
+                        <div class="layui-input-block">
+                            <textarea id="fb" name="fb" style="display: none;"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="layui-form-item" align="center">
+                        <button class="layui-btn" lay-submit="saveform" lay-filter="saveform">添加反馈</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="layui-footer">
+        <!-- 底部固定区域 -->
+        B17041711方凡
+    </div>
+</div>
+<script src="../layui/layui.js"></script>
+<script src="../layui/jquery.min.js"></script>
+<script>
+    //JavaScript代码区域
+    var user = JSON.parse(sessionStorage.getItem("vo"));
+
+    layui.use(['element','layer','layedit','form'], function(){
+        var element = layui.element
+            ,layer = layui.layer
+            ,layedit = layui.layedit
+            ,form = layui.form;
+
+        var index = layedit.build('fb',{
+            height: '300',
+            tool: [ 'strong' //加粗
+                ,'italic' //斜体
+                ,'underline' //下划线
+                ,'del' //删除线
+                ,'|' //分割线
+                ,'left' //左对齐
+                ,'center' //居中对齐
+                ,'right' //右对齐
+                ,'|'
+                ,'face' //表情
+            ]
+        }); //建立编辑器
+
+        //监听提交
+        form.on('submit(saveform)', function(data) {
+            layer.confirm("是否提交反馈？",function () {
+                var d = new Date();
+                var time = d.getFullYear()+'年'+ (Number(d.getMonth())+1)+'月'+d.getDate()+'日'+d.getHours()+':'+d.getMinutes();
+                $.ajax({
+                    type: 'post',
+                    async: true,
+                    url: '/smart_community/user/addFeedback.do',
+                    xhrFields: {
+                        withCredentials: true
+                    },
+                    crossDomain: true,
+                    data: {
+                        'post_time': time,
+                        'user_name': user.user_name,
+                        'title': data.field.title,
+                        'content': layedit.getContent(index)
+                    },
+                    success: function (res) {
+                        if (res) {
+                            alert("提交成功！");
+                            window.location.reload();
+                        }
+                        else
+                            layer.alert("提交失败...")
+                    },
+                    error: function () {
+                        layer.alert("提交失败...");
+                    }
+                })
+            })
+        });
+
+        getMyFeedback();
+    });
+
+    function getMyFeedback() {
+        $.ajax({
+            type: 'get',
+            async: false,
+            url: '/smart_community/user/getMyFeedback.do',
+            xhrFields: {
+                withCredentials: true
+            },
+            crossDomain: true,
+            dataType:'JSON',
+            data: {
+                "user_name": user.user_name
+            },
+            success: function (res) {
+                fill(res);
+                layui.element.init();
+            },
+            error: function () {
+                layer.alert("加载失败...")
+                return;
+            }
+        })
+    }
+
+    function fill(data) {
+        var content = '';
+        for (var i = 0; i < data.length; i++) {
+            content += '<div class="layui-colla-item">';
+            if (data[i].reply != null && data[i].reply != undefined && data[i].reply != "")
+                content += '<h2 class="layui-colla-title">' + data[i].title + '（' + data[i].post_time + '）（已回复）' + '<i class="layui-icon layui-colla-icon"></i> </h2>';
+            else
+                content += '<h2 class="layui-colla-title">' + data[i].title + '（' + data[i].post_time + '）' + '<i class="layui-icon layui-colla-icon"></i> </h2>';
+            content += '<div class="layui-colla-content">';
+            content += '<fieldset class="layui-elem-field">';
+            content += '<legend>意见内容</legend>';
+            content += '<div class="layui-field-box">' + data[i].content + '</div>';
+            content += '</fieldset>';
+            if (data[i].reply != null && data[i].reply != undefined && data[i].reply != "") {
+                content += '<fieldset class="layui-elem-field">';
+                content += '<legend>回复内容' + '（' + data[i].reply_time + '）' + '</legend>';
+                content += '<div class="layui-field-box">' + data[i].reply + '</div>';
+                content += '</fieldset>';
+            }
+            content += '</div></div>';
+        }
+
+        $("#feedback").html(content);
+    }
+
+    function pageInit() {
+        $("#user_name").html(user.real_name);
+    }
+
+    function exit() {
+        $.ajax({
+            type: 'post',
+            async: false,
+            url: '/smart_community/user/exit.do',
+            xhrFields: {
+                withCredentials: true
+            },
+            crossDomain: true,
+            data:{
+                "id_num": user.id_num
+            },
+            success: function () {
+                sessionStorage.clear();
+                alert("已退出登录");
+                window.location.href = "../login.html";
+            }
+        });
+    }
+</script>
+</body>
+</html>

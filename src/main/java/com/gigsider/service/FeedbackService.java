@@ -24,6 +24,9 @@ public interface FeedbackService {
     //根据 id 获取反馈
     public List<Feedback> getFeedbackById(int id);
 
+    //根据 user_name 获取反馈
+    public List<Feedback> getFeedbackByUserName(String user_name);
+
     //模糊查询
     public List<Feedback> getFeedbackLike(String data);
 

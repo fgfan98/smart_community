@@ -28,6 +28,12 @@ public class UserController {
     private ReplyService replyService;
     @Autowired
     private AdminService adminService;
+    @Autowired
+    private HouseService houseService;
+    @Autowired
+    private ParkingService parkingService;
+    @Autowired
+    private FeedbackService feedbackService;
 
     @RequestMapping("/login.do")
     @ResponseBody
@@ -190,5 +196,45 @@ public class UserController {
             user = list.get(0);
 
         return user;
+    }
+
+    @RequestMapping("/getHouseByHouseId.do")
+    @ResponseBody
+    public House getHouseByHouseId(String house_id) {
+        List<House> list = houseService.getHouseByHouseId(house_id);
+        House house = null;
+        if(list.size() > 0) {
+            house = list.get(0);
+        }
+        return house;
+    }
+
+    @RequestMapping("/getParkingByLicenseNum.do")
+    @ResponseBody
+    public Parking getParkingByLicenseNum(String license_num) {
+        Parking parking = null;
+        List<Parking> list = parkingService.getParkingByLicenseNum(license_num);
+        if (list.size() > 0)
+            parking = list.get(0);
+
+        return parking;
+    }
+
+    @RequestMapping("/upParking.do")
+    @ResponseBody
+    public boolean upParking(Parking parking) {
+        return parkingService.upParking(parking);
+    }
+
+    @RequestMapping("/getMyFeedback.do")
+    @ResponseBody
+    public List<Feedback> getMyFeedback(String user_name) {
+        return feedbackService.getFeedbackByUserName(user_name);
+    }
+
+    @RequestMapping("/addFeedback.do")
+    @ResponseBody
+    public boolean addFeedback(Feedback feedback) {
+        return feedbackService.addFeedback(feedback);
     }
 }

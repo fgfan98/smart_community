@@ -170,7 +170,7 @@
                 crossDomain: true,
                 data: {
                     'content': content,
-                    'reply_id': user.id_num,
+                    'reply_id': user.user_name,
                     'reply_time': time,
                     'official': 0,
                     'comuniti_id': comuniti_id
@@ -192,7 +192,7 @@
 
     function fillComuniti(data) {
         $("#title").html(data.title);
-        if (data.post_id == user.id_num)
+        if (data.post_id == user.user_name)
             $("#post_id").html(data.post_id + '&nbsp;(' + data.post_time + ')' + '&nbsp;<button type="button" class="layui-btn layui-btn-danger layui-btn-xs" onclick="delComuniti(' + data.id + ')">' + '删除帖子' + '</button>');
         else
             $("#post_id").html(data.post_id + '&nbsp;(' + data.post_time + ')');
@@ -201,7 +201,7 @@
         var replies = $("#replies").html();
         for (var i = 0; i < data.replies.length; i++) {
             replies += '<div class="layui-col-md12"><div class="layui-card">';
-            if (data.replies[i].reply_id == user.id_num)
+            if (data.replies[i].reply_id == user.user_name)
                 replies += '<div class="layui-card-header">' + data.replies[i].reply_id + '&nbsp;(' + data.replies[i].reply_time + ')' + '&nbsp;<button type="button" class="layui-btn layui-btn-primary layui-btn-xs" onclick="delReply('+ data.replies[i].id +')">' + '删除回复' + '</button>' + '</div>';
             else
                 replies += '<div class="layui-card-header">' + data.replies[i].reply_id + '&nbsp;(' + data.replies[i].reply_time + ')' + '</div>';

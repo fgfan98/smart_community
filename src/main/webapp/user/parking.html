@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>智能社区系统</title>
+    <link rel="stylesheet" href="../layui/css/layui.css">
+</head>
+<body class="layui-layout-body" onload="pageInit()">
+<div class="layui-layout layui-layout-admin">
+    <div class="layui-header">
+        <div class="layui-logo">智能社区--业主</div>
+        <!-- 头部区域（可配合layui已有的水平导航） -->
+        <ul class="layui-nav layui-layout-left">
+            <li class="layui-nav-item"><a href="bulletin.html">公告栏</a></li>
+            <li class="layui-nav-item"><a href="comuniti.html">交流区</a></li>
+        </ul>
+        <ul class="layui-nav layui-layout-right">
+            <li class="layui-nav-item">
+                <a href="javascript:;">
+                    <img src="http://t.cn/RCzsdCq" class="layui-nav-img">
+                    <label id="user_name">null</label>
+                </a>
+                <dl class="layui-nav-child">
+                    <dd><a href="userInfo.html">基本资料</a></dd>
+                    <dd><a href="security.html">安全设置</a></dd>
+                </dl>
+            </li>
+            <li class="layui-nav-item"><a href="javascript:exit()">安全退出</a></li>
+        </ul>
+    </div>
+
+    <div class="layui-side layui-bg-black">
+        <div class="layui-side-scroll">
+            <!-- 左侧导航区域（可配合layui已有的垂直导航） -->
+            <ul class="layui-nav layui-nav-tree"  lay-filter="test">
+                <li class="layui-nav-item"><a href="houseFix.html">报修&安装</a></li>
+                <li class="layui-nav-item"><a href="feedback.html">意见反馈</a></li>
+                <li class="layui-nav-item layui-nav-itemed">
+                    <a class="" href="javascript:;">个人信息</a>
+                    <dl class="layui-nav-child">
+                        <dd><a href="userInfo.html">基本资料</a></dd>
+                        <dd><a href="security.html">安全设置</a></dd>
+                    </dl>
+                </li>
+                <li class="layui-nav-item layui-nav-itemed">
+                    <a href="javascript:;">社区</a>
+                    <dl class="layui-nav-child">
+                        <dd><a href="house.html">住宅信息</a></dd>
+                        <dd class="layui-this"><a href="parking.html">车位信息</a></dd>
+                        <dd><a href="payment.html">缴费</a></dd>
+                    </dl>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="layui-body">
+        <!-- 内容主体区域 -->
+        <div style="padding: 30px;" class="layui-fluid">
+            <div class="layui-row">
+                <div class="layui-col-md12">
+                    <fieldset class="layui-elem-field layui-field-title"
+                              style="margin-top: 30px;">
+                        <legend>我的车位</legend>
+                    </fieldset>
+                </div>
+            </div>
+
+            <div id="hasCar" style="padding: 30px; margin-left: 25%; margin-right: 25%; display: none">
+                <h1 align="center">暂无车位权限</h1>
+            </div>
+
+            <div id="getParking" style="padding: 30px; display: none">
+                <h1 align="center">暂未拥有车位</h1>
+                <br>
+                <div class="layui-row">
+                    <div class="layui-col-md1">&nbsp;</div>
+                    <div class="layui-col-md4">
+                        <div class="tableReload">
+                            搜索车位：
+                            <div class="layui-inline">
+                                <input class="layui-input" name="parkingId" id="parkingIdReload" autocomplete="off">
+                            </div>
+                            <div class="layui-btn-group">
+                                <button class="layui-btn" data-type="reload">搜索</button>
+                                <button class="layui-btn" data-type="goBack">返回</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-row">
+                    <div class="layui-col-md1">&nbsp;</div>
+                    <div class="layui-col-md10">
+                        <table class="layui-hide" id="parkingTable" lay-filter="demo"></table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="pending" style="padding: 30px; margin-left: 25%; margin-right: 25%; display: none">
+                <h1 align="center">业务办理中...</h1>
+            </div>
+
+            <div id="parkingForm" class="layui-form layui-form-pane" lay-filter="parkingForm" style="padding: 30px; margin-left: 25%; margin-right: 25%; display: none">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">车位编号</label>
+                    <div class="layui-input-block">
+                        <input type="text" id="parking_id" name="parking_id" disabled="" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label">位置</label>
+                    <div class="layui-input-block">
+                        <input type="text" ID="place" name="place" autocomplete="off" class="layui-input" disabled="">
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label">月租金/元</label>
+                    <div class="layui-input-inline">
+                        <input type="text" id="rent" name="rent" disabled="" autocomplete="off" class="layui-input">
+                    </div>
+                    <div id="payRent" class="layui-form-mid layui-word-aux"></div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label">总价/元</label>
+                    <div class="layui-input-inline">
+                        <input type="text" id="price" name="price" disabled="" autocomplete="off" class="layui-input">
+                    </div>
+                    <div id="purchase" class="layui-form-mid layui-word-aux"></div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="layui-footer">
+        <!-- 底部固定区域 -->
+        B17041711方凡
+    </div>
+</div>
+<script src="../layui/layui.js"></script>
+<script src="../layui/jquery.min.js"></script>
+<script type="text/html" id="barDemo">
+    <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="purchase">购买</a>
+    <a class="layui-btn layui-btn-xs" lay-event="rent">租下</a>
+</script>
+<script type="text/html" id="statusTpl">
+    {{#  if(d.status == 0){ }}
+    <span class="layui-badge layui-bg-cyan">未售出</span>
+    {{#  } else if(d.status == 1) { }}
+    <span class="layui-badge layui-bg-orange">待办理</span>
+    {{#  } else if(d.status == 2) { }}
+    <span class="layui-badge layui-bg-blue">已租出</span>
+    {{#  } else { }}
+    <span class="layui-badge layui-bg-green">已售出</span>
+    {{#  } }}
+</script>
+<script>
+    //JavaScript代码区域
+    var user = JSON.parse(sessionStorage.getItem("vo"));
+
+    layui.use(['form','layer','table'], function(){
+        var form = layui.form
+            ,layer = layui.layer
+            ,table = layui.table;
+
+        table.render({
+            elem: '#parkingTable'
+            ,url: '/smart_community/admin/getParkingPage.do'
+            ,limit: 10
+            ,limits: [10,30,50]
+            ,cols: [[
+                {field:'parking_id',width:'35%', title: '车位编号'}
+                ,{field:'place',width:'20%', title: '位置'}
+                ,{field:'rent',width:'12.5%', title: '月租金/元'}
+                ,{field:'status', width:'20%', templet:'#statusTpl', title: '状态'}
+                ,{fixed: 'right', minWidth:'178', align:'center', toolbar: '#barDemo'}
+            ]]
+            ,page: true
+        });
+        //监听工具条
+        table.on('tool(demo)', function(obj){
+            var data = obj.data;
+            if(obj.event === 'purchase'){
+                if (data.status != 0)
+                    layer.alert("不可用！");
+                else
+                    layer.confirm('是否确认购买？', function () {
+                        $.ajax({
+                            type: 'post',
+                            async: true,
+                            url: '/smart_community/user/upParking.do',
+                            xhrFields: {
+                                withCredentials: true
+                            },
+                            crossDomain: true,
+                            data: {
+                                'parking_id': data.parking_id
+                                ,'place': data.place
+                                ,'rent': data.rent
+                                ,'price': data.price
+                                ,'status': 1
+                                ,'license_num': user.license_num
+                                ,'affairs': 3
+                            },
+                            success: function (res) {
+                                if (res){
+                                    alert("申请成功！");
+                                    window.location.reload();
+                                }else
+                                    layer.alert("申请失败...")
+                            },
+                            error: function () {
+                                layer.alert("申请失败...");
+                            }
+                        })
+                    })
+            } else if(obj.event === 'rent'){
+                if (data.status != 0)
+                    layer.alert("不可用！");
+                else
+                    layer.confirm('是否要租下此车位？', function () {
+                        $.ajax({
+                            type: 'post',
+                            async: true,
+                            url: '/smart_community/user/upParking.do',
+                            xhrFields: {
+                                withCredentials: true
+                            },
+                            crossDomain: true,
+                            data: {
+                                'parking_id': data.parking_id
+                                ,'place': data.place
+                                ,'rent': data.rent
+                                ,'price': data.price
+                                ,'status': 1
+                                ,'license_num': user.license_num
+                                ,'affairs': 2
+                            },
+                            success: function (res) {
+                                if (res){
+                                    alert("申请成功！");
+                                    window.location.reload();
+                                }else
+                                    layer.alert("申请失败...")
+                            },
+                            error: function () {
+                                layer.alert("申请失败...");
+                            }
+                        })
+                    })
+            }
+        });
+
+        if (user.license_num == null || user.license_num == undefined || user.license_num == "")
+            $("#hasCar").css('display','');
+        else {
+            $.ajax({
+                type: 'post',
+                async: false,
+                url: '/smart_community/user/getParkingByLicenseNum.do',
+                xhrFields: {
+                    withCredentials: true
+                },
+                crossDomain: true,
+                data: {
+                    "license_num": user.license_num,
+                },
+                dataType: 'JSON',
+                success: function (res) {
+                    if (res.status == 1) {
+                        $("#pending").css('display', '');
+                        return;
+                    } else {
+                        $("#parkingForm").css('display', '');
+                        form.val('parkingForm', {
+                            'license_num': res.license_num
+                            , 'parking_id': res.parking_id
+                            , 'place': res.place
+                            , 'rent': res.rent
+                            , 'price': res.price
+                        });
+                        if (res.status == 2) {
+
+                        }
+                        else if (res.status == 3) {
+                            $("#payRent").html("已购买");
+                            $("#purchase").html("已购买");
+                        }
+                    }
+                },
+                error: function () {
+                    $("#getParking").css('display','');
+                    return;
+                }
+            })
+        }
+    });
+
+    function pageInit() {
+        $("#user_name").html(user.real_name);
+    }
+
+    function exit() {
+        $.ajax({
+            type: 'post',
+            async: false,
+            url: '/smart_community/user/exit.do',
+            xhrFields: {
+                withCredentials: true
+            },
+            crossDomain: true,
+            data:{
+                "id_num": user.id_num
+            },
+            success: function () {
+                sessionStorage.clear();
+                alert("已退出登录");
+                window.location.href = "../login.html";
+            }
+        });
+    }
+</script>
+</body>
+</html>

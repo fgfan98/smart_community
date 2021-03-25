@@ -7,7 +7,7 @@ public class Parking {
     private int price;
     private int status;
     private String license_num;
-    private String pay_time;
+    private int affairs;
 
     public String getParking_id() {
         return parking_id;
@@ -57,11 +57,11 @@ public class Parking {
         this.license_num = license_num;
     }
 
-    public String getPay_time() {
-        return pay_time;
+    public int getAffairs() {
+        return affairs;
     }
 
-    public void setPay_time(String pay_time) {
-        this.pay_time = pay_time;
+    public void setAffairs(int affairs) {
+        this.affairs = affairs;
     }
 }

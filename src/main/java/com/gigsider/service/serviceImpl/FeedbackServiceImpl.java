@@ -60,6 +60,11 @@ public class FeedbackServiceImpl implements FeedbackService {
     }
 
     @Override
+    public List<Feedback> getFeedbackByUserName(String user_name) {
+        return feedbackDao.queryFeedbackByUserName(user_name);
+    }
+
+    @Override
     public List<Feedback> getFeedbackNNull() {
         return feedbackDao.queryFeedbackNNull();
     }

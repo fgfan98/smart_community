@@ -20,7 +20,7 @@
         update
         parking
         set
-        place = #{place}, rent = #{rent}, price = #{price}, status = #{status}, license_num = #{license_num}, pay_time = #{pay_time}
+        place = #{place}, rent = #{rent}, price = #{price}, status = #{status}, license_num = #{license_num}, affairs = #{affairs}
         where
         parking_id = #{parking_id};
     </update>

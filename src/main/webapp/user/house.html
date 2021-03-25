@@ -26,7 +26,7 @@
                     <dd><a href="security.html">安全设置</a></dd>
                 </dl>
             </li>
-            <li class="layui-nav-item"><a href="javascript:test()">安全退出</a></li>
+            <li class="layui-nav-item"><a href="javascript:exit()">安全退出</a></li>
         </ul>
     </div>
 
@@ -40,13 +40,13 @@
                     <a class="" href="javascript:;">个人信息</a>
                     <dl class="layui-nav-child">
                         <dd><a href="userInfo.html">基本资料</a></dd>
-                        <dd class="layui-this"><a href="security.html">安全设置</a></dd>
+                        <dd><a href="security.html">安全设置</a></dd>
                     </dl>
                 </li>
                 <li class="layui-nav-item layui-nav-itemed">
                     <a href="javascript:;">社区</a>
                     <dl class="layui-nav-child">
-                        <dd><a href="house.html">住宅信息</a></dd>
+                        <dd class="layui-this"><a href="house.html">住宅信息</a></dd>
                         <dd><a href="parking.html">车位信息</a></dd>
                         <dd><a href="payment.html">缴费</a></dd>
                     </dl>
@@ -62,43 +62,61 @@
                 <div class="layui-col-md12">
                     <fieldset class="layui-elem-field layui-field-title"
                               style="margin-top: 30px;">
-                        <legend>安全设置</legend>
+                        <legend>我的住宅</legend>
                     </fieldset>
                 </div>
             </div>
 
-            <div id="formFilter" class="layui-form layui-form-pane" lay-filter="secForm" style="padding: 30px; margin-left: 25%; margin-right: 25%">
+            <div id="formFilter" class="layui-form layui-form-pane" lay-filter="houseForm" style="padding: 30px; margin-left: 25%; margin-right: 25%">
                 <div class="layui-form-item">
-                    <label class="layui-form-label">新密码</label>
+                    <label class="layui-form-label">住宅编号</label>
                     <div class="layui-input-block">
-                        <input type="password" id="new_passwd" name="new_passwd" placeholder="请输入新密码（不填即不修改）" autocomplete="off" class="layui-input">
+                        <input type="text" id="house_id" name="house_id" disabled="" autocomplete="off" class="layui-input">
                     </div>
                 </div>
 
                 <div class="layui-form-item">
-                    <label class="layui-form-label">新联系方式</label>
+                    <label class="layui-form-label">楼栋号</label>
                     <div class="layui-input-block">
-                        <input type="text" id="mobile" name="mobile" placeholder="请输入新的联系方式（不填即不修改）" lay-verify="phone" autocomplete="off" class="layui-input">
+                        <input type="text" ID="building_id" name="building_id" autocomplete="off" class="layui-input" disabled="">
                     </div>
                 </div>
-
-                <fieldset class="layui-elem-field layui-field-title"
-                          style="margin-top: 30px;"></fieldset>
 
                 <div class="layui-form-item">
-                    <label class="layui-form-label">原密码</label>
+                    <label class="layui-form-label">楼层</label>
                     <div class="layui-input-block">
-                        <input type="password" id="old_passwd" name="old_passwd" placeholder="请输入原密码" autocomplete="off" class="layui-input">
+                        <input type="text" id="floor" name="floor" autocomplete="off" class="layui-input" disabled="">
                     </div>
                 </div>
-            </div>
 
-            <fieldset class="layui-elem-field layui-field-title"
-                      style="margin-top: 30px;"></fieldset>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">设计图</label>
+                    <div class="layui-upload">
+                        <a id="blueprint" target="view_window"></a>
+                    </div>
+                </div>
 
-            <div class="layui-form-item" align="center">
-                <button class="layui-btn" id="saveform">修改</button>
-                <button class="layui-btn layui-btn-primary" id="resetform">清空</button>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">面积</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="area" disabled="" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label">备注</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="remark" disabled="" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label">物业费/元</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="property_fee" disabled="" autocomplete="off" class="layui-input">
+                    </div>
+                    <div class="layui-form-mid layui-word-aux"><a href="">去缴费</a></div>
+                </div>
             </div>
         </div>
     </div>
@@ -114,92 +132,46 @@
     //JavaScript代码区域
     var user = JSON.parse(sessionStorage.getItem("vo"));
 
-    layui.use(['element', 'form'], function(){
-        var element = layui.element,
-            form = layui.form
+    layui.use(['form','layer'], function(){
+        var form = layui.form
+            ,layer = layui.layer
 
-    });
-
-    $("#resetform").click(function () {
-        layui.form.val('secForm', {
-            'new_passwd': ''
-            ,'mobile': ''
-            ,'old_passwd': ''
-        })
-    })
-
-    $("#saveform").click(function () {
-        var old_p = $("#old_passwd").val();
-        if(old_p == user.passwd) {
-            var new_p = $("#new_passwd").val();
-            var mobile = $("#mobile").val();
-            if (new_p == null || new_p == undefined || new_p == "")
-                new_p = user.passwd;
-            if (mobile == null || mobile == undefined || mobile == "")
-                mobile = user.mobile;
-            else if (mobile.length != 11 || !/^\d+$/.test(mobile)) {
-                alert("手机号格式错误！");
-                return;
-            }
-            $.ajax({
-                type: 'post',
-                async: false,
-                url: '/smart_community/user/upUser.do',
-                xhrFields: {
-                    withCredentials: true
-                },
-                crossDomain: true,
-                data: {
-                    "id": user.id,
-                    "id_num": user.id_num,
-                    "user_name": user.user_name,
-                    "real_name": user.real_name,
-                    "mobile": mobile,
-                    "passwd": new_p,
-                    "sex": user.sex,
-                    "house": user.house,
-                    "license_num": user.license_num,
-                    "activated": user.activated
-                },
-                dataType:'JSON',
-                success: function (res) {
-                    alert("保存成功！");
-                    upVo();
-                    window.location.reload();
-                },
-                error: function () {
-                    layer.alert("保存失败...")
-                    return;
-                }
-            })
-        } else {
-            alert("愿密码输入错误！！")
-        }
-    })
-
-    function upVo() {
         $.ajax({
             type: 'get',
             async: false,
-            url: '/smart_community/user/getUserById.do',
+            url: '/smart_community/user/getHouseByHouseId.do',
             xhrFields: {
                 withCredentials: true
             },
             crossDomain: true,
             data: {
-                "id": user.id
+                "house_id": user.house
             },
             dataType:'JSON',
             success: function (res) {
-                sessionStorage.setItem('vo',JSON.stringify(res));
+                if (res == null){
+                    layer.alert("加载失败...")
+                    return;
+                }
+                form.val('houseForm', {
+                    'house_id': res.house_id
+                    ,'building_id': res.building_id
+                    ,'floor': res.floor
+                    ,'area': res.area
+                    ,'remark': res.remark
+                });
+                if (res.blueprint != null && res.blueprint != undefined && res.blueprint != "" ) {
+                    $("#blueprint").html(res.house_id+"室的设计图");
+                    $("#blueprint").attr('href', '../' + res.blueprint);
+                }
             },
             error: function () {
-                alert("更新浏览器缓存错误...请重新登录...");
-                window.location.href = '../login.html';
+                layer.alert("加载失败...")
                 return;
             }
         })
-    }
+
+    });
 
     function pageInit() {
         $("#user_name").html(user.real_name);
@@ -221,21 +193,6 @@
                 sessionStorage.clear();
                 alert("已退出登录");
                 window.location.href = "../login.html";
-            }
-        });
-    }
-
-    function test() {
-        $.ajax({
-            type: 'post',
-            async: false,
-            url: '/smart_community/test/getAll.do',
-            xhrFields: {
-                withCredentials: true
-            },
-            crossDomain: true,
-            success: function (res) {
-                console.log(res)
             }
         });
     }
