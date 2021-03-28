@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="../../layui/css/layui.css">
+</head>
+<body>
+
+<div id="formFilter" class="layui-form layui-form-pane" lay-filter="bulletinForm" style="padding: 30px;">
+
+    <div id="qrcode" align="center"></div>
+
+    <br>
+    <br>
+
+    <div class="layui-form-item" align="center">
+        <button class="layui-btn" id="pay_ok">完成支付</button>
+    </div>
+</div>
+
+<script type="text/javascript" src="http://static.runoob.com/assets/jquery/2.0.3/jquery.min.js"></script>
+<script type="text/javascript" src="http://static.runoob.com/assets/qrcode/qrcode.min.js"></script>
+<script src="../../layui/layui.js"></script>
+<script src="../../layui/jquery.min.js"></script>
+<script>
+    var user = JSON.parse(sessionStorage.getItem("vo"));
+
+    var pay_id = sessionStorage.getItem('pay_id');
+    var id_num = user.id_num;
+    var cost = sessionStorage.getItem('pay_num');
+
+    var qrcode = new QRCode(document.getElementById("qrcode"), {
+        width : 100,
+        height : 100
+    });
+
+    function makeCode () {
+        var elText = 'http://192.168.2.100:8080/smart_community/pay.html?a1='+pay_id+'&a2='+cost+'&a3='+id_num;
+        qrcode.makeCode(elText);
+    }
+
+    makeCode();
+
+    layui.use(['form'], function () {
+        var form = layui.form;
+    })
+
+    $("#pay_ok").click(function () {
+        $.ajax({
+            type: 'post',
+            async: true,
+            url: '/smart_community/user/checkPay.do',
+            xhrFields: {
+                withCredentials: true
+            },
+            crossDomain: true,
+            success: function (res) {
+                if (res){
+                    $.ajax({
+                        type: 'post',
+                        async: true,
+                        url: '/smart_community/user/completePay.do',
+                        xhrFields: {
+                            withCredentials: true
+                        },
+                        crossDomain: true,
+                        data: {
+                            'id': pay_id
+                        },
+                        success: function (res) {
+                            if (res){
+                                layui.layer.msg('<i class="layui-icon layui-icon-ok-circle"></i>支付成功！', {time:3000});
+                                setTimeout(function () {
+                                    parent.layer.close(parent.layer.index);
+                                },3000);
+                            }else
+                                layui.layer.msg('<i class="layui-icon layui-icon-close-fill"></i>支付失败...', {time:3000});
+                        },
+                        error: function () {
+                            layui.layer.msg('<i class="layui-icon layui-icon-close-fill"></i>支付失败...', {time:3000});
+                        }
+                    })
+                }else
+                    layui.layer.msg('<i class="layui-icon layui-icon-close-fill"></i>支付失败...', {time:3000});
+            },
+            error: function () {
+                layui.layer.msg('<i class="layui-icon layui-icon-close-fill"></i>支付失败...', {time:3000});
+            }
+        })
+    })
+</script>
+
+</body>
+</html>

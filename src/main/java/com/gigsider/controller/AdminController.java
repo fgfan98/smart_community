@@ -371,6 +371,30 @@ public class AdminController {
         return parking;
     }
 
+    @RequestMapping("/getParkingStatusPage.do")
+    @ResponseBody
+    public Map<String,Object> getParkingStatusPage(int status, int page, int limit) {
+        List<Parking> parkings = parkingService.getParkingByStatus(status);
+        List<Parking> parking = parkingService.statusParkingPage(status, page, limit);
+
+        Map<String,Object> tableData =new HashMap<String,Object>();
+        for (int i = 0; i < parking.size(); i++) {
+            Parking p = parking.get(i);
+            List<User> list = userService.getUserByLicenseNum(p.getLicense_num());
+            User user = list.get(0);
+            p.setUser_name(user.getUser_name());
+            p.setReal_name(user.getReal_name());
+            parking.set(i, p);
+        }
+
+        tableData.put("code", 0);
+        tableData.put("msg", "");
+        tableData.put("count", parkings.size());
+        tableData.put("data", parking);
+        //返回给前端
+        return tableData;
+    }
+
     @RequestMapping("/upParking.do")
     @ResponseBody
     public boolean upParking(Parking parking) {

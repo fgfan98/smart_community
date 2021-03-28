@@ -1,6 +1,7 @@
 package com.gigsider.dao;
 
 import com.gigsider.po.Parking;
+import com.sun.corba.se.spi.ior.ObjectKey;
 
 import java.util.List;
 import java.util.Map;
@@ -30,5 +31,11 @@ public interface ParkingDao {
 
     //车位编号搜索的分页
     public List<Parking> queryParkingIdPage(Map<String, Object> data);
+
+    //通过 status 查找车位
+    public List<Parking> queryParkingByStatus(int status);
+
+    // status 查找分页
+    public List<Parking> statusParkingPage(Map<String,Object> data);
 
 }

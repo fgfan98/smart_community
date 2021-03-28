@@ -32,6 +32,13 @@
         id = #{id};
     </select>
 
+    <select id="queryUserByLicenseNum" parameterType="String" resultType="User">
+        select * from
+        user
+        where
+        license_num = #{license_num};
+    </select>
+
     <select id="queryUserByIdNum" parameterType="String" resultType="User">
         select * from
         user

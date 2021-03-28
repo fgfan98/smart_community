@@ -30,4 +30,10 @@ public interface ParkingService {
     //车位编号搜索的分页
     public List<Parking> getParkingIdPage(int page, int limit, String parking_id);
 
+    //通过 status 查找车位
+    public List<Parking> getParkingByStatus(int status);
+
+    // status 查找分页
+    public List<Parking> statusParkingPage(int status, int page, int limit);
+
 }

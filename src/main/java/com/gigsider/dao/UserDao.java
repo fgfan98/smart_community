@@ -29,6 +29,9 @@ public interface UserDao {
     //通过姓名 real_name 查找用户
     public List<User> queryUserByName(@Param("real_name")String real_name);
 
+    //通过 license_num 查找用户
+    public List<User> queryUserByLicenseNum(String license_num);
+
     //获取所有用户
     public List<User> queryAllUser();
 

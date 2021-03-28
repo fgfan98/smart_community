@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gigsider.dao.PaymentDao">
+
+    <insert id="insertPayment" parameterType="Payment">
+        insert into
+        payment (user, item, item_id, cost, time)
+        values (#{user}, #{item}, #{item_id}, #{cost}, #{time});
+    </insert>
+
+    <delete id="deletePayment" parameterType="Integer">
+        delete from
+        payment
+        where
+        id = #{id};
+    </delete>
+
+    <update id="updatePayment" parameterType="Payment">
+        update
+        payment
+        set
+        user = #{user}, item = #{item}, item_id = #{item_id}, cost = #{cost}, time = #{time}
+        where
+        id = #{id};
+    </update>
+
+    <select id="queryAllPayment" resultType="Payment">
+        select * from
+        payment
+        order by id desc;
+    </select>
+
+    <select id="queryPaymentPage" parameterType="Map" resultType="Payment">
+        select * from
+        payment
+        order by id desc
+        limit #{page}, #{limit};
+    </select>
+
+    <select id="queryPaymentLike" parameterType="String" resultType="Payment">
+        select * from
+        payment
+        where
+        user like concat('%',#{data},'%') or item like concat('%',#{data},'%') or item_id like concat('%',#{data},'%')
+        order by id desc;
+    </select>
+
+    <select id="paymentLikePage" parameterType="Map" resultType="Payment">
+        select * from
+        payment
+        where
+        user like concat('%',#{like},'%') or item like concat('%',#{like},'%') or item_id like concat('%',#{like},'%')
+        order by id desc
+        limit #{page}, #{limit};
+    </select>
+
+    <select id="queryPaymentById" parameterType="Integer" resultType="Payment">
+        select * from
+        payment
+        where
+        id = #{id};
+    </select>
+
+    <select id="queryPaymentByUser" parameterType="String" resultType="Payment">
+        select * from
+        payment
+        where
+        user = #{user}
+        order by id desc;
+    </select>
+
+    <select id="paymentUserPage" parameterType="Map" resultType="Payment">
+        select * from
+        payment
+        where
+        user = #{user}
+        order by id desc
+        limit #{page}, #{limit};
+    </select>
+
+</mapper>

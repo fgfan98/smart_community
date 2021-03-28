@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="../../layui/css/layui.css">
+</head>
+<body>
+
+<div style="padding: 30px;" class="layui-fluid">
+    <div class="layui-row">
+        <div class="layui-col-md1">&nbsp;</div>
+        <div class="layui-col-md10">
+            <table class="layui-hide" id="parkingTable" lay-filter="parkingTable"></table>
+        </div>
+    </div>
+</div>
+
+<script src="../../layui/layui.js"></script>
+<script src="../../layui/jquery.min.js"></script>
+<script type="text/html" id="barDemo">
+    <a class="layui-btn layui-btn-xs" lay-event="complete">完成</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="cancel">取消</a>
+</script>
+<script type="text/html" id="affairsTpl">
+    {{#  if(d.affairs == 2){ }}
+    租车位
+    {{#  } else if(d.affairs == 3) { }}
+    购买车位
+    {{#  } }}
+</script>
+<script>
+    var admin = JSON.parse(sessionStorage.getItem("vo"));
+    layui.use(['table'], function () {
+        var table = layui.table;
+
+        table.render({
+            elem: '#parkingTable'
+            ,url: '/smart_community/admin/getParkingStatusPage.do'
+            ,where: {
+                'status': 1
+            }
+            ,limit: 10
+            ,limits: [10,30,50]
+            ,cols: [[
+                {field:'parking_id',width:'20%', title: '车位编号'}
+                ,{field:'user_name',width:'15%', title: '业主账号'}
+                ,{field:'real_name',width:'15%', title: '业主姓名'}
+                ,{field:'license_num',width:'15%', title: '业主车牌'}
+                ,{field:'affairs', width:'20%', templet:'#affairsTpl', title: '描述'}
+                ,{fixed: 'right', minWidth:'108', align:'center', toolbar: '#barDemo'}
+            ]]
+            ,page: true
+        });
+
+        //监听工具条
+        table.on('tool(parkingTable)', function(obj){
+            var data = obj.data;
+            if(obj.event === 'complete'){
+                layui.layer.confirm('该事务是否已完成？',function () {
+                    $.ajax({
+                        type: 'post',
+                        async: false,
+                        url: '/smart_community/admin/upParking.do',
+                        xhrFields: {
+                            withCredentials: true
+                        },
+                        crossDomain: true,
+                        data: {
+                            'place': data.place
+                            ,'rent': data.rent
+                            ,'price': data.price
+                            ,'status': data.affairs
+                            ,'license_num': data.license_num
+                            ,'affairs': 0
+                            ,'parking_id': data.parking_id
+                        },
+                        dataType: 'JSON',
+                        success: function (res) {
+                            if (res) {
+                                layui.layer.msg("事务已完成！",{time:2000});
+                                setTimeout(function () {
+                                    window.location.reload();
+                                },2000)
+                            } else {
+                                layui.layer.msg("失败...",{time:2000});
+                            }
+                        },
+                        error: function () {
+                            layui.layer.msg("失败...",{time:2000});
+                        }
+                    })
+                })
+            } else if(obj.event === 'cancel'){
+                layui.layer.confirm('是否取消该事务？',function () {
+                    $.ajax({
+                        type: 'post',
+                        async: false,
+                        url: '/smart_community/admin/upParking.do',
+                        xhrFields: {
+                            withCredentials: true
+                        },
+                        crossDomain: true,
+                        data: {
+                            'place': data.place
+                            ,'rent': data.rent
+                            ,'price': data.price
+                            ,'status': 0
+                            ,'license_num': null
+                            ,'affairs': 0
+                            ,'parking_id': data.parking_id
+                        },
+                        dataType: 'JSON',
+                        success: function (res) {
+                            if (res) {
+                                layui.layer.msg("取消成功！",{time:2000});
+                                setTimeout(function () {
+                                    window.location.reload();
+                                },2000)
+                            } else {
+                                layui.layer.msg("取消失败...",{time:2000});
+                            }
+                        },
+                        error: function () {
+                            layui.layer.msg("取消失败...",{time:2000});
+                        }
+                    })
+                })
+            }
+        });
+    })
+</script>
+
+</body>
+</html>

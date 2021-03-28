@@ -58,4 +58,19 @@
         limit #{page}, #{limit};
     </select>
 
+    <select id="queryParkingByStatus" parameterType="Integer" resultType="Parking">
+        select * from
+        parking
+        where
+        status = #{status};
+    </select>
+
+    <select id="statusParkingPage" parameterType="Map" resultType="Parking">
+        select * from
+        parking
+        where
+        status = #{status}
+        limit #{page}, #{limit};
+    </select>
+
 </mapper>

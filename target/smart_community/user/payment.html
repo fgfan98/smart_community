@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>智能社区系统</title>
+    <link rel="stylesheet" href="../layui/css/layui.css">
+</head>
+<body class="layui-layout-body" onload="pageInit()">
+<div class="layui-layout layui-layout-admin">
+    <div class="layui-header">
+        <div class="layui-logo">智能社区--业主</div>
+        <!-- 头部区域（可配合layui已有的水平导航） -->
+        <ul class="layui-nav layui-layout-left">
+            <li class="layui-nav-item"><a href="bulletin.html">公告栏</a></li>
+            <li class="layui-nav-item"><a href="comuniti.html">交流区</a></li>
+        </ul>
+        <ul class="layui-nav layui-layout-right">
+            <li class="layui-nav-item">
+                <a href="javascript:;">
+                    <img src="http://t.cn/RCzsdCq" class="layui-nav-img">
+                    <label id="user_name">null</label>
+                </a>
+                <dl class="layui-nav-child">
+                    <dd><a href="userInfo.html">基本资料</a></dd>
+                    <dd><a href="security.html">安全设置</a></dd>
+                </dl>
+            </li>
+            <li class="layui-nav-item"><a href="javascript:exit()">安全退出</a></li>
+        </ul>
+    </div>
+
+    <div class="layui-side layui-bg-black">
+        <div class="layui-side-scroll">
+            <!-- 左侧导航区域（可配合layui已有的垂直导航） -->
+            <ul class="layui-nav layui-nav-tree"  lay-filter="test">
+                <li class="layui-nav-item"><a href="houseFix.html">报修&安装</a></li>
+                <li class="layui-nav-item"><a href="feedback.html">意见反馈</a></li>
+                <li class="layui-nav-item layui-nav-itemed">
+                    <a class="" href="javascript:;">个人信息</a>
+                    <dl class="layui-nav-child">
+                        <dd><a href="userInfo.html">基本资料</a></dd>
+                        <dd><a href="security.html">安全设置</a></dd>
+                    </dl>
+                </li>
+                <li class="layui-nav-item layui-nav-itemed">
+                    <a href="javascript:;">社区</a>
+                    <dl class="layui-nav-child">
+                        <dd><a href="house.html">住宅信息</a></dd>
+                        <dd><a href="parking.html">车位信息</a></dd>
+                        <dd class="layui-this"><a href="payment.html">缴费</a></dd>
+                    </dl>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="layui-body">
+        <!-- 内容主体区域 -->
+        <div style="padding: 30px;" class="layui-fluid">
+            <div class="layui-row">
+                <div class="layui-col-md12">
+                    <fieldset class="layui-elem-field layui-field-title"
+                              style="margin-top: 30px;">
+                        <legend>缴费信息</legend>
+                    </fieldset>
+                </div>
+            </div>
+
+            <div class="layui-row">
+                <div class="layui-col-md1">&nbsp;</div>
+                <div class="layui-col-md10">
+                    <table id="myPayment" lay-filter="myPayment" class="layui-table">
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="layui-footer">
+        <!-- 底部固定区域 -->
+        B17041711方凡
+    </div>
+</div>
+<script src="../layui/layui.js"></script>
+<script src="../layui/jquery.min.js"></script>
+<script type="text/html" id="barDemo">
+    <a class="layui-btn layui-btn-xs" lay-event="pay">缴费</a>
+</script>
+<script>
+    //JavaScript代码区域
+    var user = JSON.parse(sessionStorage.getItem("vo"));
+
+    layui.use(['element','table','layer'], function(){
+        var element = layui.element,
+            table = layui.table,
+            layer = layui.layer;
+
+        table.render({
+            elem: '#myPayment'
+            ,url: '/smart_community/user/getMyPayment.do'
+            ,where: {
+                'user': user.user_name
+            }
+            ,limit: 10
+            ,limits: [10,15,30]
+            ,cols: [[
+                {field:'item',width:'22.5%', title: '项目'}
+                ,{field:'item_id',width:'30%', title: '详情'}
+                ,{field:'cost', width:'20%', title: '花费/元'}
+                ,{field:'time', width:'20%', title: '账单时间'}
+                ,{fixed: 'right', minWidth:'100', align:'center', toolbar: '#barDemo'}
+            ]]
+            ,page: true
+        });
+
+        //监听工具条
+        table.on('tool(myPayment)', function(obj){
+            var data = obj.data;
+            if(obj.event === 'pay'){
+                sessionStorage.setItem('pay_id',data.id);
+                sessionStorage.setItem('pay_num',data.cost);
+                layer.open({
+                    type: 2,
+                    title: '扫码支付',
+                    shadeClose: true,           //弹出框之外的地方是否可以点击
+                    offset: '10%',
+                    area: ['15%', '31%'],
+                    content: 'popup/qrPay.html',
+                    end:function () {
+                        sessionStorage.removeItem('pay_id');
+                        sessionStorage.removeItem('pay_num');
+                        window.location.reload();
+                    }
+                });
+            }
+        });
+
+    });
+
+    function pageInit() {
+        $("#user_name").html(user.real_name);
+    }
+
+    function exit() {
+        $.ajax({
+            type: 'post',
+            async: false,
+            url: '/smart_community/user/exit.do',
+            xhrFields: {
+                withCredentials: true
+            },
+            crossDomain: true,
+            data:{
+                "id_num": user.id_num
+            },
+            success: function () {
+                sessionStorage.clear();
+                alert("已退出登录");
+                window.location.href = "../login.html";
+            }
+        });
+    }
+</script>
+</body>
+</html>

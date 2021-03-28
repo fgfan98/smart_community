@@ -104,4 +104,9 @@ public class UserServiceImpl implements UserService {
     public boolean upUser(User user) {
         return userDao.updateUser(user);
     }
+
+    @Override
+    public List<User> getUserByLicenseNum(String license_num) {
+        return userDao.queryUserByLicenseNum(license_num);
+    }
 }

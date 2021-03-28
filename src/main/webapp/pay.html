@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="./layui/css/layui.css">
+</head>
+<body>
+
+<div id="formFilter" class="layui-form layui-form-pane" lay-filter="bulletinForm" style="padding: 30px;">
+    <div class="layui-form-item layui-form-text">
+        <div align="center" id="pay_content"></div>
+    </div>
+    <br>
+    <div class="layui-form-item" align="center">
+        <button class="layui-btn" id="pay">缴费</button>
+        <button class="layui-btn layui-btn-primary" id="unPay">取消</button>
+    </div>
+</div>
+
+<script src="./layui/layui.js"></script>
+<script src="./layui/jquery.min.js"></script>
+<script>
+    var pay_id = getQueryVariable('ai');
+    var id_num = getQueryVariable('a3');
+    var cost = getQueryVariable('a2');
+    layui.use(['form'], function () {
+        var form = layui.form;
+
+        $("#pay_content").html('<h1>是否缴费 '+cost+' 元？</h1>')
+    })
+
+    $("#unPay").click(function () {
+        layui.layer.confirm("即将推出支付...",function () {
+            window.location.href = 'about:blank';
+        });
+    })
+
+    $("#pay").click(function () {
+        $.ajax({
+            type: 'post',
+            async: true,
+            url: '/smart_community/user/pay.do',
+            xhrFields: {
+                withCredentials: true
+            },
+            crossDomain: true,
+            data: {
+                'id_num': id_num
+            },
+            success: function (res) {
+                if (res){
+                    layui.layer.msg('模拟支付中...', {time:3000});
+                    setTimeout(function () {
+                        $("#formFilter").html("<div align='center'><h1>支付成功！</h1></div>")
+                    },3000)
+
+                }else
+                    layui.layer.alert("模拟支付失败...")
+            },
+            error: function () {
+                layui.layer.alert("模拟支付失败...");
+            }
+        })
+    })
+
+    function getQueryVariable(variable)
+    {
+        var query = window.location.search.substring(1);
+        var vars = query.split("&");
+        for (var i=0;i<vars.length;i++) {
+            var pair = vars[i].split("=");
+            if(pair[0] == variable){return pair[1];}
+        }
+        return(false);
+    }
+</script>
+
+</body>
+</html>

@@ -91,6 +91,7 @@
                 </div>
                 <div class="layui-col-md3 layui-col-md-offset4">
                     <div class="layui-btn-group tableEdit">
+                        <button class="layui-btn layui-btn-warm" data-type="upComing">待办事务</button>
                         <button class="layui-btn" data-type="addParking">添加车位</button>
                         <button class="layui-btn layui-btn-danger" data-type="delCheck">删除选中</button>
                     </div>
@@ -288,6 +289,18 @@
                     offset: '10%',
                     area: ['25%', '40%'],
                     content: 'popup/addParking.html',
+                    end:function () {
+                        window.location.reload();
+                    }
+                });
+            },upComing: function () {
+                layer.open({
+                    type: 2,
+                    title: '待办事务',
+                    shadeClose: true,           //弹出框之外的地方是否可以点击
+                    offset: '10%',
+                    area: ['70%', '70%'],
+                    content: 'popup/upComing.html',
                     end:function () {
                         window.location.reload();
                     }

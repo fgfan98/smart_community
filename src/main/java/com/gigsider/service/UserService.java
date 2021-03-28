@@ -43,4 +43,7 @@ public interface UserService {
     //更新用户住宅编号信息
     public boolean upUserHouse(String old_house, String new_house);
 
+    //通过 license_num 查找用户
+    public List<User> getUserByLicenseNum(String license_num);
+
 }

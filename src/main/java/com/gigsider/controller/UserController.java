@@ -34,6 +34,8 @@ public class UserController {
     private ParkingService parkingService;
     @Autowired
     private FeedbackService feedbackService;
+    @Autowired
+    private PaymentService paymentService;
 
     @RequestMapping("/login.do")
     @ResponseBody
@@ -226,6 +228,42 @@ public class UserController {
         return parkingService.upParking(parking);
     }
 
+    @RequestMapping("/getParkingPage.do")
+    @ResponseBody
+    public Map<String, Object> getParkingPage(int page, int limit) {
+        //获取全部车位信息
+        List<Parking> parkings = parkingService.getAllParking();
+        //获取分页后的每页车位信息
+        List<Parking> parking = parkingService.getParkingPage(page, limit);
+
+        Map<String,Object> tableData =new HashMap<String,Object>();
+        //这是layui要求返回的json数据格式
+        tableData.put("code", 0);
+        tableData.put("msg", "");
+        //将全部数据的条数作为count传给前台（一共多少条）
+        tableData.put("count", parkings.size());
+        //将分页后的数据返回（每页要显示的数据）
+        tableData.put("data", parking);
+        //返回给前端
+        return tableData;
+    }
+
+    @RequestMapping("/getParkingIdPage.do")
+    @ResponseBody
+    public Map<String, Object> getParkingIdPage(int page, int limit, String parking_id) {
+        List<Parking> parkings = parkingService.getParkingByParkingId(parking_id);
+        List<Parking> parking = parkingService.getParkingIdPage(page, limit, parking_id);
+
+        Map<String,Object> tableData =new HashMap<String,Object>();
+
+        tableData.put("code", 0);
+        tableData.put("msg", "");
+        tableData.put("count", parkings.size());
+        tableData.put("data", parking);
+        //返回给前端
+        return tableData;
+    }
+
     @RequestMapping("/getMyFeedback.do")
     @ResponseBody
     public List<Feedback> getMyFeedback(String user_name) {
@@ -236,5 +274,52 @@ public class UserController {
     @ResponseBody
     public boolean addFeedback(Feedback feedback) {
         return feedbackService.addFeedback(feedback);
+    }
+
+    @RequestMapping("/addPayment.do")
+    @ResponseBody
+    public boolean addPayment(Payment payment) {
+        return paymentService.addPayment(payment);
+    }
+
+    @RequestMapping("/getMyPayment.do")
+    @ResponseBody
+    public Map<String,Object> getMyPayment(int page, int limit, String user) {
+        List<Payment> payments = paymentService.getPaymentByUser(user);
+        List<Payment> payment = paymentService.paymentUserPage(user, page, limit);
+
+        Map<String,Object> tableData = new HashMap<>();
+
+        tableData.put("code", 0);
+        tableData.put("msg", "");
+        tableData.put("count", payments.size());
+        tableData.put("data", payment);
+        //返回给前端
+        return tableData;
+    }
+
+    @RequestMapping("/pay.do")
+    @ResponseBody
+    public boolean pay(String id_num) {
+        if (SessionPool.getExistSession(id_num) == null)
+            return false;
+        HttpSession session = SessionPool.getExistSession(id_num);
+        session.setAttribute("pay_status","success");
+        return true;
+    }
+
+    @RequestMapping("/checkPay.do")
+    @ResponseBody
+    public boolean checkPay(HttpSession session) {
+        if (session.getAttribute("pay_status").equals("success"))
+            return true;
+        return false;
+    }
+
+    @RequestMapping("/completePay.do")
+    @ResponseBody
+    public boolean completePay(int id, HttpSession session) {
+        session.removeAttribute("pay_status");
+        return paymentService.delPayment(id);
     }
 }

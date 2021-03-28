@@ -62,4 +62,18 @@ public class ParkingServiceImpl implements ParkingService {
         data.put("parking_id", parking_id);
         return parkingDao.queryParkingIdPage(data);
     }
+
+    @Override
+    public List<Parking> getParkingByStatus(int status) {
+        return parkingDao.queryParkingByStatus(status);
+    }
+
+    @Override
+    public List<Parking> statusParkingPage(int status, int page, int limit) {
+        Map<String,Object> data = new HashMap<>();
+        data.put("status", status);
+        data.put("page", (page-1)*limit);
+        data.put("limit", limit);
+        return parkingDao.statusParkingPage(data);
+    }
 }

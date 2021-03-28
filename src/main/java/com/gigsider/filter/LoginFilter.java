@@ -29,6 +29,8 @@ public class LoginFilter implements Filter {
                 || path.indexOf(".js") > -1
                 || path.indexOf(".css") > -1
                 || path.indexOf(".jpg") > -1
+                || path.indexOf("/pay.html") > -1
+                || path.indexOf("/pay.do") > -1
         ) {
             filterChain.doFilter(servletRequest,servletResponse);
             return;

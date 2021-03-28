@@ -71,32 +71,6 @@
                 <h1 align="center">暂无车位权限</h1>
             </div>
 
-            <div id="getParking" style="padding: 30px; display: none">
-                <h1 align="center">暂未拥有车位</h1>
-                <br>
-                <div class="layui-row">
-                    <div class="layui-col-md1">&nbsp;</div>
-                    <div class="layui-col-md4">
-                        <div class="tableReload">
-                            搜索车位：
-                            <div class="layui-inline">
-                                <input class="layui-input" name="parkingId" id="parkingIdReload" autocomplete="off">
-                            </div>
-                            <div class="layui-btn-group">
-                                <button class="layui-btn" data-type="reload">搜索</button>
-                                <button class="layui-btn" data-type="goBack">返回</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="layui-row">
-                    <div class="layui-col-md1">&nbsp;</div>
-                    <div class="layui-col-md10">
-                        <table class="layui-hide" id="parkingTable" lay-filter="demo"></table>
-                    </div>
-                </div>
-            </div>
-
             <div id="pending" style="padding: 30px; margin-left: 25%; margin-right: 25%; display: none">
                 <h1 align="center">业务办理中...</h1>
             </div>
@@ -130,6 +104,32 @@
                         <input type="text" id="price" name="price" disabled="" autocomplete="off" class="layui-input">
                     </div>
                     <div id="purchase" class="layui-form-mid layui-word-aux"></div>
+                </div>
+            </div>
+
+            <div id="getParking" style="padding: 30px; display: none">
+                <h1 align="center">暂未拥有车位</h1>
+                <br>
+                <div class="layui-row">
+                    <div class="layui-col-md1">&nbsp;</div>
+                    <div class="layui-col-md4">
+                        <div class="tableReload">
+                            搜索车位：
+                            <div class="layui-inline">
+                                <input class="layui-input" name="parkingId" id="parkingIdReload" autocomplete="off">
+                            </div>
+                            <div class="layui-btn-group">
+                                <button class="layui-btn" data-type="reload">搜索</button>
+                                <button class="layui-btn" data-type="goBack">返回</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-row">
+                    <div class="layui-col-md1">&nbsp;</div>
+                    <div class="layui-col-md10">
+                        <table class="layui-hide" id="parkingTable" lay-filter="demo"></table>
+                    </div>
                 </div>
             </div>
 
@@ -169,15 +169,16 @@
 
         table.render({
             elem: '#parkingTable'
-            ,url: '/smart_community/admin/getParkingPage.do'
+            ,url: '/smart_community/user/getParkingPage.do'
             ,limit: 10
             ,limits: [10,30,50]
             ,cols: [[
-                {field:'parking_id',width:'35%', title: '车位编号'}
-                ,{field:'place',width:'20%', title: '位置'}
-                ,{field:'rent',width:'12.5%', title: '月租金/元'}
-                ,{field:'status', width:'20%', templet:'#statusTpl', title: '状态'}
-                ,{fixed: 'right', minWidth:'178', align:'center', toolbar: '#barDemo'}
+                {field:'parking_id',width:'270', title: '车位编号'}
+                ,{field:'place',width:'200', title: '位置'}
+                ,{field:'rent',width:'250', title: '月租金/元'}
+                ,{field:'price',width:'250', title: '价格/元'}
+                ,{field:'status', width:'200', templet:'#statusTpl', title: '状态'}
+                ,{fixed: 'right', width:'168', align:'center', toolbar: '#barDemo'}
             ]]
             ,page: true
         });
@@ -185,6 +186,8 @@
         table.on('tool(demo)', function(obj){
             var data = obj.data;
             if(obj.event === 'purchase'){
+                var d = new Date();
+                var time = d.getFullYear()+'年'+ (Number(d.getMonth())+1)+'月'+d.getDate()+'日'+d.getHours()+':'+d.getMinutes();
                 if (data.status != 0)
                     layer.alert("不可用！");
                 else
@@ -192,24 +195,48 @@
                         $.ajax({
                             type: 'post',
                             async: true,
-                            url: '/smart_community/user/upParking.do',
+                            url: '/smart_community/user/addPayment.do',
                             xhrFields: {
                                 withCredentials: true
                             },
                             crossDomain: true,
                             data: {
-                                'parking_id': data.parking_id
-                                ,'place': data.place
-                                ,'rent': data.rent
-                                ,'price': data.price
-                                ,'status': 1
-                                ,'license_num': user.license_num
-                                ,'affairs': 3
+                                'user': user.user_name
+                                ,'item': '车位购买'
+                                ,'item_id': data.parking_id
+                                ,'cost': data.price
+                                ,'time': time
                             },
                             success: function (res) {
                                 if (res){
-                                    alert("申请成功！");
-                                    window.location.reload();
+                                    $.ajax({
+                                        type: 'post',
+                                        async: true,
+                                        url: '/smart_community/user/upParking.do',
+                                        xhrFields: {
+                                            withCredentials: true
+                                        },
+                                        crossDomain: true,
+                                        data: {
+                                            'parking_id': data.parking_id
+                                            ,'place': data.place
+                                            ,'rent': data.rent
+                                            ,'price': data.price
+                                            ,'status': 1
+                                            ,'license_num': user.license_num
+                                            ,'affairs': 3
+                                        },
+                                        success: function (res) {
+                                            if (res){
+                                                alert("申请成功！");
+                                                window.location.reload();
+                                            }else
+                                                layer.alert("申请失败...")
+                                        },
+                                        error: function () {
+                                            layer.alert("申请失败...");
+                                        }
+                                    })
                                 }else
                                     layer.alert("申请失败...")
                             },
@@ -219,6 +246,8 @@
                         })
                     })
             } else if(obj.event === 'rent'){
+                var d = new Date();
+                var time = d.getFullYear()+'年'+ (Number(d.getMonth())+1)+'月'+d.getDate()+'日'+d.getHours()+':'+d.getMinutes();
                 if (data.status != 0)
                     layer.alert("不可用！");
                 else
@@ -226,24 +255,48 @@
                         $.ajax({
                             type: 'post',
                             async: true,
-                            url: '/smart_community/user/upParking.do',
+                            url: '/smart_community/user/addPayment.do',
                             xhrFields: {
                                 withCredentials: true
                             },
                             crossDomain: true,
                             data: {
-                                'parking_id': data.parking_id
-                                ,'place': data.place
-                                ,'rent': data.rent
-                                ,'price': data.price
-                                ,'status': 1
-                                ,'license_num': user.license_num
-                                ,'affairs': 2
+                                'user': user.user_name
+                                ,'item': '车位租金'
+                                ,'item_id': data.parking_id
+                                ,'cost': data.rent
+                                ,'time': time
                             },
                             success: function (res) {
                                 if (res){
-                                    alert("申请成功！");
-                                    window.location.reload();
+                                    $.ajax({
+                                        type: 'post',
+                                        async: true,
+                                        url: '/smart_community/user/upParking.do',
+                                        xhrFields: {
+                                            withCredentials: true
+                                        },
+                                        crossDomain: true,
+                                        data: {
+                                            'parking_id': data.parking_id
+                                            ,'place': data.place
+                                            ,'rent': data.rent
+                                            ,'price': data.price
+                                            ,'status': 1
+                                            ,'license_num': user.license_num
+                                            ,'affairs': 2
+                                        },
+                                        success: function (res) {
+                                            if (res){
+                                                alert("申请成功！");
+                                                window.location.reload();
+                                            }else
+                                                layer.alert("申请失败...")
+                                        },
+                                        error: function () {
+                                            layer.alert("申请失败...");
+                                        }
+                                    })
                                 }else
                                     layer.alert("申请失败...")
                             },
@@ -254,6 +307,44 @@
                     })
             }
         });
+
+        var $ = layui.$, active = {
+            reload: function(){
+                var parkingIdReload = $('#parkingIdReload');
+                //执行重载
+                table.reload('parkingTable', {
+                    url: '/smart_community/user/getParkingIdPage.do',
+                    page: {
+                        curr: 1 //重新从第 1 页开始
+                    }
+                    ,where: {
+                        parking_id: parkingIdReload.val()
+                    }
+                }, 'data');
+            }
+            ,goBack: function(){
+                var parkingIdReload = $('#parkingIdReload');
+                //执行重载
+                table.reload('parkingTable', {
+                    url: '/smart_community/user/getParkingPage.do',
+                    page: {
+                        curr: 1 //重新从第 1 页开始
+                    }
+                    ,where: {
+                        parking_id: parkingIdReload.val()
+                    }
+                }, 'data');
+            }
+        };
+
+        $('.tableReload .layui-btn').on('click', function(){
+            var type = $(this).data('type');
+            active[type] ? active[type].call(this) : '';
+        });
+    });
+
+    function pageInit() {
+        $("#user_name").html(user.real_name);
 
         if (user.license_num == null || user.license_num == undefined || user.license_num == "")
             $("#hasCar").css('display','');
@@ -276,7 +367,7 @@
                         return;
                     } else {
                         $("#parkingForm").css('display', '');
-                        form.val('parkingForm', {
+                        layui.form.val('parkingForm', {
                             'license_num': res.license_num
                             , 'parking_id': res.parking_id
                             , 'place': res.place
@@ -298,10 +389,6 @@
                 }
             })
         }
-    });
-
-    function pageInit() {
-        $("#user_name").html(user.real_name);
     }
 
     function exit() {
