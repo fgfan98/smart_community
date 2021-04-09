@@ -38,4 +38,7 @@ public interface ParkingDao {
     // status 查找分页
     public List<Parking> statusParkingPage(Map<String,Object> data);
 
+    //获取以租赁的车位
+    public List<Parking> queryRentParking();
+
 }

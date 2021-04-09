@@ -76,4 +76,9 @@ public class ParkingServiceImpl implements ParkingService {
         data.put("limit", limit);
         return parkingDao.statusParkingPage(data);
     }
+
+    @Override
+    public List<Parking> getRentParking() {
+        return parkingDao.queryRentParking();
+    }
 }

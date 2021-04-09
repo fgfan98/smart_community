@@ -76,4 +76,20 @@ public class PaymentServiceImpl implements PaymentService {
         data.put("limit", limit);
         return paymentDao.paymentUserPage(data);
     }
+
+    @Override
+    public boolean setPaid(int id, int paid) {
+        Map<String,Object> data = new HashMap<>();
+        data.put("id", id);
+        data.put("paid", paid);
+        return paymentDao.setPaid(data);
+    }
+
+    @Override
+    public List<Payment> getUnPaid(String user, String item) {
+        Map<String,Object> data = new HashMap<>();
+        data.put("user", user);
+        data.put("item", item);
+        return paymentDao.queryUnPaid(data);
+    }
 }

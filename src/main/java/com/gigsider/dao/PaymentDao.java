@@ -37,4 +37,10 @@ public interface PaymentDao {
     // user 分页查询
     public List<Payment> paymentUserPage(Map<String,Object> data);
 
+    // 设置支付情况
+    public boolean setPaid(Map<String,Object> data);
+
+    // 查看支付情况
+    public List<Payment> queryUnPaid(Map<String,Object> data);
+
 }

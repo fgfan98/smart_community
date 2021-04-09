@@ -13,8 +13,10 @@
        http://www.springframework.org/schema/tx
        http://www.springframework.org/schema/tx/spring-tx.xsd http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd">
 
+  <bean id="SpringContextHolder" class="com.gigsider.utils.SpringContextHolder" lazy-init="false"></bean>
   <!-- 把 service 中的类交给 IOC 容器区管理 -->
   <context:component-scan base-package="com.gigsider.service" />
+  <context:component-scan base-package="com.gigsider.utils" />
 
   <!-- 配置开源的数据库连接池 Druid -->
   <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource">

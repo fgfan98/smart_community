@@ -11,6 +11,8 @@
             http://www.springframework.org/schema/context
             http://www.springframework.org/schema/context/spring-context.xsd">
 
+    <bean id="SpringContextHolder" class="com.gigsider.utils.SpringContextHolder" lazy-init="false"></bean>
+
     <!-- 把 controller 中的类交给 IOC 容器区管理 -->
     <context:component-scan base-package="com.gigsider.controller" />
 

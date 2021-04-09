@@ -11,10 +11,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpSession;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 @Controller
 @RequestMapping("/admin")
@@ -36,6 +34,12 @@ public class AdminController {
     private ComunitiService comunitiService;
     @Autowired
     private ReplyService replyService;
+    @Autowired
+    private FixService fixService;
+    @Autowired
+    private PaymentService paymentService;
+    @Autowired
+    private DataService dataService;
 
     @RequestMapping("/login.do")
     @ResponseBody
@@ -674,6 +678,103 @@ public class AdminController {
     @ResponseBody
     public boolean unReportReply(int id) {
         return replyService.unReportReply(id);
+    }
+
+    @RequestMapping("/getFixPage.do")
+    @ResponseBody
+    public Map<String,Object> getFixPage(int page, int limit) {
+        List<Fix> fixes = fixService.getAllFix();
+        List<Fix> fix = fixService.allFixPage(page, limit);
+
+        Map<String,Object> tableData =new HashMap<String,Object>();
+
+        tableData.put("code", 0);
+        tableData.put("msg", "");
+        tableData.put("count", fixes.size());
+        tableData.put("data", fix);
+        //返回给前端
+        return tableData;
+    }
+
+    @RequestMapping("/upFix.do")
+    @ResponseBody
+    public boolean upFix(Fix fix) {
+        return fixService.upFix(fix);
+    }
+
+    @RequestMapping("/delFix.do")
+    @ResponseBody
+    public boolean delFix(int id) {
+        return fixService.delFix(id);
+    }
+
+    @RequestMapping("/completeFix.do")
+    @ResponseBody
+    public boolean completeFix(Fix fix) {
+        SimpleDateFormat sdf = new SimpleDateFormat();// 格式化时间
+        sdf.applyPattern("yyyy年MM月dd日 HH:mm");// a为am/pm的标记
+        Date date = new Date();// 获取当前时间
+        String time =  sdf.format(date); // 输出已经格式化的现在时间（24小时制）
+
+        upFix(fix);
+        Payment payment = new Payment();
+        payment.setItem("报修&安装");
+        payment.setCost(fix.getCost());
+        payment.setItem_id(fix.getId()+"");
+        payment.setUser(fix.getUser_name());
+        payment.setTime(time);
+
+        return paymentService.addPayment(payment);
+    }
+
+    @RequestMapping("/getPaymentPage.do")
+    @ResponseBody
+    public Map<String,Object> getPaymentPage(int page, int limit) {
+        List<Payment> payments = paymentService.getAllPayment();
+        List<Payment> payment = paymentService.getPaymentPage(page, limit);
+
+        Map<String,Object> tableData =new HashMap<String,Object>();
+
+        tableData.put("code", 0);
+        tableData.put("msg", "");
+        tableData.put("count", payments.size());
+        tableData.put("data", payment);
+        //返回给前端
+        return tableData;
+    }
+
+    @RequestMapping("/delPayment.do")
+    @ResponseBody
+    public boolean delPayment(int id) {
+        return paymentService.delPayment(id);
+    }
+
+    @RequestMapping("/getPaymentLikePage.do")
+    @ResponseBody
+    public Map<String,Object> getPaymentLikePage(String data, int page, int limit) {
+        List<Payment> payments = paymentService.getPaymentLike(data);
+        List<Payment> payment = paymentService.paymentLikePage(data, page, limit);
+
+        Map<String,Object> tableData =new HashMap<String,Object>();
+
+        tableData.put("code", 0);
+        tableData.put("msg", "");
+        tableData.put("count", payments.size());
+        tableData.put("data", payment);
+        //返回给前端
+        return tableData;
+    }
+
+    @RequestMapping("getData.do")
+    @ResponseBody
+    public Data getData(String key) {
+        return dataService.getData(key);
+    }
+
+    @RequestMapping("upData.do")
+    @ResponseBody
+    public boolean upData(Data data) {
+        return dataService.upData(data);
     }
 
 }

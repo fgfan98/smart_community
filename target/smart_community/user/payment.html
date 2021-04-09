@@ -87,6 +87,13 @@
 <script type="text/html" id="barDemo">
     <a class="layui-btn layui-btn-xs" lay-event="pay">缴费</a>
 </script>
+<script type="text/html" id="paidTpl">
+    {{#  if(d.paid == 0){ }}
+    <span class="layui-badge layui-bg-cyan">未支付</span>
+    {{#  } else if(d.paid == 1) { }}
+    <span class="layui-badge layui-bg-green">已支付</span>
+    {{#  } }}
+</script>
 <script>
     //JavaScript代码区域
     var user = JSON.parse(sessionStorage.getItem("vo"));
@@ -106,9 +113,10 @@
             ,limits: [10,15,30]
             ,cols: [[
                 {field:'item',width:'22.5%', title: '项目'}
-                ,{field:'item_id',width:'30%', title: '详情'}
+                ,{field:'item_id',width:'20%', title: '详情'}
                 ,{field:'cost', width:'20%', title: '花费/元'}
                 ,{field:'time', width:'20%', title: '账单时间'}
+                ,{field:'paid', width:'10%', templet:'#paidTpl', title: '状态'}
                 ,{fixed: 'right', minWidth:'100', align:'center', toolbar: '#barDemo'}
             ]]
             ,page: true
@@ -118,8 +126,16 @@
         table.on('tool(myPayment)', function(obj){
             var data = obj.data;
             if(obj.event === 'pay'){
+                if (data.paid == 1) {
+                    layer.alert("已完成支付！请勿重复操作！");
+                    return;
+                }
                 sessionStorage.setItem('pay_id',data.id);
                 sessionStorage.setItem('pay_num',data.cost);
+                if (data.item == "报修&安装")
+                    sessionStorage.setItem('isFix', data.item_id);
+                else
+                    sessionStorage.setItem('isFix', '0');
                 layer.open({
                     type: 2,
                     title: '扫码支付',
@@ -130,6 +146,7 @@
                     end:function () {
                         sessionStorage.removeItem('pay_id');
                         sessionStorage.removeItem('pay_num');
+                        sessionStorage.removeItem('isFix');
                         window.location.reload();
                     }
                 });

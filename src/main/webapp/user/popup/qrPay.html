@@ -57,30 +57,58 @@
             crossDomain: true,
             success: function (res) {
                 if (res){
-                    $.ajax({
-                        type: 'post',
-                        async: true,
-                        url: '/smart_community/user/completePay.do',
-                        xhrFields: {
-                            withCredentials: true
-                        },
-                        crossDomain: true,
-                        data: {
-                            'id': pay_id
-                        },
-                        success: function (res) {
-                            if (res){
-                                layui.layer.msg('<i class="layui-icon layui-icon-ok-circle"></i>支付成功！', {time:3000});
-                                setTimeout(function () {
-                                    parent.layer.close(parent.layer.index);
-                                },3000);
-                            }else
-                                layui.layer.msg('<i class="layui-icon layui-icon-close-fill"></i>支付失败...', {time:3000});
-                        },
-                        error: function () {
-                            layui.layer.msg('<i class="layui-icon layui-icon-close-fill"></i>支付失败...', {time:3000});
-                        }
-                    })
+                    if (sessionStorage.getItem('isFix') == '0') {
+                        $.ajax({
+                            type: 'post',
+                            async: true,
+                            url: '/smart_community/user/completePay.do',
+                            xhrFields: {
+                                withCredentials: true
+                            },
+                            crossDomain: true,
+                            data: {
+                                'id': pay_id
+                            },
+                            success: function (res) {
+                                if (res) {
+                                    layui.layer.msg('<i class="layui-icon layui-icon-ok-circle"></i>支付成功！', {time: 3000});
+                                    setTimeout(function () {
+                                        parent.layer.close(parent.layer.index);
+                                    }, 3000);
+                                } else
+                                    layui.layer.msg('<i class="layui-icon layui-icon-close-fill"></i>支付失败...', {time: 3000});
+                            },
+                            error: function () {
+                                layui.layer.msg('<i class="layui-icon layui-icon-close-fill"></i>支付失败...', {time: 3000});
+                            }
+                        })
+                    } else if (sessionStorage.getItem('isFix') != '0') {
+                        $.ajax({
+                            type: 'post',
+                            async: true,
+                            url: '/smart_community/user/completeFixPay.do',
+                            xhrFields: {
+                                withCredentials: true
+                            },
+                            crossDomain: true,
+                            data: {
+                                'id': pay_id,
+                                'fix_id': sessionStorage.getItem('isFix')
+                            },
+                            success: function (res) {
+                                if (res) {
+                                    layui.layer.msg('<i class="layui-icon layui-icon-ok-circle"></i>支付成功！', {time: 3000});
+                                    setTimeout(function () {
+                                        parent.layer.close(parent.layer.index);
+                                    }, 3000);
+                                } else
+                                    layui.layer.msg('<i class="layui-icon layui-icon-close-fill"></i>支付失败...', {time: 3000});
+                            },
+                            error: function () {
+                                layui.layer.msg('<i class="layui-icon layui-icon-close-fill"></i>支付失败...', {time: 3000});
+                            }
+                        })
+                    }
                 }else
                     layui.layer.msg('<i class="layui-icon layui-icon-close-fill"></i>支付失败...', {time:3000});
             },

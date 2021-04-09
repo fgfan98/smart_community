@@ -73,4 +73,11 @@
         limit #{page}, #{limit};
     </select>
 
+    <select id="queryRentParking" resultType="Parking">
+        select * from
+        parking
+        where
+        status = 2;
+    </select>
+
 </mapper>

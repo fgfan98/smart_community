@@ -6,8 +6,17 @@ public class Payment {
     private String user;
     private String item;
     private String item_id;
-    private int cost;
+    private double cost;
     private String time;
+    private int paid;
+
+    public int getPaid() {
+        return paid;
+    }
+
+    public void setPaid(int paid) {
+        this.paid = paid;
+    }
 
     public int getId() {
         return id;
@@ -41,11 +50,11 @@ public class Payment {
         this.item_id = item_id;
     }
 
-    public int getCost() {
+    public double getCost() {
         return cost;
     }
 
-    public void setCost(int cost) {
+    public void setCost(double cost) {
         this.cost = cost;
     }
 

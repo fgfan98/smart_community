@@ -115,7 +115,7 @@
                     <div class="layui-input-inline">
                         <input type="text" name="property_fee" disabled="" autocomplete="off" class="layui-input">
                     </div>
-                    <div class="layui-form-mid layui-word-aux"><a href="">去缴费</a></div>
+                    <div id="isPaid" class="layui-form-mid layui-word-aux"></div>
                 </div>
             </div>
         </div>
@@ -135,35 +135,81 @@
     layui.use(['form','layer'], function(){
         var form = layui.form
             ,layer = layui.layer
+            ,property_fee;
 
         $.ajax({
             type: 'get',
             async: false,
-            url: '/smart_community/user/getHouseByHouseId.do',
+            url: '/smart_community/user/getData.do',
             xhrFields: {
                 withCredentials: true
             },
             crossDomain: true,
             data: {
-                "house_id": user.house
+                "key": 'property_fee'
             },
             dataType:'JSON',
             success: function (res) {
-                if (res == null){
-                    layer.alert("加载失败...")
-                    return;
-                }
-                form.val('houseForm', {
-                    'house_id': res.house_id
-                    ,'building_id': res.building_id
-                    ,'floor': res.floor
-                    ,'area': res.area
-                    ,'remark': res.remark
-                });
-                if (res.blueprint != null && res.blueprint != undefined && res.blueprint != "" ) {
-                    $("#blueprint").html(res.house_id+"室的设计图");
-                    $("#blueprint").attr('href', '../' + res.blueprint);
-                }
+                property_fee = res.value;
+                $.ajax({
+                    type: 'get',
+                    async: false,
+                    url: '/smart_community/user/getHouseByHouseId.do',
+                    xhrFields: {
+                        withCredentials: true
+                    },
+                    crossDomain: true,
+                    data: {
+                        "house_id": user.house
+                    },
+                    dataType:'JSON',
+                    success: function (res) {
+                        if (res == null){
+                            layer.alert("加载失败...")
+                            return;
+                        }
+                        form.val('houseForm', {
+                            'house_id': res.house_id
+                            ,'building_id': res.building_id
+                            ,'floor': res.floor
+                            ,'area': res.area
+                            ,'remark': res.remark
+                            ,'property_fee': property_fee * res.area
+                        });
+                        if (res.blueprint != null && res.blueprint != undefined && res.blueprint != "" ) {
+                            $("#blueprint").html(res.house_id+"室的设计图");
+                            $("#blueprint").attr('href', '../' + res.blueprint);
+                        }
+
+                        $.ajax({
+                            type: 'get',
+                            async: false,
+                            url: '/smart_community/user/checkUnPaid.do',
+                            xhrFields: {
+                                withCredentials: true
+                            },
+                            crossDomain: true,
+                            data: {
+                                "user": user.user_name,
+                                "item": '物业费'
+                            },
+                            dataType: 'JSON',
+                            success:function (res) {
+                                if (res.length > 0)
+                                    $("#isPaid").html('<a href="payment.html">去缴费</a>');
+                                else
+                                    $("#isPaid").html('本月已缴费');
+                            },
+                            error:function () {
+                                $("#isPaid").html('本月已缴费');
+                            }
+                        })
+                    },
+                    error: function () {
+                        layer.alert("加载失败...")
+                        return;
+                    }
+                })
             },
             error: function () {
                 layer.alert("加载失败...")

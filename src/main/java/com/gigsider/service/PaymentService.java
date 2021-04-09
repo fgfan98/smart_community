@@ -37,4 +37,10 @@ public interface PaymentService {
     // user 分页查询
     public List<Payment> paymentUserPage(String user, int page, int limit);
 
+    // 设置支付情况
+    public boolean setPaid(int id, int paid);
+
+    // 查找未支付
+    public List<Payment> getUnPaid(String user, String item);
+
 }

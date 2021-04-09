@@ -36,6 +36,10 @@ public class UserController {
     private FeedbackService feedbackService;
     @Autowired
     private PaymentService paymentService;
+    @Autowired
+    private FixService fixService;
+    @Autowired
+    private DataService dataService;
 
     @RequestMapping("/login.do")
     @ResponseBody
@@ -320,6 +324,56 @@ public class UserController {
     @ResponseBody
     public boolean completePay(int id, HttpSession session) {
         session.removeAttribute("pay_status");
-        return paymentService.delPayment(id);
+        return paymentService.setPaid(id,1);
+    }
+
+    @RequestMapping("/completeFixPay.do")
+    @ResponseBody
+    public boolean completePay(int id, int fix_id, HttpSession session) {
+        session.removeAttribute("pay_status");
+        Fix fix = fixService.getFixById(fix_id).get(0);
+        fix.setStatus(4);
+        fixService.upFix(fix);
+        return paymentService.setPaid(id,1);
+    }
+
+    @RequestMapping("/getMyFixPage.do")
+    @ResponseBody
+    public Map<String,Object> getMyFixPage(int page, int limit, String user_name){
+        List<Fix> fixes = fixService.getFixByUserName(user_name);
+        List<Fix> fix = fixService.userNameFixPage(user_name, page, limit);
+
+        Map<String,Object> tableData = new HashMap<>();
+
+        tableData.put("code", 0);
+        tableData.put("msg", "");
+        tableData.put("count", fixes.size());
+        tableData.put("data", fix);
+        //返回给前端
+        return tableData;
+    }
+
+    @RequestMapping("/checkUnPaid.do")
+    @ResponseBody
+    public List<Payment> checkUnPaid(String user, String item) {
+        return paymentService.getUnPaid(user, item);
+    }
+
+    @RequestMapping("/addFix.do")
+    @ResponseBody
+    public boolean addFix(Fix fix) {
+        return fixService.addFix(fix);
+    }
+
+    @RequestMapping("getData.do")
+    @ResponseBody
+    public Data getData(String key) {
+        return dataService.getData(key);
+    }
+
+    @RequestMapping("upData.do")
+    @ResponseBody
+    public boolean upData(Data data) {
+        return dataService.upData(data);
     }
 }

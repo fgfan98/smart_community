@@ -36,4 +36,7 @@ public interface ParkingService {
     // status 查找分页
     public List<Parking> statusParkingPage(int status, int page, int limit);
 
+    //获取已租赁车位
+    public List<Parking> getRentParking();
+
 }

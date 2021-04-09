@@ -375,7 +375,29 @@
                             , 'price': res.price
                         });
                         if (res.status == 2) {
-
+                            $.ajax({
+                                type: 'get',
+                                async: false,
+                                url: '/smart_community/user/checkUnPaid.do',
+                                xhrFields: {
+                                    withCredentials: true
+                                },
+                                crossDomain: true,
+                                data: {
+                                    "user": user.user_name,
+                                    "item": '车位租金'
+                                },
+                                dataType: 'JSON',
+                                success:function (res) {
+                                    if (res.length > 0)
+                                        $("#payRent").html('<a href="payment.html">去缴费</a>');
+                                    else
+                                        $("#payRent").html('本月已缴费');
+                                },
+                                error:function () {
+                                    $("#payRent").html('本月已缴费');
+                                }
+                            })
                         }
                         else if (res.status == 3) {
                             $("#payRent").html("已购买");

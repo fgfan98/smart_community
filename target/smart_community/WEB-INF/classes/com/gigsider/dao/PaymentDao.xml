@@ -74,9 +74,25 @@
         select * from
         payment
         where
-        user = #{user}
+        `user` = #{user}
         order by id desc
         limit #{page}, #{limit};
+    </select>
+
+    <update id="setPaid" parameterType="Map">
+        update
+        payment
+        set
+        paid = #{paid}
+        where
+        id = #{id};
+    </update>
+
+    <select id="queryUnPaid" parameterType="Map" resultType="Payment">
+        select * from
+        payment
+        where
+        `user` = #{user} and item = #{item} and paid = 0;
     </select>
 
 </mapper>

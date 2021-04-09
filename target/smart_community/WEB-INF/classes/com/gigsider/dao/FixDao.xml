@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gigsider.dao.FixDao">
+    <insert id="insertFix" parameterType="Fix">
+        insert into
+        fix (category,description,user_name,house_id, time)
+        values (#{category},#{description},#{user_name},#{house_id},#{time});
+    </insert>
+
+    <delete id="deleteFix" parameterType="Integer">
+        delete from
+        fix
+        where
+        id = #{id};
+    </delete>
+
+    <update id="updateFix" parameterType="Fix">
+        update
+        fix
+        set
+        category = #{category}, description = #{description}, user_name = #{user_name}, house_id = #{house_id}, status = #{status}, cost = #{cost}
+        where
+        id = #{id};
+    </update>
+
+    <select id="queryAllFix" resultType="Fix">
+        select * from
+        fix;
+    </select>
+
+    <select id="allFixPage" parameterType="Map" resultType="Fix">
+        select * from
+        fix
+        order by id desc;
+    </select>
+
+    <select id="queryFixByUserName" parameterType="String" resultType="Fix">
+        select * from
+        fix
+        where
+        user_name = #{user_name};
+    </select>
+
+    <select id="userNameFixPage" parameterType="Map" resultType="Fix">
+        select * from
+        fix
+        where
+        user_name = #{user_name}
+        order by id desc
+        limit #{page}, #{limit};
+    </select>
+
+    <select id="queryFixLike" parameterType="String" resultType="Fix">
+        select * from
+        fix
+        where
+        description like concat('%',#{like},'%') or user_name like concat('%',#{like},'%');
+    </select>
+
+    <select id="likeFixPage" parameterType="Map" resultType="Fix">
+        select * from
+        fix
+        where
+        description like concat('%',#{like},'%') or user_name like concat('%',#{like},'%')
+        order by id desc
+        limit #{page}, #{limit};
+    </select>
+
+    <select id="queryFixById" parameterType="Integer" resultType="Fix">
+        select * from
+        fix
+        where
+        id = #{id};
+    </select>
+</mapper>

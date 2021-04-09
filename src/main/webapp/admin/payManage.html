@@ -65,7 +65,46 @@
 
     <div class="layui-body">
         <!-- 内容主体区域 -->
-        <div style="padding: 15px;">内容主体区域</div>
+        <div style="padding: 30px;" class="layui-fluid">
+            <div class="layui-row">
+                <div class="layui-col-md12">
+                    <fieldset class="layui-elem-field layui-field-title"
+                              style="margin-top: 30px;">
+                        <legend>缴费管理</legend>
+                    </fieldset>
+                </div>
+            </div>
+
+            <div class="layui-row">
+                <div class="layui-col-md1">&nbsp;</div>
+                <div class="layui-col-md4">
+                    <div class="tableReload">
+                        搜索住宅：
+                        <div class="layui-inline">
+                            <input class="layui-input" name="id" id="payReload" autocomplete="off">
+                        </div>
+                        <div class="layui-btn-group">
+                            <button class="layui-btn" data-type="reload">搜索</button>
+                            <button class="layui-btn" data-type="goBack">返回</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-col-md3 layui-col-md-offset4">
+                    <div id="propertyFee">物业费：</div>
+                    <div class="layui-btn-group tableEdit">
+                        <button class="layui-btn" data-type="setPropertyFee">设置物业费</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="layui-row">
+                <div class="layui-col-md1">&nbsp;</div>
+                <div class="layui-col-md10">
+                    <table id="payment" lay-filter="payment" class="layui-table">
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="layui-footer">
@@ -75,23 +114,156 @@
 </div>
 <script src="../layui/layui.js"></script>
 <script src="../layui/jquery.min.js"></script>
+<script type="text/html" id="barDemo">
+    <a class="layui-btn layui-btn-xs layui-btn-danger" lay-event="delete">删除</a>
+</script>
+<script type="text/html" id="paidTpl">
+    {{#  if(d.paid == 0){ }}
+    <span class="layui-badge layui-bg-cyan">未支付</span>
+    {{#  } else if(d.paid == 1) { }}
+    <span class="layui-badge layui-bg-green">已支付</span>
+    {{#  } }}
+</script>
 <script>
     //JavaScript代码区域
     var admin = JSON.parse(sessionStorage.getItem("vo"));
 
-    layui.use('element', function(){
-        var element = layui.element;
+    layui.use(['element','table','layer'], function(){
+        var element = layui.element,
+            table = layui.table,
+            layer = layui.layer;
+
+        table.render({
+            elem: '#payment'
+            ,url: '/smart_community/admin/getPaymentPage.do'
+            ,limit: 10
+            ,limits: [10,15,30]
+            ,cols: [[
+                {field: 'id', width: '5%', title: 'ID'}
+                ,{field: 'user', width: '7.5%', title: '用户'}
+                ,{field:'item',width:'20%', title: '项目'}
+                ,{field:'item_id',width:'15%', title: '详情'}
+                ,{field:'cost', width:'15%', title: '花费/元'}
+                ,{field:'time', width:'20%', title: '账单时间'}
+                ,{field:'paid', width:'10%', templet:'#paidTpl', title: '状态'}
+                ,{fixed: 'right', minWidth:'100', align:'center', toolbar: '#barDemo'}
+            ]]
+            ,page: true
+        });
+
+        //监听工具条
+        table.on('tool(payment)', function(obj){
+            var data = obj.data;
+            if(obj.event === 'delete'){
+                layer.confirm('是否删除该行？',function () {
+                    $.ajax({
+                        type: 'post',
+                        async: false,
+                        url: '/smart_community/admin/delPayment.do',
+                        xhrFields: {
+                            withCredentials: true
+                        },
+                        crossDomain: true,
+                        data:{
+                            "id": data.id
+                        },
+                        success: function (res) {
+                            if (res) {
+                                layer.msg("已删除该行目标！");
+                                setTimeout(function () {
+                                    window.location.reload();
+                                }, 2*1000);
+                            } else {
+                                layer.msg("删除失败...");
+                                setTimeout(function () {
+                                    window.location.reload();
+                                }, 2*1000);
+                            }
+                        }
+                    });
+                })
+            }
+        });
+
+        var $ = layui.$, active = {
+            reload: function(){
+                var payReload = $('#payReload');
+                //执行重载
+                table.reload('payment', {
+                    url: '/smart_community/admin/getPaymentLikePage.do',
+                    page: {
+                        curr: 1 //重新从第 1 页开始
+                    }
+                    ,where: {
+                        data: payReload.val()
+                    }
+                }, 'data');
+            }
+            ,goBack: function(){
+                var payReload = $('#payReload');
+                //执行重载
+                table.reload('payment', {
+                    url: '/smart_community/admin/getPaymentPage.do',
+                    page: {
+                        curr: 1 //重新从第 1 页开始
+                    }
+                    ,where: {
+                        house_id: payReload.val()
+                    }
+                }, 'data');
+            }
+            ,setPropertyFee: function () {
+                layer.open({
+                    type: 2,
+                    title: '物业费',
+                    shadeClose: true,           //弹出框之外的地方是否可以点击
+                    offset: '10%',
+                    area: ['25%', '30%'],
+                    content: 'popup/setPropertyFee.html',
+                    end:function () {
+                        window.location.reload();
+                    }
+                });
+            }
+        };
+
+        $('.tableEdit .layui-btn').on('click', function(){
+            var type = $(this).data('type');
+            active[type] ? active[type].call(this) : '';
+        });
+        $('.tableReload .layui-btn').on('click', function(){
+            var type = $(this).data('type');
+            active[type] ? active[type].call(this) : '';
+        });
     });
 
     function pageInit() {
         $("#user_name").html(admin.real_name);
+        $.ajax({
+            type: 'post',
+            async: false,
+            url: '/smart_community/admin/getData.do',
+            xhrFields: {
+                withCredentials: true
+            },
+            crossDomain: true,
+            data:{
+                "key": 'property_fee'
+            },
+            success: function (res) {
+                $("#propertyFee").html("物业费：" + res.value + "元/平方米");
+            },
+            error: function () {
+                $("#propertyFee").html("物业费加载失败");
+            }
+        });
     }
 
     function exit() {
         $.ajax({
             type: 'post',
             async: false,
-            url: 'http://127.0.0.1:8080/smart_community/admin/exit.do',
+            url: '/smart_community/admin/exit.do',
             xhrFields: {
                 withCredentials: true
             },

@@ -65,7 +65,24 @@
 
     <div class="layui-body">
         <!-- 内容主体区域 -->
-        <div style="padding: 15px;">内容主体区域</div>
+        <div style="padding: 30px;" class="layui-fluid">
+            <div class="layui-row">
+                <div class="layui-col-md12">
+                    <fieldset class="layui-elem-field layui-field-title"
+                              style="margin-top: 30px;">
+                        <legend>报修&安装</legend>
+                    </fieldset>
+                </div>
+            </div>
+
+            <div class="layui-row">
+                <div class="layui-col-md1">&nbsp;</div>
+                <div class="layui-col-md10">
+                    <table id="fixTable" lay-filter="fixTable" class="layui-table">
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="layui-footer">
@@ -75,12 +92,151 @@
 </div>
 <script src="../layui/layui.js"></script>
 <script src="../layui/jquery.min.js"></script>
+<script type="text/html" id="barDemo">
+    <a class="layui-btn layui-btn-xs" lay-event="handle">处理</a>
+    <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="complete">完成</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
+<script type="text/html" id="statusTpl">
+    {{#  if(d.status == 1){ }}
+    <span class="layui-badge layui-bg-gray">待处理</span>
+    {{#  } else if(d.status == 2) { }}
+    <span class="layui-badge layui-bg-orange">处理中</span>
+    {{#  } else if(d.status == 3) { }}
+    <span class="layui-badge layui-bg-blue">待结账</span>
+    {{#  } else if(d.status == 4) { }}
+    <span class="layui-badge layui-bg-green">已结束</span>
+    {{#  } }}
+</script>
 <script>
     //JavaScript代码区域
     var admin = JSON.parse(sessionStorage.getItem("vo"));
 
-    layui.use('element', function(){
-        var element = layui.element;
+    layui.use(['table','layer'], function(){
+        var table = layui.table,
+            layer = layui.layer;
+
+        table.render({
+            elem: '#fixTable'
+            ,url: '/smart_community/admin/getFixPage.do'
+            ,limit: 10
+            ,limits: [10,15,30]
+            ,cols: [[
+                {field:'category',width:'10%', title: '类别'}
+                ,{field:'description',width:'22.5%', title: '描述'}
+                ,{field:'house_id', width:'10%', title: '住宅编号'}
+                ,{field: 'time', width: '20%',title: '时间'}
+                ,{field: 'cost', width: '10%', edit: 'text', title: '价格/元'}
+                ,{field:'status', width:'10%', templet:'#statusTpl', title: '状态'}
+                ,{fixed: 'right', width:'17.5%', align:'center', toolbar: '#barDemo'}
+            ]]
+            ,page: true
+        });
+
+        //监听工具条
+        table.on('tool(fixTable)', function(obj){
+            var data = obj.data;
+            if(obj.event === 'handle'){
+                layer.confirm('是否进行处理？', function(index) {
+                    $.ajax({
+                        type: 'post',
+                        async: true,
+                        url: '/smart_community/admin/upFix.do',
+                        xhrFields: {
+                            withCredentials: true
+                        },
+                        crossDomain: true,
+                        dataType: 'JSON',
+                        data: {
+                            'category': data.category
+                            , 'description': data.description
+                            , 'user_name': data.user_name
+                            , 'house_id': data.house_id
+                            , 'status': 2
+                            , 'cost': data.cost
+                            , 'id': data.id
+                        },
+                        success: function (res) {
+                            if (res) {
+                                layer.msg("成功！");
+                                setTimeout(function () {
+                                    window.location.reload();
+                                }, 2 * 1000);
+                            } else {
+                                layer.msg("失败...");
+                                setTimeout(function () {
+                                    window.location.reload();
+                                }, 2 * 1000);
+                            }
+                        }
+                    })
+                })
+            } else if(obj.event === 'del'){
+                layer.confirm('是否删除该行目标？', function(index){
+                    $.ajax({
+                        type: 'post',
+                        async: true,
+                        url: '/smart_community/admin/delFix.do',
+                        xhrFields: {
+                            withCredentials: true
+                        },
+                        crossDomain: true,
+                        dataType: 'JSON',
+                        data: {
+                            'id': data.id
+                        },
+                        success: function (res) {
+                            if (res) {
+                                layer.msg("已删除该行目标！");
+                                setTimeout(function () {
+                                    window.location.reload();
+                                }, 2*1000);
+                            } else {
+                                layer.msg("删除失败...");
+                                setTimeout(function () {
+                                    window.location.reload();
+                                }, 2*1000);
+                            }
+                        }
+                    })
+                });
+            } else if(obj.event === 'complete'){
+                layer.confirm('是否已完成？', function(index){
+                    $.ajax({
+                        type: 'post',
+                        async: true,
+                        url: '/smart_community/admin/completeFix.do',
+                        xhrFields: {
+                            withCredentials: true
+                        },
+                        crossDomain: true,
+                        dataType: 'JSON',
+                        data: {
+                            'category': data.category
+                            ,'description': data.description
+                            ,'user_name': data.user_name
+                            ,'house_id': data.house_id
+                            ,'status': 3
+                            ,'cost': data.cost
+                            , 'id': data.id
+                        },
+                        success: function (res) {
+                            if (res) {
+                                layer.msg("成功！");
+                                setTimeout(function () {
+                                    window.location.reload();
+                                }, 2*1000);
+                            } else {
+                                layer.msg("失败...");
+                                setTimeout(function () {
+                                    window.location.reload();
+                                }, 2*1000);
+                            }
+                        }
+                    })
+                });
+            }
+        });
     });
 
     function pageInit() {
