@@ -195,10 +195,10 @@
                             },
                             dataType: 'JSON',
                             success:function (res) {
-                                if (res.length > 0)
+                                //if (res.length > 0)
                                     $("#isPaid").html('<a href="payment.html">去缴费</a>');
-                                else
-                                    $("#isPaid").html('本月已缴费');
+                                // else
+                                //     $("#isPaid").html('本月已缴费');
                             },
                             error:function () {
                                 $("#isPaid").html('本月已缴费');

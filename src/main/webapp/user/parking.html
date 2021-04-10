@@ -389,10 +389,10 @@
                                 },
                                 dataType: 'JSON',
                                 success:function (res) {
-                                    if (res.length > 0)
+                                    //if (res.length > 0)
                                         $("#payRent").html('<a href="payment.html">去缴费</a>');
-                                    else
-                                        $("#payRent").html('本月已缴费');
+                                    // else
+                                    //     $("#payRent").html('本月已缴费');
                                 },
                                 error:function () {
                                     $("#payRent").html('本月已缴费');
