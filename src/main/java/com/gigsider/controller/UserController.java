@@ -54,8 +54,15 @@ public class UserController {
             httpSession.setAttribute("identity","user");
             httpSession.setMaxInactiveInterval(5*60*1000);
         }else if (userVO.getUser() != null){
-            System.out.println("账号已登录");
-            userVO.setMsg("warning");
+            if (SessionPool.getExistSession(userVO.getUser().getId_num()).getId() != httpSession.getId()) {
+                SessionPool.destroyExistSession(userVO.getUser().getId_num());
+
+                SessionPool.sessions.put(userVO.getUser().getId_num(),httpSession);
+                httpSession.setAttribute("id",userVO.getUser().getId_num());
+                httpSession.setAttribute("login_status","success");
+                httpSession.setAttribute("identity","user");
+                httpSession.setMaxInactiveInterval(5*60*1000);
+            }
         }else
             httpSession.invalidate();
 

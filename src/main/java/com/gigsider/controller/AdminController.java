@@ -54,8 +54,15 @@ public class AdminController {
             httpSession.setMaxInactiveInterval(5*60*1000);
             SessionPool.addToSessionPool(adminVO.getAdmin().getJob_num(), httpSession);
         }else if (adminVO.getAdmin() != null){
-            System.out.println("管理员账号已被登录");
-            adminVO.setMsg("warning");
+            if (SessionPool.getExistSession(adminVO.getAdmin().getJob_num()).getId() != httpSession.getId()) {
+                SessionPool.destroyExistSession(adminVO.getAdmin().getJob_num());
+
+                httpSession.setAttribute("id", adminVO.getAdmin().getJob_num());
+                httpSession.setAttribute("login_status", "success");
+                httpSession.setAttribute("identity", "admin");
+                httpSession.setMaxInactiveInterval(5*60*1000);
+                SessionPool.addToSessionPool(adminVO.getAdmin().getJob_num(), httpSession);
+            }
         }else
             httpSession.invalidate();
 
