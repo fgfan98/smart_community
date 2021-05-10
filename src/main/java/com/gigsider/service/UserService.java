@@ -4,6 +4,7 @@ import com.gigsider.po.User;
 import com.gigsider.vo.UserVO;
 
 import java.util.List;
+import java.util.Map;
 
 public interface UserService {
 
@@ -45,5 +46,20 @@ public interface UserService {
 
     //通过 license_num 查找用户
     public List<User> getUserByLicenseNum(String license_num);
+
+    //更新权限
+    public boolean upUserAuthority(int authority, int id);
+
+    //获取所有已激活的用户
+    public List<User> getActivatedUser();
+
+    //已激活的用户分页
+    public List<User> getActivatedUserPage(int page, int limit);
+
+    //在已激活的用户中通过姓名查找
+    public List<User> getActivatedUserByName(String real_name);
+
+    //已激活用户姓名查找分页
+    public List<User> getActivatedUserNamePage(int page, int limit, String real_name);
 
 }

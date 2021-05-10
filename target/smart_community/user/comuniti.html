@@ -124,6 +124,8 @@
 <script>
     //JavaScript代码区域
     var user = JSON.parse(sessionStorage.getItem("vo"));
+    var feedback_auth = parseInt(user.authority / 10);
+    var comuniti_auth = parseInt(user.authority % 10);
 
     layui.use(['element','table','layer'], function(){
         var element = layui.element,
@@ -183,6 +185,10 @@
                 }, 'data');
             }
             ,post: function () {
+                if (comuniti_auth == 0) {
+                    alert("暂无权限！");
+                    return;
+                }
                 layer.open({
                     type: 2,
                     title: '发布帖子',
@@ -245,6 +251,10 @@
 
     function delComuniti(id) {
         if (confirm("是否删除本帖？"))
+            if (comuniti_auth == 0) {
+                alert("暂无权限！");
+                return;
+            }
             $.ajax({
                 type: 'post',
                 async: false,

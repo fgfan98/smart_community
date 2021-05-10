@@ -44,4 +44,19 @@ public interface UserDao {
     //更新用户住宅编号信息
     public boolean updateUserHouse(Map<String, Object> data);
 
+    //更新用户权限
+    public boolean updateAuthority(Map<String, Object> data);
+
+    //获取所有已激活的用户
+    public List<User> queryActivatedUser();
+
+    //已激活的用户分页
+    public List<User> activatedUserPage(Map<String, Object> data);
+
+    //在已激活的用户中通过姓名查找
+    public List<User> queryActivatedUserByName(String real_name);
+
+    //已激活用户姓名查找分页
+    public List<User> activatedUserNamePage(Map<String, Object> data);
+
 }

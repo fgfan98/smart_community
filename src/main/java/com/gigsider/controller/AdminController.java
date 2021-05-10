@@ -784,4 +784,54 @@ public class AdminController {
         return dataService.upData(data);
     }
 
+    @RequestMapping("upUserAuthority.do")
+    @ResponseBody
+    public boolean upUserAuthority(int authority, int id) {
+        return userService.upUserAuthority(authority, id);
+    }
+
+    @RequestMapping("getActivatedUser.do")
+    @ResponseBody
+    public List<User> getActivatedUser() {
+        return userService.getActivatedUser();
+    }
+
+    @RequestMapping("getActivatedUserPage.do")
+    @ResponseBody
+    public Map<String,Object> getActivatedUserPage(int page, int limit) {
+        List<User> users = userService.getActivatedUser();
+        List<User> user = userService.getActivatedUserPage(page, limit);
+
+        Map<String,Object> tableData =new HashMap<String,Object>();
+
+        tableData.put("code", 0);
+        tableData.put("msg", "");
+        tableData.put("count", users.size());
+        tableData.put("data", user);
+        //返回给前端
+        return tableData;
+    }
+
+    @RequestMapping("getActivatedUserByName.do")
+    @ResponseBody
+    public List<User> getActivatedUserByName(String real_name) {
+        return userService.getActivatedUserByName(real_name);
+    }
+
+    @RequestMapping("getActivatedUserNamePage.do")
+    @ResponseBody
+    public Map<String,Object> getActivatedUserNamePage(int page, int limit, String real_name) {
+        List<User> users = userService.getActivatedUserByName(real_name);
+        List<User> user = userService.getActivatedUserNamePage(page, limit, real_name);
+
+        Map<String,Object> tableData =new HashMap<String,Object>();
+
+        tableData.put("code", 0);
+        tableData.put("msg", "");
+        tableData.put("count", users.size());
+        tableData.put("data", user);
+        //返回给前端
+        return tableData;
+    }
+
 }

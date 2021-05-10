@@ -107,6 +107,9 @@
     var user = JSON.parse(sessionStorage.getItem("vo"));
     var comuniti_id = sessionStorage.getItem("comuniti_id");
 
+    var feedback_auth = parseInt(user.authority / 10);
+    var comuniti_auth = parseInt(user.authority % 10);
+
     layui.use(['element','layer','layedit'], function(){
         var element = layui.element,
             layer = layui.layer,
@@ -153,6 +156,10 @@
         }); //建立编辑器
 
         $("#submit_reply").click(function () {
+            if (comuniti_auth == 0) {
+                alert("暂无权限！");
+                return;
+            }
             var d = new Date();
             var time = d.getFullYear()+'年'+ (Number(d.getMonth())+1)+'月'+d.getDate()+'日'+d.getHours()+':'+d.getMinutes();
             var content = layedit.getContent(index);
@@ -212,6 +219,10 @@
     }
 
     function delReply(id) {
+        if (comuniti_auth == 0) {
+            alert("暂无权限！");
+            return;
+        }
         if (confirm("是否删除该评论？"))
             $.ajax({
                 type: 'post',
@@ -238,6 +249,10 @@
     }
 
     function delComuniti(id) {
+        if (comuniti_auth == 0) {
+            alert("暂无权限！");
+            return;
+        }
         if (confirm("是否删除本帖？"))
             $.ajax({
                 type: 'post',

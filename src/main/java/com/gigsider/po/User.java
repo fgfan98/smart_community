@@ -12,9 +12,18 @@ public class User {
     private String house;
     private String license_num;
     private int activated;
+    private int authority;
 
     //更新用户信息用的属性
     private String house_id;    //改变前的 house
+
+    public int getAuthority() {
+        return authority;
+    }
+
+    public void setAuthority(int authority) {
+        this.authority = authority;
+    }
 
     public String getHouse_id() {
         return house_id;

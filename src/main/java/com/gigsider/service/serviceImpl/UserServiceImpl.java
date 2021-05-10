@@ -109,4 +109,39 @@ public class UserServiceImpl implements UserService {
     public List<User> getUserByLicenseNum(String license_num) {
         return userDao.queryUserByLicenseNum(license_num);
     }
+
+    @Override
+    public boolean upUserAuthority(int authority, int id) {
+        Map<String, Object> data = new HashMap<>();
+        data.put("authority", authority);
+        data.put("id", id);
+        return userDao.updateAuthority(data);
+    }
+
+    @Override
+    public List<User> getActivatedUser() {
+        return userDao.queryActivatedUser();
+    }
+
+    @Override
+    public List<User> getActivatedUserPage(int page, int limit) {
+        Map<String, Object> data = new HashMap<>();
+        data.put("page", (page-1)*limit);
+        data.put("limit", limit);
+        return userDao.activatedUserPage(data);
+    }
+
+    @Override
+    public List<User> getActivatedUserByName(String real_name) {
+        return userDao.queryActivatedUserByName(real_name);
+    }
+
+    @Override
+    public List<User> getActivatedUserNamePage(int page, int limit, String real_name) {
+        Map<String, Object> data = new HashMap<>();
+        data.put("page", (page-1)*limit);
+        data.put("limit", limit);
+        data.put("real_name",real_name);
+        return userDao.activatedUserNamePage(data);
+    }
 }

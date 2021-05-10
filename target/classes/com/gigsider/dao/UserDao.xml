@@ -79,11 +79,52 @@
         limit #{page}, #{limit};
     </select>
 
-    <update id="updateUserHouse" parameterType="String">
+    <update id="updateUserHouse" parameterType="Map">
         update
         user
         set house = #{new_house}
         where house = #{old_house};
     </update>
+
+    <update id="updateAuthority" parameterType="Map">
+        update
+        user
+        set authority = #{authority}
+        where id = #{id};
+    </update>
+
+    <select id="queryActivatedUser" resultType="User">
+        select * from
+        user
+        where
+        activated = 1;
+    </select>
+    
+    <select id="activatedUserPage" parameterType="Map" resultType="User">
+        select * from
+        user
+        where
+        activated = 1
+        limit #{page}, #{limit};
+    </select>
+
+    <select id="queryActivatedUserByName" parameterType="String" resultType="User">
+        select * from
+        user
+        where
+        activated = 1
+        and
+        real_name like concat('%',#{real_name},'%');
+    </select>
+
+    <select id="activatedUserNamePage" parameterType="Map" resultType="User">
+        select * from
+        user
+        where
+        activated = 1
+        and
+        real_name like concat('%',#{real_name},'%')
+        limit #{page}, #{limit};
+    </select>
 
 </mapper>

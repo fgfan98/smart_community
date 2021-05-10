@@ -31,6 +31,8 @@ public class LoginFilter implements Filter {
                 || path.indexOf(".jpg") > -1
                 || path.indexOf("/pay.html") > -1
                 || path.indexOf("/pay.do") > -1
+                || path.indexOf("/isUserExistByIdNum.do") > -1
+                || path.indexOf("/upUser.do") > -1
         ) {
             filterChain.doFilter(servletRequest,servletResponse);
             return;

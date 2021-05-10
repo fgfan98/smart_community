@@ -46,7 +46,7 @@
                 <li class="layui-nav-item layui-nav-itemed">
                     <a href="javascript:;">社区管理</a>
                     <dl class="layui-nav-child">
-                        <dd class="layui-this"><a href="userManage.html">业主管理</a></dd>
+                        <dd><a href="userManage.html">业主管理</a></dd>
                         <dd><a href="houseManage.html">住宅管理</a></dd>
                         <dd><a href="parkingManage.html">车位管理</a></dd>
                         <dd><a href="payManage.html">缴费管理</a></dd>
@@ -57,7 +57,7 @@
                     <dl class="layui-nav-child">
                         <dd><a href="bulletinManage.html">公告栏管理</a></dd>
                         <dd><a href="comunitiManage.html">交流区管理</a></dd>
-                        <dd><a href="authorityManage.html">用户权限管理</a></dd>
+                        <dd class="layui-this"><a href="authorityManage.html">用户权限管理</a></dd>
                     </dl>
                 </li>
             </ul>
@@ -71,7 +71,7 @@
                 <div class="layui-col-md12">
                     <fieldset class="layui-elem-field layui-field-title"
                               style="margin-top: 30px;">
-                        <legend>业主管理</legend>
+                        <legend>业主权限管理</legend>
                     </fieldset>
                 </div>
             </div>
@@ -88,12 +88,6 @@
                             <button class="layui-btn" data-type="reload">搜索</button>
                             <button class="layui-btn" data-type="goBack">返回</button>
                         </div>
-                    </div>
-                </div>
-                <div class="layui-col-md3 layui-col-md-offset4">
-                    <div class="layui-btn-group tableEdit">
-                        <button class="layui-btn" data-type="addUser">添加业主</button>
-                        <button class="layui-btn layui-btn-danger" data-type="delCheck">删除选中</button>
                     </div>
                 </div>
             </div>
@@ -115,156 +109,58 @@
 </div>
 <script src="../layui/layui.js"></script>
 <script src="../layui/jquery.min.js"></script>
+
 <script type="text/html" id="barDemo">
-    <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="detail">查看</a>
-    <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
-    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+    <a class="layui-btn layui-btn-xs" lay-event="edit">编辑权限</a>
 </script>
-<script type="text/html" id="activatedTpl">
-    {{#  if(d.activated == 0){ }}
-    <span class="layui-badge layui-bg-gray">未激活</span>
+
+<script type="text/html" id="auth1">
+    {{#  if(d.authority == 11 || d.authority == 10){ }}
+    <span class="layui-badge layui-bg-blue">启用</span>
     {{#  } else { }}
-    <span class="layui-badge layui-bg-blue">已激活</span>
+    <span class="layui-badge layui-bg-gray">禁用</span>
     {{#  } }}
 </script>
+
+<script type="text/html" id="auth2">
+    {{#  if(d.authority == 1 || d.authority == 11){ }}
+    <span class="layui-badge layui-bg-blue">启用</span>
+    {{#  } else { }}
+    <span class="layui-badge layui-bg-gray">禁用</span>
+    {{#  } }}
+</script>
+
 <script>
     //JavaScript代码区域
     var admin = JSON.parse(sessionStorage.getItem("vo"));
 
-    layui.use('element', function(){
-        var element = layui.element;
-    });
-
-    layui.use('table', function(){
-        var table = layui.table;
+    layui.use(['table','form'], function(){
+        var table = layui.table,
+            form = layui.form;
 
         table.render({
             elem: '#userTable'
-            ,url: '/smart_community/admin/getUserPage.do'
+            ,url: '/smart_community/admin/getActivatedUserPage.do'
             ,limit: 10
             ,limits: [10,30,50]
             ,cols: [[
-                {type:'checkbox', width:'5%', fixed: 'left'}
-                ,{field:'id',width:'5%', title: 'ID', sort: true}
-                ,{field:'id_num',width:'22.5%', title: '身份证号'}
-                ,{field:'real_name', width:'15%', title: '姓名'}
+                {field:'id',width:'5%', title: 'ID', sort: true}
+                ,{field:'user_name',width:'20%', title: '用户名'}
+                ,{field:'real_name', width:'20%', title: '姓名'}
                 ,{field:'sex', width:'15%', title: '性别'}
-                ,{field:'mobile', width:'15%', title: '手机号'}
-                ,{field:'activated', width:'10%', templet:'#activatedTpl', title: '账户状态'}
-                ,{fixed: 'right', minWidth:'178', align:'center', toolbar: '#barDemo'}
+                ,{field:'authority', width:'15%', templet:'#auth1', title:'意见反馈'}
+                ,{field:'authority', width:'15%', templet:'#auth2', title:'交流区'}
+                ,{width:'10%', align:'center', toolbar: '#barDemo', title:' '}
             ]]
             ,page: true
         });
 
-        //监听表格复选框选择
-        table.on('checkbox(demo)', function(obj){
-            console.log(obj)
-        });
-        //监听工具条
-        table.on('tool(demo)', function(obj){
-            var data = obj.data;
-            if(obj.event === 'detail'){
-                sessionStorage.setItem('id', data.id);
-                layer.open({
-                    type: 2,
-                    title: '业主信息',
-                    shadeClose: true,           //弹出框之外的地方是否可以点击
-                    offset: '10%',
-                    area: ['30%', '70%'],
-                    content: 'popup/checkUser.html',
-                    end:function () {
-                        sessionStorage.removeItem('id');
-                    }
-                });
-            } else if(obj.event === 'del'){
-                layer.confirm('是否删除该行目标？', function(index){
-                    console.log(obj);
-                    $.ajax({
-                        type: 'post',
-                        async: true,
-                        url: '/smart_community/admin/delUser.do',
-                        xhrFields: {
-                            withCredentials: true
-                        },
-                        crossDomain: true,
-                        dataType: 'JSON',
-                        data: {
-                            'id': obj.data.id
-                        },
-                        success: function (res) {
-                            if (res) {
-                                layer.msg("已删除该行目标！");
-                                setTimeout(function () {
-                                    window.location.reload();
-                                }, 2*1000);
-                            } else {
-                                layer.msg("删除失败...");
-                                setTimeout(function () {
-                                    window.location.reload();
-                                }, 2*1000);
-                            }
-                        }
-                    })
-                });
-            } else if(obj.event === 'edit'){
-                sessionStorage.setItem('id', data.id);
-                layer.open({
-                    type: 2,
-                    title: '业主信息编辑',
-                    shadeClose: true,           //弹出框之外的地方是否可以点击
-                    offset: '10%',
-                    area: ['30%', '70%'],
-                    content: 'popup/editUser.html',
-                    end:function () {
-                        sessionStorage.removeItem('id');
-                        window.location.reload();
-                    }
-                });
-            }
-        });
-
         var $ = layui.$, active = {
-            delCheck: function(){ //获取选中数据
-                var checkStatus = table.checkStatus('userTable')
-                    ,data = checkStatus.data;
-                if (data.length == 0){
-                    layer.msg("未选中目标..");
-                    return;
-                } else
-                    layer.confirm("是否删除选中目标？",function () {
-                        $.ajax({
-                            type: 'post',
-                            async: true,
-                            url: '/smart_community/admin/delUsers.do',
-                            xhrFields: {
-                                withCredentials: true
-                            },
-                            crossDomain: true,
-                            dataType: 'JSON',
-                            data: {
-                                'users': JSON.stringify(data)
-                            },
-                            success: function (res) {
-                                if (res) {
-                                    layer.msg("删除成功！");
-                                    setTimeout(function () {
-                                        window.location.reload();
-                                    }, 2*1000);
-                                } else {
-                                    layer.msg("部分删除失败...");
-                                    setTimeout(function () {
-                                        window.location.reload();
-                                    }, 2*1000);
-                                }
-                            }
-                        })
-                    })
-            }
-            ,reload: function(){
+            reload: function(){
                 var nameReload = $('#nameReload');
                 //执行重载
                 table.reload('userTable', {
-                    url: '/smart_community/admin/getUserNamePage.do',
+                    url: '/smart_community/admin/getActivatedUserNamePage.do',
                     page: {
                         curr: 1 //重新从第 1 页开始
                     }
@@ -277,7 +173,7 @@
                 var nameReload = $('#nameReload');
                 //执行重载
                 table.reload('userTable', {
-                    url: '/smart_community/admin/getUserPage.do',
+                    url: '/smart_community/admin/getActivatedUserPage.do',
                     page: {
                         curr: 1 //重新从第 1 页开始
                     }
@@ -285,19 +181,6 @@
                         real_name: nameReload.val()
                     }
                 }, 'data');
-            }
-            ,addUser: function () {
-                layer.open({
-                    type: 2,
-                    title: '添加业主',
-                    shadeClose: true,           //弹出框之外的地方是否可以点击
-                    offset: '10%',
-                    area: ['25%', '40%'],
-                    content: 'popup/addUser.html',
-                    end:function () {
-                        window.location.reload();
-                    }
-                });
             }
         };
 
@@ -308,6 +191,26 @@
         $('.tableReload .layui-btn').on('click', function(){
             var type = $(this).data('type');
             active[type] ? active[type].call(this) : '';
+        });
+
+        //监听工具条
+        table.on('tool(demo)', function(obj){
+            var data = obj.data;
+            if(obj.event === 'edit'){
+                sessionStorage.setItem('id', data.id);
+                layer.open({
+                    type: 2,
+                    title: '权限编辑',
+                    shadeClose: true,           //弹出框之外的地方是否可以点击
+                    offset: '10%',
+                    area: ['20%', '30%'],
+                    content: 'popup/editAuthority.html',
+                    end:function () {
+                        sessionStorage.removeItem('id');
+                        window.location.reload();
+                    }
+                });
+            }
         });
     });
 

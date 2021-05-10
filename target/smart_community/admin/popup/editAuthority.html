@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="../../layui/css/layui.css">
+</head>
+<body>
+
+
+<div id="formFilter" class="layui-form layui-form-pane" lay-filter="userForm" style="padding: 30px;">
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">意见反馈权限</label>
+        <div class="layui-input-block">
+            <input type="checkbox" name="feedbackAuth" lay-skin="switch" id="feedbackSwitch" lay-filter="feedbackSwitch" lay-text="启用|禁用">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">交流区权限</label>
+        <div class="layui-input-block">
+            <input type="checkbox" name="communitiAuth" lay-skin="switch" id="comunitiSwitch" lay-filter="comunitiSwitch" lay-text="启用|禁用">
+        </div>
+    </div>
+
+    <div class="layui-form-item" align="center">
+        <button class="layui-btn" lay-submit="saveform" lay-filter="saveform">提交</button>
+    </div>
+
+</div>
+
+<script src="../../layui/layui.js"></script>
+<script src="../../layui/jquery.min.js"></script>
+<script>
+    var feedback_auth;
+    var comuniti_auth;
+    layui.use([ 'form', 'layedit' ], function() {
+        var form = layui.form;
+
+        fillForm(form);
+
+        form.on('switch(feedbackSwitch)', function(data){
+            feedback_auth = this.checked ? 1 : 0;
+        });
+
+        form.on('switch(comunitiSwitch)', function(data){
+            comuniti_auth = this.checked ? 1 : 0;
+        });
+
+        //监听提交
+        form.on('submit(saveform)', function(data) {
+            $.ajax({
+                type: 'post',
+                async: false,
+                url: '/smart_community/admin/upUserAuthority.do',
+                xhrFields: {
+                    withCredentials: true
+                },
+                crossDomain: true,
+                data: {
+                    "id": sessionStorage.getItem('id'),
+                    "authority": feedback_auth*10+comuniti_auth
+                },
+                dataType:'JSON',
+                success: function (res) {
+                    if (res){
+                        alert("更新成功！")
+                        parent.layer.close(parent.layer.index);
+                    }else
+                        alert("更新失败...")
+
+                },
+                error: function () {
+                    alert("更新失败...")
+                    return;
+                }
+            })
+        });
+    });
+
+    function fillForm(form) {
+        $.ajax({
+            type: 'get',
+            async: false,
+            url: '/smart_community/admin/getUserById.do',
+            xhrFields: {
+                withCredentials: true
+            },
+            crossDomain: true,
+            data: {
+                "id": sessionStorage.getItem('id'),
+            },
+            dataType:'JSON',
+            success: function (res) {
+                if (res == null){
+                    layer.alert("数据加载失败...")
+                    return;
+                }
+                feedback_auth = parseInt(res.authority / 10);
+                comuniti_auth = parseInt(res.authority % 10);
+
+                if (feedback_auth == 1)
+                    $('#feedbackSwitch').attr('checked','');
+
+                if (comuniti_auth == 1)
+                    $('#comunitiSwitch').attr('checked','');
+
+                renderForm();
+            },
+            error: function () {
+                layer.alert("数据加载失败...")
+                return;
+            }
+        })
+    }
+
+    //重新渲染表单
+    function renderForm(){
+        layui.use('form', function(){
+            var form = layui.form;
+            form.render();
+        });
+    }
+</script>
+</body>
+</html>

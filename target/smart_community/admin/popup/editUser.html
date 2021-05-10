@@ -87,6 +87,7 @@
 <script>
     var house_id;
     var form;
+    var passwd;
     layui.use([ 'form', 'layedit', 'laydate' ], function() {
         var form = layui.form
             ,layer = layui.layer
@@ -139,6 +140,7 @@
                     'real_name': user.real_name,
                     'id_num': user.id_num,
                     'mobile': user.mobile,
+                    'passwd': passwd,
                     'sex': user.sex,
                     'house': user.house,
                     'license_num': user.license_num,
@@ -150,10 +152,10 @@
                         alert("提交成功！")
                         parent.layer.close(parent.layer.index);
                     }else
-                        layer.alert("提交失败...")
+                        alert("提交失败...")
                 },
                 error: function () {
-                    layer.alert("提交失败...");
+                    alert("提交失败...");
                 }
             })
         });
@@ -194,6 +196,7 @@
                     ,'activated': activated
                 });
                 house_id = res.house;
+                passwd = res.passwd;
             },
             error: function () {
                 layer.alert("数据加载失败...")
